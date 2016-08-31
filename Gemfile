@@ -9,6 +9,8 @@ gem 'pg', '~> 0.18'
 gem 'puma', '~> 3.0'
 # Use 12 factor for easy deploy w/ Heroku
 gem 'rails_12factor', '~> 0.0.3', group: :production
+# Use slim for views
+gem 'slim', '~> 3.0.6'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
