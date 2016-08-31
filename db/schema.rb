@@ -17,6 +17,7 @@ ActiveRecord::Schema.define(version: 20160831214029) do
 
   create_table "articles", force: :cascade do |t|
     t.string   "title"
+    t.string   "group"
     t.string   "tag"
     t.boolean  "published",    default: false
     t.datetime "published_at"

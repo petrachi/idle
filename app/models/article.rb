@@ -8,9 +8,12 @@ class Article < ApplicationRecord
   validates_uniqueness_of :tag
   validates_presence_of :published_at, if: :published
 
-  scope :published, ->{ where(published: true) }
-  scope :publication_asc, ->{ order("published_at ASC") }
-  scope :publication_desc, ->{ order("published_at DESC") }
+  scope :published, ->{ where published: true }
+  scope :publication_asc, ->{ order "published_at ASC" }
+  scope :publication_desc, ->{ order "published_at DESC" }
+
+  scope :lamps, ->{ where group: :lamp }
+  scope :transistors, ->{ where group: :transistor }
 
   class << self
     def tagged tag

@@ -1,6 +1,12 @@
 div id='articles'
-  svg viewBox='0 0 50 100' class='logo lamp'
+  svg viewBox='0 20 50 60' class='logo lamp'
     = render '/shared/lamp'
 
-  svg viewBox='50 0 50 100' class='logo transistor'
+  svg viewBox='50 20 50 60' class='logo transistor'
     = render '/shared/transistor'
+
+  div id='lamps'
+    = render partial: "article", collection: @lamps
+
+  div id='transistors'
+    = render partial: "article", collection: @transistors
