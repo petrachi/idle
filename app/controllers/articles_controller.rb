@@ -1,10 +1,9 @@
 class ArticlesController < ApplicationController
   def index
-    articles = Article.published.publication_desc
+    @articles = Article.published.publication_desc
+  end
 
-    @lamps = articles.lamps
-    @transistors = articles.transistors
-
-    p @lamps, @transistors
+  def show
+    @article = Article.tagged params[:tag]
   end
 end

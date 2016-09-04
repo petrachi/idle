@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
-  resources :articles
-  # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
+  controller :articles do
+    get 'articles' => :index, as: :articles
+    get 'article/:tag' => :show, as: :article
+  end
 end

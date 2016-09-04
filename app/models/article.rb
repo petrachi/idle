@@ -12,8 +12,8 @@ class Article < ApplicationRecord
   scope :publication_asc, ->{ order "published_at ASC" }
   scope :publication_desc, ->{ order "published_at DESC" }
 
-  scope :lamps, ->{ where group: :lamp }
-  scope :transistors, ->{ where group: :transistor }
+  scope :hdli, ->{ where group: :hdli } # histoire de l'informatique
+  scope :bdd, ->{ where group: :bdd } # blog de developpeur
 
   class << self
     def tagged tag

@@ -1,12 +1,21 @@
 div id='articles'
-  svg viewBox='0 20 50 60' class='logo lamp'
-    = render '/shared/lamp'
+  div data-group='hdli'
+    svg viewBox='0 10 50 80' class='logo lamp'
+      = render '/shared/lamp'
 
-  svg viewBox='50 20 50 60' class='logo transistor'
-    = render '/shared/transistor'
 
-  div id='lamps'
-    = render partial: "article", collection: @lamps
+    div class='index'
+      h2 Histoire de L'informatique
+      div class="list"
+        = render partial: "article", collection: @articles.hdli
 
-  div id='transistors'
-    = render partial: "article", collection: @transistors
+  div data-group='bdd'
+    svg viewBox='50 10 50 80' class='logo transistor'
+      = render '/shared/transistor'
+
+    div class='index'
+      h2 Blog de développeur
+      div class="list"
+        = render partial: "article", collection: @articles.bdd
+
+  div id="show"
