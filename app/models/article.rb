@@ -21,7 +21,7 @@ class Article < ApplicationRecord
     end
 
     def decorate **options
-      all.map{ |record| decorator_class.new record, **options }
+      all.map{ |record| ArticleDecorator.new record, **options }
     end
   end
 

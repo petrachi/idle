@@ -4,6 +4,8 @@ class ArticlesController < ApplicationController
   end
 
   def show
-    @article = Article.tagged params[:tag]
+    sleep(0.8)
+    @article = Article.tagged(params[:tag])
+    render layout: false
   end
 end
