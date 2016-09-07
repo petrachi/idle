@@ -1,6 +1,3 @@
 - @article = @article.decorate view_context: self
 
-- if @article.partial_exists?
-  = @article.partial
-- else
-  p Ben t'es fou toi ! Cliquer partout sur mon beau site web alors que je suis encore en train de faire les réglages ! Non mais ça va pas bien, tu aurais pu tout me détraquer ! Heureusement que j'étais là, je vais pouvoir rattraper tes bêtises.
+= @article.partial

@@ -4,8 +4,13 @@ class Article < ApplicationRecord
     self.published_at = Time.now if !published_at && published
   end
 
-  validates_presence_of :tag
+  before_validation do
+    self.tag = self.tag.underscore if tag
+  end
+
+  validates_presence_of :tag, :title, :group
   validates_uniqueness_of :tag
+  validates_inclusion_of :group, in: %i{hdli bdd}
   validates_presence_of :published_at, if: :published
 
   scope :published, ->{ where published: true }

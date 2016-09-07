@@ -4,7 +4,7 @@ body
   overflow: hidden
 
 html
-  font: 16px "Helvetica Neue","Helvetica","Arial", sans-serif
+  font: 2vh "Helvetica Neue","Helvetica","Arial", sans-serif
   font-weight: 100
 
 body
@@ -51,7 +51,6 @@ body
       &:hover,
       &.active
         background-color: yellowgreen
-
 
 svg
   height: 100%
@@ -103,12 +102,13 @@ h2
 
 .article
   font-size: 5vh
-  padding: .5em 0
+  padding: 1px 0 0
 
   span
     cursor: pointer
     position: relative
-    padding: .501em
+    padding: .5em
+    display: inline-block
 
     transition: color ease .4s, background-color ease .4s
 
@@ -142,9 +142,11 @@ h2
 
   opacity: 0
   transition: opacity ease .4s
+  z-index: -1
 
   &.active
     opacity: 1
+    z-index: 0
 
 @keyframes spin
   0%
@@ -156,10 +158,83 @@ h2
   opacity: 0
   transition: opacity ease .4s
   padding: 0 1em 1em
+  letter-spacing: .5px
 
   &.active
     opacity: 1
 
+  .error
+    padding: 1em
+    border: firebrick 1px solid
+    color: firebrick
+    background-color: #fbfbfb
+
+  h3
+    font-weight: 200
+    font-size: 4vh
+    margin-bottom: .25em
+
+  p
+    margin: .5em 0
+    text-align: justify
+
+    &.align-center
+      text-align: center
+
+  hr
+    border: none
+    border-top: 1px solid rgba(#111, .35)
+    margin: 2em 0
+
+  .video
+    position: relative
+    padding-bottom: 53%
+    padding-top: 25px
+    height: 0
+
+    iframe
+      position: absolute
+      top: 0
+      left: 0
+      width: 100%
+      height: 100%
+
+.btn
+  margin: .5em 0
+  padding: .75em
+  font-weight: 200
+  border: 1px solid #111
+  border-radius: 2px
+  cursor: pointer
+  display: inline-block
+  transition: all ease .4s
+  letter-spacing: .25px
+
+  &:hover
+    color: #111
+    background-color: #fbfbfb
+
+[data-rating]
+  @extend .btn
+  border-radius: 0
+  background-color: #fbfbfb
+
+  &:hover
+    background-color: transparent
+
+  &.desactivated
+    cursor: default
+    background-color: #bbb
+
+    &:hover
+      color: inherit
+
+  &.checked
+    background-color: transparent
+    cursor: default
+
+    &:hover
+      color: inherit
 
 [data-active-group]
   #show

@@ -3,4 +3,8 @@ Rails.application.routes.draw do
     get 'articles' => :index, as: :articles
     get 'article/:tag' => :show, as: :article
   end
+
+  controller :ratings do
+    post 'ratings' => :create, as: :ratings
+  end
 end

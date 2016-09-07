@@ -45,13 +45,42 @@ loadArticle = (article) ->
           data = xhr.responseText
         else
           console.log('Error: ' + xhr.status)
-          data = "M'enfin ! Ya quelque chose qui à bouché le machin et du coup ça a pas marché pile poil. Ne t'inquiètes donc pas comme ça, c'est juste une affaire de quelques réglage, voilà tout."
+          data = "<p class='error'>M'enfin ! Ya quelque chose qui à bouché le machin et du coup n'a pas fonctionné. Mais ne t'inquiètes donc pas comme ça, c'est juste une affaire de quelques réglage, voilà tout.</p>"
           content.innerHTML = "Error"
 
         content.innerHTML = data
+        listenTargets()
+        listenRating()
         loader.classList.remove 'active'
         content.classList.add 'active'
 
+listenTargets = ->
+  [].forEach.call document.querySelectorAll('[data-article-target]'), (e) ->
+    e.clickHandler = ->
+      document.querySelector("[data-article=#{ e.getAttribute('data-article-target') }]").click()
+    e.addEventListener 'click', e.clickHandler
+
+listenRating = ->
+  [].forEach.call document.querySelectorAll('[data-rating]'), (e) ->
+    e.clickHandler = ->
+      e.classList.add 'checked'
+      [].forEach.call document.querySelectorAll("[data-rating=#{ e.getAttribute('data-rating') }]"), (f) ->
+        f.classList.add 'desactivated'
+        f.removeEventListener 'click', f.clickHandler
+      sendRating e
+    e.addEventListener 'click', e.clickHandler
+
+sendRating = (e) ->
+  xhr = new XMLHttpRequest()
+  xhr.open 'POST', Routes.ratings_path()
+  xhr.setRequestHeader 'X-CSRF-Token', document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+  xhr.setRequestHeader 'Content-type', 'application/x-www-form-urlencoded'
+  xhr.send("rating[tag]=#{ e.getAttribute('data-rating') }&rating[value]=#{ e.getAttribute('data-rating-value') }")
+
+  console.log("send #{e.getAttribute('data-rating-value')} points to #{ e.getAttribute('data-rating') }")
+
+# 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'
+# $('meta[name="csrf-token"]').attr('content')
 
 clearActiveArticle = ->
   [].forEach.call document.querySelectorAll('[data-article].active'), (e) ->

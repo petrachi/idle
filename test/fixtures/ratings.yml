@@ -1,0 +1,11 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  tag: MyString
+  value: 1
+  request_ip: MyString
+
+two:
+  tag: MyString
+  value: 1
+  request_ip: MyString
