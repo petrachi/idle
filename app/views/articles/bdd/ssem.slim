@@ -1,0 +1,558 @@
+p À l'origine une simple machine de test destinée à vérifier la fiabilitée des tubes Willians, la Small Scale Experiment Machine, surnommées La Manchester Baby, est le premier ordinateur qui intégre totalement le concept de programme stocké, et l'architecture dite de Von Neumann. Aujourd'hui, on va recréer cette machine dans une simulation en ruby.
+
+h3 L'accumulateur
+
+p Le seul circuit arithmétique du SSEM, c'est l'accumulateur, qui permet d'effectuer une soustraction.
+
+p L'accumalteur stocke un mot de 32 bits, et effectue une soustraction lorsqu'un autre mot de 32 bit lui est envoyé. L'accumulateur sera initialisé avec une valeur de zéro, et deux méthodes, #{ coderay 'read', inline: true} et #{ coderay 'send', inline: true} nous permettrons respectivement de lire la valeur de l'acculateur, et d'envoyer un nombre binaire à soustraire. J'ajouterais aussi une méthode #{ coderay 'reset', inline: true}.
+
+p Pour représenter les nombres binaires, nous nous servirons de la classe #{ coderay 'Fixnum', inline: true} de ruby
+
+= coderay do
+  | class Accumulator
+      def initialize
+        @value = 0b00000000000000000000000000000000
+      end
+
+      def read
+        @value
+      end
+
+      def send value
+        @value = @value - value
+      end
+
+      def reset
+        @value = 0b00000000000000000000000000000000
+      end
+    end
+
+p Il est maintenant temps de tester si notre accumulateur fonctionne bien, et pourquoi ne pas commencer par une addition. On prendra #{ coderay 'a=5', inline: true} et #{ coderay 'b=7', inline: true}.
+
+p <i>Une addition ? Mais Tu as dit que l'acculateur faisait une soustraction !".</i> Bien vu cher lecteur, et pourtant, avec une base d'arithmétique élémentaire, tu te rendras vite compte qu'on peut faire une addition à partir d'une soustraction, comme ça par exemple #{":"} #{ coderay 'a+b = 0-((0-a)-b)', inline: true}.
+
+= coderay do
+  | a = 0b101 # 5
+    b = 0b111 # 7
+
+    acc = Accumulator.new # @value: 0
+    acc.send a # @value: 0 - a
+    acc.send b # @value: @value - b
+
+    n = acc.read
+
+    acc.reset # @value: 0
+    acc.send n # @value: 0 - n
+
+    print acc.read
+    => 12 # \o/
+
+p Bon, il reste un problème, c'est qu'avec la classe #{ coderay 'Fixnum', inline: true}, je n'ai pas de moyen de limiter le nombre de bits d'un nombre à 32. Et cela va perturber ma gestion des nombres négatifs, puisque le Baby utilise la méthode du complément à deux pour représenter les nombres négatifs, mais c'est un problème qu'on réglera plus tard
+
+h3 Complément à 2
+
+p Le complément à 2, ou complément à 9 en décimal, permet de profiter du dépassement de la mémoire pour réprésenter les nombres négatifs. En décimal, si je prends le nombre #{ coderay '9999', inline: true} et que j'y ajoute #{ coderay '1', inline: true}, je récupére #{ coderay '10000', inline: true}. Mais si je limite le nombre de chiffres du nombre à 4, je n'ai plus que #{ coderay '0000', inline: true}, le cinquiéme ciffre, le #{ coderay '1', inline: true}, est ignoré.
+
+p Avec cette régle donc, #{ coderay '9999+1 = 0', inline: true}, et, si je fais passer le #{ coderay '1', inline: true} de l'autre côté du signe égal, j'ai #{ coderay '9999 = -1', inline: true}. Avec la même logique, on peux trouver que #{ coderay '9998 = -2', inline: true}, #{ coderay '9997 = -3', inline: true}, etc.
+
+p La même logique peut s'appliquer en binaire, et voici quelques exemple de nombres positifs et négatifs si je limite le nombres de digits à quatre #{":"}
+
+table class='align-right'
+  tr
+    th binaire
+    th décimal
+  tr
+    td #{ coderay '0000', inline: true}
+    td #{ coderay '0', inline: true}
+  tr
+    td #{ coderay '0001', inline: true}
+    td #{ coderay '1', inline: true}
+  tr
+    td #{ coderay '0010', inline: true}
+    td #{ coderay '2', inline: true}
+  tr
+    td #{ coderay '0111', inline: true}
+    td #{ coderay '7', inline: true}
+  tr
+    td #{ coderay '1111', inline: true}
+    td #{ coderay '-1', inline: true}
+  tr
+    td #{ coderay '1110', inline: true}
+    td #{ coderay '-2', inline: true}
+  tr
+    td #{ coderay '1101', inline: true}
+    td #{ coderay '-3', inline: true}
+  tr
+    td #{ coderay '1000', inline: true}
+    td #{ coderay '-8', inline: true}
+
+p As-tu remarqué cher lecteur ? Lorsque le nombre est négatif, le bit de poids fort (le plus à gauche) est toujours à #{ coderay '1', inline: true}. C'est une régle universelle, et ça sera très pratique pour tester le signe d'un nombre, d'ailleurs, on va bientôt en avoir besoin.
+
+h3 William's Tube
+
+p Maintenant que nous avons fini notre travail sur l'accumulateur, nous pouvons nous intéresser à la mémoire l'ordinature, le tube Williams. Inspiré à partir des tubes cathodiques, courament utilisée pour les téléviseurs, le tube Williams est une révolution par rapports aux tubes à délais au mercure, la technologie la plus courament utilisée pour la mémoire des ordinateurs à l'époque.
+
+p Le tube Williams permet de sauvegarder 32 mots de 32 bits chacun. La valeur de chaque bit peut être modifié manuellement l'opérateur, et le tube sert aussi d'écran à la machine.
+
+p Pour simuler le comportement du tube, on va d'abord créer les méthodes #{ coderay 'read', inline: true} et #{ coderay 'send', inline: true}, qui permettrons de lire ou de sauvegarder un mot dans la mémoire dans la mémoire.
+
+p Ces deux méthodes perdront un mot de 32 bits en paramétres qui permettra de définir l'adresse du mot à lire ou à sauvegarder. Les numéros d'adresse vont de  #{ coderay '0', inline: true} à #{ coderay '31', inline: true}, et sont codés sur les cinqs premiers bits d'un mot.
+
+p On profitera au passage de la méthode #{ coderay 'read', inline: true} pour limiter la taille des mots à 32 bits. Même si en pratique ça ne changera pas grand chose, ce sera par acquit de conscience.
+
+= coderay do
+  | class Tube
+      def initialize
+        @store = Array.new 32, 0b00000000000000000000000000000000
+      end
+
+      def read address
+        @store[extract_address_number address]
+      end
+
+      def write address, word
+        @store[extract_address_number address] = word & 0b11111111111111111111111111111111
+      end
+
+      protected def extract_address_number address
+        address & 0b11111
+      end
+    end
+
+p En plus de ces deux méthodes, il faudra pouvoir modifier la valeur d'un bit en particulier (pour écrire le programme avant de démarrer l'exécution, le Baby n'avait pas une interface utilisateur très développée), ce sera le rôle de la méthode #{ coderay 'set', inline: true}, et par commodité, on fera également une méthode #{ coderay 'configure', inline: true} qui permet de modifier d'un coup toutes les valeurs de la mémoire.
+
+= coderay do
+  | class Tube
+      def set address, position
+        write address, read(address) ^ (0b1 << position)
+      end
+
+      def configure store
+        @store = store
+      end
+    end
+
+p Le tube sert également d'écran (je vous disait que ça n'était pas une interface utilisateur très poussée), il nous faudra donc une méthode capable d'afficher la mémoire. Il faut cependant prendre en compte une particularité, dans la représentation binaire des nombres, le bit de poids fort est habituellement placé à gauche, pour le Baby, c'est l'inverse.
+
+p Par souci de ressemblance, les "0" seront remplacés par des ".", et les "1" par des "|".
+
+= coderay do
+  | class Tube
+      def show
+        STDOUT.write @store
+          .map{ |word| ("%032b" % word).reverse }
+          .join("\n").gsub(/[01]/, '0' => '. ', '1' => '| ')
+      end
+    end
+
+p Vérifions si tout fonctionne bien #{":"}
+
+= coderay do
+  | tube = Tube.new
+    tube.write 0b0, 0b100 # adresse: 0, valeur: 4
+    tube.write 0b111, 0b101 # adresse: 7, valeur: 5
+    tube.write 0b1000, 0b1100101011 # adresse: 8, valeur: 811
+    tube.write 0b1001, 0b1000111011 # adresse: 9, valeur: 571
+    tube.write 0b11000, 0b11001000001 # adresse: 24, valeur: 1_601
+
+    tube.show
+    =>  . . | . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        | . | . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        | | . | . | . . | | . . . . . . . . . . . . . . . . . . . . . .
+        | | . | | | . . . | . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        | . . . . . | . . | | . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+        . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . # \o/
+
+h3 Centre de Contrôle
+
+p Bien. Maintenant qu'on a posé les bases, on peut finalement s'occuper du coeur de la machine, le centre de contrôle. C'est la partie qui contrôle véritablement l'ordinateur, il lit le programme et coordonne les opérations avec la mémoire (le tube Williams) et le centre arithmétique (l'accumulateur). Pour cela, le centre de contrôle garde en mémoire deux mots de 32 bits, le C.I et le P.I.
+
+p Le P.I, ou Present Instruction, mémorise l'instruction en cours d'exécution. Le C.I, Control Instruction, mémorise lui l'adresse mémoire de l'instruction à éxécuter. Le C.I débute à #{ coderay '0', inline: true}, et sera incrémenté avant d'exécuter une instruction, ce qui signifie que la première instruction du programme sera celle à l'adresse mémoire #{ coderay '1', inline: true}.
+
+= coderay do
+  | class SSEM
+      def initialize
+        @tube = Tube.new
+        @acc = Accumulator.new
+
+        @ci = 0b00000000000000000000000000000000
+      end
+
+      def run
+        begin
+          @ci += 0b1
+          @pi = @tube.read @ci
+
+          send ((@pi & 0b00000000000000001110000000000000) >> 13).to_s
+        end until @halt
+      end
+    end
+
+h3 Instructions
+
+p Le Baby réponds à setp instructions, chacune est arrangée selon la même disposition. Les bits aux positions 13, 14 et 15 fournissent le numéro de l'instruction, et les bits 0, 1, 2, 3, 4 et 5 fournissent l'adresse mémoire ciblée par l'instructuion. Voici la liste #{":"}
+
+table
+  tr
+    th Numéro de l'instruction
+    th Binaire
+    th Mnémonique
+    th Description
+  tr
+    td #{ coderay '0', inline: true}
+    td #{ coderay '000', inline: true}
+    td JMP
+    td Copie le contenu de l'adresse cible dans le CI
+  tr
+    td #{ coderay '1', inline: true}
+    td #{ coderay '001', inline: true}
+    td JRP
+    td Ajoute le contenu de l'adresse cible au CI
+  tr
+    td #{ coderay '2', inline: true}
+    td #{ coderay '010', inline: true}
+    td LDN
+    td Remet l'accumulateur à zéro, puis envoye<br> le contenu de l'adresse cible à l'accumulateur.
+  tr
+    td #{ coderay '3', inline: true}
+    td #{ coderay '011', inline: true}
+    td STO
+    td Copie le contenu de l'accumulateur dans l'adresse cible
+  tr
+    td #{ coderay '4', inline: true}
+    td #{ coderay '100', inline: true}
+    td SUB
+    td Envoie le contenu de l'adresse ciblée à l'accumulateur
+  tr
+    td #{ coderay '5', inline: true}
+    td #{ coderay '101', inline: true}
+    td -
+    td Même chose que l'instruction #{ coderay '4', inline: true}
+  tr
+    td #{ coderay '6', inline: true}
+    td #{ coderay '110', inline: true}
+    td SKN
+    td Saute l'instruction suivante si le contenu<br> de l'accumulateur est négatif
+  tr
+    td #{ coderay '7', inline: true}
+    td #{ coderay '111', inline: true}
+    td STOP
+    td Stopppe la machine
+
+p Nous allons créer une méthode pour chaque instruction du Baby, le nom de la méthode sera le numéro de l'instruction simulée. Comme le parseur de ruby n'aime pas que les noms de méthodes commençent par un chiffre (il les confonds avec des nombres sinon), je définirait ces méthodes à l'aide de #{ coderay 'define_method', inline: true}, qui nous permettra d'utiliser des chiffres pour les noms des méthodes.
+
+
+= coderay do
+  | class SSEM
+      define_method '0' do #JMP
+        @ci = @tube.read @pi
+      end
+
+      define_method '1' do # JRP
+        @ci += @tube.read @pi
+      end
+
+      define_method '2' do # LDN
+        @acc.reset
+        @acc.send @tube.read(@pi)
+      end
+
+      define_method '3' do # STO
+        @tube.write @pi, @acc.read
+      end
+
+      define_method '4' do # SUB
+        @acc.send @tube.read(@pi)
+      end
+
+      define_method '5' do #SUB
+        send '4'
+      end
+
+      define_method '6' do # SKN
+        @ci += 0b1 if @acc.read[31] == 0b1
+      end
+
+      define_method '7' do # STOP
+        @halt = true
+      end
+    end
+
+p Finalement, il faut pouvoir accéder à la mémoire de la machine avant de lancer l'exécution, afin de pouvoir écrire le programme. Pour cette méthode, que j'appellerais #{ coderay 'configure', inline: true}, nous allons envoyer un #{ coderay 'Bignum', inline: true} qui sera ensuite découpé en 32 mots de 32 bits chacuns, et envoyés à la mémoire.
+
+= coderay do
+  | class SSEM
+      def configure description_number
+        @tube.configure 31.downto(0).map{ |i| (description_number & 0b11111111111111111111111111111111 << (32 * i)) >> (32 * i) }
+      end
+
+      def show
+        @tube.show
+      end
+    end
+
+h3 Premier Programme
+
+p Ok ! Tout est prêt ! On va pouvoir exécuter notre premier programme, et pour l'occasion, je n'ai pas choisi par hasard, on va exécuter exactement le même programme que celui qui avait été éxécuté en 1948, un programme qui va chercher le plud grand diviseur d'un nombre.
+
+p Ce programme avait été testé à l'époque parcequ'il y avait un grand nombre d'instruction à réaliser. Et c'est finalement aprés 52 minutes que la machine arrêta son calcul, sans erreur, ce qui prouva la fiabilité du Baby, et des tubes Williams.
+
+p Voici le prgramme, détaillé ligne par ligne #{":"}
+
+table
+  tr
+    th Adresse mémoire
+    th Binaire
+    th Mnémonique
+    th Adresse Cible
+    th Description
+  tr
+    td #{ coderay '01', inline: true}
+    td #{ coderay '00000000000000000100000000011000', inline: true}
+    td LDN
+    td 24
+    td Envoie à l'accumulateur #{ coderay '-initial_trial_divisor', inline: true}
+  tr
+    td #{ coderay '02', inline: true}
+    td #{ coderay '00000000000000000110000000011010', inline: true}
+    td STO
+    td 26
+    td Sauvegarde le contenu de l'accumulateur en tant que #{ coderay '-trial_divisor', inline: true}
+  tr
+    td #{ coderay '03', inline: true}
+    td #{ coderay '00000000000000000100000000011010', inline: true}
+    td LDN
+    td 26
+    td Envoie à l'accumulateur #{ coderay '-(-trial_divisor)', inline: true}
+  tr
+    td #{ coderay '04', inline: true}
+    td #{ coderay '00000000000000000110000000011011', inline: true}
+    td STO
+    td 27
+    td Sauvegarde le contenu de l'accumulateur en tant que #{ coderay '+trial_divisor', inline: true}
+  tr
+    td #{ coderay '05', inline: true}
+    td #{ coderay '00000000000000000100000000010111', inline: true}
+    td LDN
+    td 23
+    td Envoie à l'accumulateur #{ coderay '-(-number)', inline: true}
+  tr
+    td #{ coderay '06', inline: true}
+    td #{ coderay '00000000000000001000000000011011', inline: true}
+    td SUB
+    td 27
+    td Soustrait #{ coderay '+trial_divisor', inline: true}
+  tr
+    td #{ coderay '07', inline: true}
+    td #{ coderay '00000000000000001100000000000000', inline: true}
+    td SKN
+    td -
+    td Saute la prochaine instruction si le contenu de l'accumulateur est négatif
+  tr
+    td #{ coderay '08', inline: true}
+    td #{ coderay '00000000000000000010000000010100', inline: true}
+    td JRP
+    td 20
+    td Sinon, retourne à la ligne 6
+  tr
+    td #{ coderay '09', inline: true}
+    td #{ coderay '00000000000000001000000000011010', inline: true}
+    td SUB
+    td 26
+    td Soustrait #{ coderay '-trial_divisor', inline: true} pour récupérer #{ coderay '+remainder', inline: true}
+  tr
+    td #{ coderay '10', inline: true}
+    td #{ coderay '00000000000000000110000000011001', inline: true}
+    td STO
+    td 25
+    td Sauvegarde le contenu de l'accumulateur en tant que #{ coderay '+remainder', inline: true}
+  tr
+    td #{ coderay '11', inline: true}
+    td #{ coderay '00000000000000000100000000011001', inline: true}
+    td LDN
+    td 25
+    td Envoie à l'accumulateur #{ coderay '-remainder', inline: true}
+  tr
+    td #{ coderay '12', inline: true}
+    td #{ coderay '00000000000000001100000000000000', inline: true}
+    td SKN
+    td -
+    td Saute la prochaine instruction si le contenu de l'accumulateur est négatif
+  tr
+    td #{ coderay '13', inline: true}
+    td #{ coderay '00000000000000001110000000000000', inline: true}
+    td STOP
+    td -
+    td Sinon STOP, #{ coderay 'trial_divisor', inline: true} est un diviseur de #{ coderay 'number', inline: true}
+  tr
+    td #{ coderay '14', inline: true}
+    td #{ coderay '00000000000000000100000000011010', inline: true}
+    td LDN
+    td 26
+    td Envoie à l'accumulateur #{ coderay '-(-trial_divisor)', inline: true}
+  tr
+    td #{ coderay '15', inline: true}
+    td #{ coderay '00000000000000001000000000010101', inline: true}
+    td SUB
+    td 21
+    td Soustrait #{ coderay '+1', inline: true} pour décrémenter #{ coderay 'trial_divisor', inline: true}
+  tr
+    td #{ coderay '16', inline: true}
+    td #{ coderay '00000000000000000110000000011011', inline: true}
+    td STO
+    td 27
+    td Sauvegarde le nouveau #{ coderay '+trial_divisor', inline: true}
+  tr
+    td #{ coderay '17', inline: true}
+    td #{ coderay '00000000000000000100000000011011', inline: true}
+    td LDN
+    td 27
+    td Envoie à l'accumulateur #{ coderay '-trial_divisor', inline: true}
+  tr
+    td #{ coderay '18', inline: true}
+    td #{ coderay '00000000000000000110000000011010', inline: true}
+    td STO
+    td 26
+    td Sauvegarde #{ coderay '-trial_divisor', inline: true}
+  tr
+    td #{ coderay '19', inline: true}
+    td #{ coderay '00000000000000000000000000010110', inline: true}
+    td JMP
+    td 22
+    td Retoune à la ligne 5
+  tr
+    td #{ coderay '20', inline: true}
+    td #{ coderay '11111111111111111111111111111101', inline: true}
+    td NUM
+    td -3
+    td Jump offset
+  tr
+    td #{ coderay '21', inline: true}
+    td #{ coderay '00000000000000000000000000000001', inline: true}
+    td NUM
+    td 1
+    td Constant
+  tr
+    td #{ coderay '22', inline: true}
+    td #{ coderay '00000000000000000000000000000100', inline: true}
+    td NUM
+    td 4
+    td Jump address
+  tr
+    td #{ coderay '23', inline: true}
+    td #{ coderay '11111111111111000000000000000000', inline: true}
+    td NUM
+    td -262144
+    td #{ coderay '-number', inline: true}
+  tr
+    td #{ coderay '24', inline: true}
+    td #{ coderay '00000000000000111111111111111111', inline: true}
+    td NUM
+    td 262143
+    td #{ coderay '+initial_trial_divisor', inline: true} (habituellement #{ coderay 'number - 1', inline: true})
+  tr
+    td #{ coderay '25', inline: true}
+    td #{ coderay '00000000000000000000000000000000', inline: true}
+    td -
+    td -
+    td #{ coderay '+remainder', inline: true}
+  tr
+    td #{ coderay '26', inline: true}
+    td #{ coderay '00000000000000000000000000000000', inline: true}
+    td -
+    td -
+    td #{ coderay '-trial_divisor', inline: true}
+  tr
+    td #{ coderay '27', inline: true}
+    td #{ coderay '00000000000000000000000000000000', inline: true}
+    td -
+    td -
+    td #{ coderay '+trial_divisor', inline: true} (Solution lorsque la machine s'est arrêtée)
+
+p La lecture de ce programme n'est pas simple, surtout que nous ne sommes pas habitués à lire des instructions si bas niveau, mais l'idée est plutôt simple.
+
+p On cherche à trouver le plus grand diviseur de #{ coderay 'number', inline: true}, on commence donc par tester #{ coderay 'number - 1', inline: true}, c'est le #{ coderay 'trial_divisor', inline: true}.
+
+p Pour diviser, on va faire #{ coderay 'trial_divisor - number', inline: true}, et on recommence l'opération jusqu'à ce que le résultat soit négatif, c'est le signal qui nous indique qu'on a fini  notre division. On peut alors chercher le reste de la division, le #{ coderay 'remainder', inline: true}.
+
+p Si le remainder est égal à 0, le #{ coderay 'trial_divisor', inline: true} divise #{ coderay 'number', inline: true} et on a trouvé la solution, on peut arrêter l'exécution. Sinon, on décrément #{ coderay 'trial_divisor', inline: true} et on reprends du début.
+
+h3 Test
+
+p Voyons voir si tout se passera comme prévu. Je configure la machine avec le programme que je viens de vous présenter, où #{ coderay 'number == 262144', inline: true}, et, si tout se passe bien, le résultat devrait être #{ coderay '131072', inline: true}
+
+= coderay do
+  | baby = SSEM.new
+    baby.configure(0x40180000601a0000401a0000601b000040170000801b0000c000000020140000801a00006019000040190000c0000000e0000000401a000080150000601b0000401b0000601a00000016fffffffd0000000100000004fffc00000003ffff00000000000000000000000000000000000000000000000000000000)
+    baby.run
+
+    baby.show
+    =>. . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . . | | . . . . . . . . . | . . . . . . . . . . . . . . . . .
+      . | . | | . . . . . . . . | | . . . . . . . . . . . . . . . . .
+      . | . | | . . . . . . . . . | . . . . . . . . . . . . . . . . .
+      | | . | | . . . . . . . . | | . . . . . . . . . . . . . . . . .
+      | | | . | . . . . . . . . . | . . . . . . . . . . . . . . . . .
+      | | . | | . . . . . . . . . . | . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . | | . . . . . . . . . . . . . . . .
+      . . | . | . . . . . . . . | . . . . . . . . . . . . . . . . . .
+      . | . | | . . . . . . . . . . | . . . . . . . . . . . . . . . .
+      | . . | | . . . . . . . . | | . . . . . . . . . . . . . . . . .
+      | . . | | . . . . . . . . . | . . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . | | . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . | | | . . . . . . . . . . . . . . . .
+      . | . | | . . . . . . . . . | . . . . . . . . . . . . . . . . .
+      | . | . | . . . . . . . . . . | . . . . . . . . . . . . . . . .
+      | | . | | . . . . . . . . | | . . . . . . . . . . . . . . . . .
+      | | . | | . . . . . . . . . | . . . . . . . . . . . . . . . . .
+      . | . | | . . . . . . . . | | . . . . . . . . . . . . . . . . .
+      . | | . | . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      | . | | | | | | | | | | | | | | | | | | | | | | | | | | | | | |
+      | . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . | . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . . . . . | | | | | | | | | | | | | |
+      | | | | | | | | | | | | | | | | | | . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . . . . | | | | | | | | | | | | | | |
+      . . . . . . . . . . . . . . . . . | . . . . . . . . . . . . . . # => 131072 \o/
+      . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+      . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . .
+
+
+p class='align-center'
+  = link_to "Télécharger le fichier complet", "/dl/ssem.rb", class: :btn, target: :_blank
+
+h3 In Motion
+
+p Pour celles et ceux, curieux, qui voudraient voir à quoi cela ressemble quand le Baby calcule (puisqu'après tout l'écran, c'est la mémoire), voici justement une vidéo pour vous #{":"}
+
+div class='video'
+  iframe src='https://www.youtube-nocookie.com/embed/UkJm7-acIac?rel=0&amp;showinfo=0' frameborder='0' allowfullscreen

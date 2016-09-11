@@ -12,6 +12,7 @@ listenArticles = ->
   e = document.querySelector('#close-icon')
   e.clickHandler = ->
     document.querySelector('body').removeAttribute 'data-active-group'
+    document.querySelector("#show .content").innerHTML = null
     clearActiveArticle()
   e.addEventListener 'click', e.clickHandler
 
@@ -77,11 +78,6 @@ sendRating = (e) ->
   xhr.setRequestHeader 'Content-type', 'application/x-www-form-urlencoded'
   xhr.send("rating[tag]=#{ e.getAttribute('data-rating') }&rating[value]=#{ e.getAttribute('data-rating-value') }")
 
-  console.log("send #{e.getAttribute('data-rating-value')} points to #{ e.getAttribute('data-rating') }")
-
-# 'X-CSRF-Token': '<%= form_authenticity_token.to_s %>'
-# $('meta[name="csrf-token"]').attr('content')
-
 clearActiveArticle = ->
   [].forEach.call document.querySelectorAll('[data-article].active'), (e) ->
     e.classList.remove 'active'
@@ -94,3 +90,6 @@ setActiveArticle = (article) ->
 # Main
 document.addEventListener 'DOMContentLoaded', ->
   listenArticles()
+
+  # for redirect via url
+  # document.querySelector("[data-article=the_thorns_s_predator]").click()

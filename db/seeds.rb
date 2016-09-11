@@ -10,10 +10,19 @@ Article.find_or_create_by(tag: :'ch1-1') do |a|
   a.title = "Chapitre 1 - Première Partie"
   a.group = :hdli
   a.published = true
+  # 7-9-2016
 end
 
 Article.find_or_create_by(tag: :'ch1-2') do |a|
   a.title = "Chapitre 1 - Seconde Partie"
   a.group = :hdli
   a.published = true
+  # 8-9-2016
+end
+
+Article.find_or_create_by(tag: :ssem) do |a|
+  a.title = "The Manchester Baby"
+  a.group = :bdd
+  a.published = true
+  # 8-9-2016
 end

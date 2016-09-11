@@ -10,7 +10,7 @@ class Article < ApplicationRecord
 
   validates_presence_of :tag, :title, :group
   validates_uniqueness_of :tag
-  validates_inclusion_of :group, in: %i{hdli bdd}
+  validates_inclusion_of :group, in: %w{hdli bdd}
   validates_presence_of :published_at, if: :published
 
   scope :published, ->{ where published: true }

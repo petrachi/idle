@@ -158,7 +158,8 @@ h2
   opacity: 0
   transition: opacity ease .4s
   padding: 0 1em 1em
-  letter-spacing: .5px
+  letter-spacing: .25px
+  line-height: 1.35em
 
   &.active
     opacity: 1
@@ -169,13 +170,20 @@ h2
     color: firebrick
     background-color: #fbfbfb
 
+  a
+    &,
+    &:hover,
+    &:visited,
+    &:active,
+    &:focus
+      color: inherit
+
   h3
     font-weight: 200
     font-size: 4vh
-    margin-bottom: .25em
+    margin-bottom: .5em
 
   p
-    margin: .5em 0
     text-align: justify
 
     &.align-center
@@ -185,6 +193,28 @@ h2
     border: none
     border-top: 1px solid rgba(#111, .35)
     margin: 2em 0
+
+  table
+    margin: auto
+    text-align: center
+    border-collapse: collapse
+
+    &.align-right
+      text-align: right
+
+    tr + tr
+      border-top: 1px solid rgba(#111, .35)
+
+    th
+      font-weight: 200
+      text-transform: uppercase
+      padding: 0.3em 0.5em
+
+    td
+      padding: .4em
+
+      &+ td
+        border-left: 1px solid rgba(#111, .35)
 
   .video
     position: relative
@@ -209,6 +239,7 @@ h2
   display: inline-block
   transition: all ease .4s
   letter-spacing: .25px
+  text-decoration: inherit
 
   &:hover
     color: #111
@@ -257,3 +288,10 @@ h2
 
   #show
     background-color: yellowgreen
+
+  .content
+    direction: rtl
+    overflow-x: hidden
+
+    *
+      direction: ltr
