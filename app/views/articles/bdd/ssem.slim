@@ -1,10 +1,10 @@
-p À l'origine une simple machine de test destinée à vérifier la fiabilitée des tubes Willians, la Small Scale Experiment Machine, surnommées La Manchester Baby, est le premier ordinateur qui intégre totalement le concept de programme stocké, et l'architecture dite de Von Neumann. Aujourd'hui, on va recréer cette machine dans une simulation en ruby.
+p À l'origine une simple machine de test destinée à vérifier la fiabilitée des tubes Willians, la Small Scale Experiment Machine, surnommée La Manchester Baby, est le premier ordinateur qui intègre totalement le concept de programme stocké, et l'architecture dite de Von Neumann. Aujourd'hui, on va recréer cette machine dans une simulation en ruby.
 
 h3 L'accumulateur
 
 p Le seul circuit arithmétique du SSEM, c'est l'accumulateur, qui permet d'effectuer une soustraction.
 
-p L'accumalteur stocke un mot de 32 bits, et effectue une soustraction lorsqu'un autre mot de 32 bit lui est envoyé. L'accumulateur sera initialisé avec une valeur de zéro, et deux méthodes, #{ coderay 'read', inline: true} et #{ coderay 'send', inline: true} nous permettrons respectivement de lire la valeur de l'acculateur, et d'envoyer un nombre binaire à soustraire. J'ajouterais aussi une méthode #{ coderay 'reset', inline: true}.
+p L'accumalteur stocke un mot de 32 bits, et effectue une soustraction lorsqu'un autre mot de 32 bits lui est envoyé. L'accumulateur sera initialisé avec une valeur de zéro, et deux méthodes, #{ coderay 'read', inline: true} et #{ coderay 'send', inline: true} nous permettront respectivement de lire la valeur de l'accumulateur, et d'envoyer un nombre binaire à soustraire. J'ajouterai aussi une méthode #{ coderay 'reset', inline: true}.
 
 p Pour représenter les nombres binaires, nous nous servirons de la classe #{ coderay 'Fixnum', inline: true} de ruby
 
@@ -27,9 +27,9 @@ p Pour représenter les nombres binaires, nous nous servirons de la classe #{ co
       end
     end
 
-p Il est maintenant temps de tester si notre accumulateur fonctionne bien, et pourquoi ne pas commencer par une addition. On prendra #{ coderay 'a=5', inline: true} et #{ coderay 'b=7', inline: true}.
+p Il est maintenant temps de tester si notre accumulateur fonctionne bien, et pourquoi ne pas commencer par une addition ? On prendra #{ coderay 'a=5', inline: true} et #{ coderay 'b=7', inline: true}.
 
-p <i>Une addition ? Mais Tu as dit que l'acculateur faisait une soustraction !".</i> Bien vu cher lecteur, et pourtant, avec une base d'arithmétique élémentaire, tu te rendras vite compte qu'on peut faire une addition à partir d'une soustraction, comme ça par exemple #{":"} #{ coderay 'a+b = 0-((0-a)-b)', inline: true}.
+p <i>Une addition ? Mais tu as dit que l'accumulateur faisait une soustraction !".</i> Bien vu cher lecteur, et pourtant, avec une base d'arithmétique élémentaire, tu te rendras vite compte qu'on peut faire une addition à partir d'une soustraction, comme ça par exemple #{":"} #{ coderay 'a+b = 0-((0-a)-b)', inline: true}.
 
 = coderay do
   | a = 0b101 # 5
@@ -47,15 +47,15 @@ p <i>Une addition ? Mais Tu as dit que l'acculateur faisait une soustraction !".
     print acc.read
     => 12 # \o/
 
-p Bon, il reste un problème, c'est qu'avec la classe #{ coderay 'Fixnum', inline: true}, je n'ai pas de moyen de limiter le nombre de bits d'un nombre à 32. Et cela va perturber ma gestion des nombres négatifs, puisque le Baby utilise la méthode du complément à deux pour représenter les nombres négatifs, mais c'est un problème qu'on réglera plus tard
+p Bon, il reste un problème, c'est qu'avec la classe #{ coderay 'Fixnum', inline: true}, je n'ai pas de moyen de limiter le nombre de bits d'un nombre à 32. Et cela va perturber ma gestion des nombres négatifs, puisque le Baby utilise la méthode du complément à deux pour représenter les nombres négatifs, mais c'est un problème qu'on réglera plus tard.
 
 h3 Complément à 2
 
-p Le complément à 2, ou complément à 9 en décimal, permet de profiter du dépassement de la mémoire pour réprésenter les nombres négatifs. En décimal, si je prends le nombre #{ coderay '9999', inline: true} et que j'y ajoute #{ coderay '1', inline: true}, je récupére #{ coderay '10000', inline: true}. Mais si je limite le nombre de chiffres du nombre à 4, je n'ai plus que #{ coderay '0000', inline: true}, le cinquiéme ciffre, le #{ coderay '1', inline: true}, est ignoré.
+p Le complément à 2, ou complément à 9 en décimal, permet de profiter du dépassement de la mémoire pour réprésenter les nombres négatifs. En décimal, si je prends le nombre #{ coderay '9999', inline: true} et que j'y ajoute #{ coderay '1', inline: true}, je récupère #{ coderay '10000', inline: true}. Mais si je limite le nombre de chiffres du nombre à 4, je n'ai plus que #{ coderay '0000', inline: true}, le cinquième chiffre, le #{ coderay '1', inline: true}, est ignoré.
 
-p Avec cette régle donc, #{ coderay '9999+1 = 0', inline: true}, et, si je fais passer le #{ coderay '1', inline: true} de l'autre côté du signe égal, j'ai #{ coderay '9999 = -1', inline: true}. Avec la même logique, on peux trouver que #{ coderay '9998 = -2', inline: true}, #{ coderay '9997 = -3', inline: true}, etc.
+p Avec cette règle donc, #{ coderay '9999+1 = 0', inline: true}, et, si je fais passer le #{ coderay '1', inline: true} de l'autre côté du signe égal, j'ai #{ coderay '9999 = -1', inline: true}. Avec la même logique, on peut trouver que #{ coderay '9998 = -2', inline: true}, #{ coderay '9997 = -3', inline: true}, etc.
 
-p La même logique peut s'appliquer en binaire, et voici quelques exemple de nombres positifs et négatifs si je limite le nombres de digits à quatre #{":"}
+p La même logique peut s'appliquer en binaire, et voici quelques exemples de nombres positifs et négatifs si je limite le nombre de digits à quatre #{":"}
 
 table class='align-right'
   tr
@@ -86,17 +86,17 @@ table class='align-right'
     td #{ coderay '1000', inline: true}
     td #{ coderay '-8', inline: true}
 
-p As-tu remarqué cher lecteur ? Lorsque le nombre est négatif, le bit de poids fort (le plus à gauche) est toujours à #{ coderay '1', inline: true}. C'est une régle universelle, et ça sera très pratique pour tester le signe d'un nombre, d'ailleurs, on va bientôt en avoir besoin.
+p As-tu remarqué cher lecteur ? Lorsque le nombre est négatif, le bit de poids fort (le plus à gauche) est toujours à #{ coderay '1', inline: true}. C'est une règle universelle, et ça sera très pratique pour tester le signe d'un nombre, d'ailleurs, on va bientôt en avoir besoin.
 
 h3 William's Tube
 
-p Maintenant que nous avons fini notre travail sur l'accumulateur, nous pouvons nous intéresser à la mémoire l'ordinature, le tube Williams. Inspiré à partir des tubes cathodiques, courament utilisée pour les téléviseurs, le tube Williams est une révolution par rapports aux tubes à délais au mercure, la technologie la plus courament utilisée pour la mémoire des ordinateurs à l'époque.
+p Maintenant que nous avons fini notre travail sur l'accumulateur, nous pouvons nous intéresser à la mémoire de l'ordinateur, le tube Williams. Inspiré des tubes cathodiques couramment utilisés par les téléviseurs, le tube Williams est une révolution par rapport aux tubes à délai au mercure, la technologie la plus couramment utilisée pour la mémoire des ordinateurs à l'époque.
 
-p Le tube Williams permet de sauvegarder 32 mots de 32 bits chacun. La valeur de chaque bit peut être modifié manuellement l'opérateur, et le tube sert aussi d'écran à la machine.
+p Le tube Williams permet de sauvegarder 32 mots de 32 bits chacun. La valeur de chaque bit peut être modifiée manuellement par l'opérateur, et le tube sert aussi d'écran à la machine.
 
-p Pour simuler le comportement du tube, on va d'abord créer les méthodes #{ coderay 'read', inline: true} et #{ coderay 'send', inline: true}, qui permettrons de lire ou de sauvegarder un mot dans la mémoire dans la mémoire.
+p Pour simuler le comportement du tube, on va d'abord créer les méthodes #{ coderay 'read', inline: true} et #{ coderay 'send', inline: true}, qui permettront de lire ou de sauvegarder un mot dans la mémoire.
 
-p Ces deux méthodes perdront un mot de 32 bits en paramétres qui permettra de définir l'adresse du mot à lire ou à sauvegarder. Les numéros d'adresse vont de  #{ coderay '0', inline: true} à #{ coderay '31', inline: true}, et sont codés sur les cinqs premiers bits d'un mot.
+p Ces deux méthodes prendront un mot de 32 bits en paramètre qui permettra de définir l'adresse du mot à lire ou à sauvegarder. Les numéros d'adresse vont de  #{ coderay '0', inline: true} à #{ coderay '31', inline: true}, et sont codés sur les cinqs premiers bits d'un mot.
 
 p On profitera au passage de la méthode #{ coderay 'read', inline: true} pour limiter la taille des mots à 32 bits. Même si en pratique ça ne changera pas grand chose, ce sera par acquit de conscience.
 
@@ -119,7 +119,7 @@ p On profitera au passage de la méthode #{ coderay 'read', inline: true} pour l
       end
     end
 
-p En plus de ces deux méthodes, il faudra pouvoir modifier la valeur d'un bit en particulier (pour écrire le programme avant de démarrer l'exécution, le Baby n'avait pas une interface utilisateur très développée), ce sera le rôle de la méthode #{ coderay 'set', inline: true}, et par commodité, on fera également une méthode #{ coderay 'configure', inline: true} qui permet de modifier d'un coup toutes les valeurs de la mémoire.
+p En plus de ces deux méthodes, il faudra pouvoir modifier la valeur d'un bit en particulier (pour écrire le programme avant de démarrer l'exécution, le Baby n'avait pas une interface utilisateur très développée), ce sera le rôle de la méthode #{ coderay 'set', inline: true}, et par commodité, on fera également une méthode #{ coderay 'configure', inline: true} qui permettra de modifier d'un coup toutes les valeurs de la mémoire.
 
 = coderay do
   | class Tube
@@ -132,7 +132,7 @@ p En plus de ces deux méthodes, il faudra pouvoir modifier la valeur d'un bit e
       end
     end
 
-p Le tube sert également d'écran (je vous disait que ça n'était pas une interface utilisateur très poussée), il nous faudra donc une méthode capable d'afficher la mémoire. Il faut cependant prendre en compte une particularité, dans la représentation binaire des nombres, le bit de poids fort est habituellement placé à gauche, pour le Baby, c'est l'inverse.
+p Comme je le disais, le tube sert également d'écran, il nous faudra donc une méthode capable d'afficher la mémoire. Il faut cependant prendre en compte une particularité, dans la représentation binaire des nombres, le bit de poids faible est habituellement placé à droite, pour le Baby, c'est l'inverse.
 
 p Par souci de ressemblance, les "0" seront remplacés par des ".", et les "1" par des "|".
 
@@ -193,7 +193,7 @@ h3 Centre de Contrôle
 
 p Bien. Maintenant qu'on a posé les bases, on peut finalement s'occuper du coeur de la machine, le centre de contrôle. C'est la partie qui contrôle véritablement l'ordinateur, il lit le programme et coordonne les opérations avec la mémoire (le tube Williams) et le centre arithmétique (l'accumulateur). Pour cela, le centre de contrôle garde en mémoire deux mots de 32 bits, le C.I et le P.I.
 
-p Le P.I, ou Present Instruction, mémorise l'instruction en cours d'exécution. Le C.I, Control Instruction, mémorise lui l'adresse mémoire de l'instruction à éxécuter. Le C.I débute à #{ coderay '0', inline: true}, et sera incrémenté avant d'exécuter une instruction, ce qui signifie que la première instruction du programme sera celle à l'adresse mémoire #{ coderay '1', inline: true}.
+p Le P.I, ou Present Instruction, mémorise l'instruction en cours d'exécution. Le C.I, Control Instruction, mémorise lui l'adresse mémoire de l'instruction à exécuter. Le C.I débute à #{ coderay '0', inline: true}, et sera incrémenté avant d'exécuter une instruction, ce qui signifie que la première instruction du programme sera celle à l'adresse mémoire #{ coderay '1', inline: true}.
 
 = coderay do
   | class SSEM
@@ -216,7 +216,7 @@ p Le P.I, ou Present Instruction, mémorise l'instruction en cours d'exécution.
 
 h3 Instructions
 
-p Le Baby réponds à setp instructions, chacune est arrangée selon la même disposition. Les bits aux positions 13, 14 et 15 fournissent le numéro de l'instruction, et les bits 0, 1, 2, 3, 4 et 5 fournissent l'adresse mémoire ciblée par l'instructuion. Voici la liste #{":"}
+p Le Baby répond à sept instructions, chacune est arrangée selon la même disposition. Les bits aux positions 13, 14 et 15 fournissent le numéro de l'instruction, et les bits 0, 1, 2, 3, 4 et 5 fournissent l'adresse mémoire ciblée par l'instruction. Voici la liste #{":"}
 
 table
   tr
@@ -238,7 +238,7 @@ table
     td #{ coderay '2', inline: true}
     td #{ coderay '010', inline: true}
     td LDN
-    td Remet l'accumulateur à zéro, puis envoye<br> le contenu de l'adresse cible à l'accumulateur.
+    td Remet l'accumulateur à zéro, puis envoie<br> le contenu de l'adresse cible à l'accumulateur.
   tr
     td #{ coderay '3', inline: true}
     td #{ coderay '011', inline: true}
@@ -248,7 +248,7 @@ table
     td #{ coderay '4', inline: true}
     td #{ coderay '100', inline: true}
     td SUB
-    td Envoie le contenu de l'adresse ciblée à l'accumulateur
+    td Envoie le contenu de l'adresse cible à l'accumulateur
   tr
     td #{ coderay '5', inline: true}
     td #{ coderay '101', inline: true}
@@ -265,7 +265,7 @@ table
     td STOP
     td Stopppe la machine
 
-p Nous allons créer une méthode pour chaque instruction du Baby, le nom de la méthode sera le numéro de l'instruction simulée. Comme le parseur de ruby n'aime pas que les noms de méthodes commençent par un chiffre (il les confonds avec des nombres sinon), je définirait ces méthodes à l'aide de #{ coderay 'define_method', inline: true}, qui nous permettra d'utiliser des chiffres pour les noms des méthodes.
+p Nous allons créer une méthode pour chaque instruction du Baby, le nom de la méthode sera le numéro de l'instruction simulée. Comme le parseur de ruby n'aime pas que les noms des méthodes commencent par un chiffre (il les confond avec des nombres sinon), je définirai ces méthodes à l'aide de #{ coderay 'define_method', inline: true}, qui nous permettra d'utiliser des chiffres pour les noms des méthodes.
 
 
 = coderay do
@@ -304,7 +304,7 @@ p Nous allons créer une méthode pour chaque instruction du Baby, le nom de la 
       end
     end
 
-p Finalement, il faut pouvoir accéder à la mémoire de la machine avant de lancer l'exécution, afin de pouvoir écrire le programme. Pour cette méthode, que j'appellerais #{ coderay 'configure', inline: true}, nous allons envoyer un #{ coderay 'Bignum', inline: true} qui sera ensuite découpé en 32 mots de 32 bits chacuns, et envoyés à la mémoire.
+p Finalement, il faut pouvoir accéder à la mémoire de la machine avant de lancer l'exécution, afin de pouvoir écrire le programme. Pour cette méthode, que j'appellerais #{ coderay 'configure', inline: true}, nous allons envoyer un #{ coderay 'Bignum', inline: true} qui sera ensuite découpé en 32 mots de 32 bits chacun, qui seront envoyés à la mémoire.
 
 = coderay do
   | class SSEM
@@ -319,9 +319,9 @@ p Finalement, il faut pouvoir accéder à la mémoire de la machine avant de lan
 
 h3 Premier Programme
 
-p Ok ! Tout est prêt ! On va pouvoir exécuter notre premier programme, et pour l'occasion, je n'ai pas choisi par hasard, on va exécuter exactement le même programme que celui qui avait été éxécuté en 1948, un programme qui va chercher le plud grand diviseur d'un nombre.
+p Ok ! Tout est prêt ! On va pouvoir exécuter notre premier programme, et pour l'occasion, je n'ai pas choisi par hasard, on va exécuter exactement le même programme que celui qui avait été éxécuté en 1948, un programme qui va chercher le plus grand diviseur d'un nombre.
 
-p Ce programme avait été testé à l'époque parcequ'il y avait un grand nombre d'instruction à réaliser. Et c'est finalement aprés 52 minutes que la machine arrêta son calcul, sans erreur, ce qui prouva la fiabilité du Baby, et des tubes Williams.
+p Ce programme avait été testé à l'époque parce qu'il y avait un grand nombre d'instructions à réaliser. Et c'est finalement après 52 minutes que la machine arrêta son calcul, sans erreur, ce qui prouva la fiabilité du Baby, et des tubes Williams.
 
 p Voici le prgramme, détaillé ligne par ligne #{":"}
 
@@ -499,9 +499,9 @@ p La lecture de ce programme n'est pas simple, surtout que nous ne sommes pas ha
 
 p On cherche à trouver le plus grand diviseur de #{ coderay 'number', inline: true}, on commence donc par tester #{ coderay 'number - 1', inline: true}, c'est le #{ coderay 'trial_divisor', inline: true}.
 
-p Pour diviser, on va faire #{ coderay 'trial_divisor - number', inline: true}, et on recommence l'opération jusqu'à ce que le résultat soit négatif, c'est le signal qui nous indique qu'on a fini  notre division. On peut alors chercher le reste de la division, le #{ coderay 'remainder', inline: true}.
+p Pour diviser, on va faire #{ coderay 'trial_divisor - number', inline: true}, et on recommence l'opération jusqu'à ce que le résultat soit négatif, c'est le signal qui nous indique qu'on a fini notre division. On peut alors chercher le reste de la division, le #{ coderay 'remainder', inline: true}.
 
-p Si le remainder est égal à 0, le #{ coderay 'trial_divisor', inline: true} divise #{ coderay 'number', inline: true} et on a trouvé la solution, on peut arrêter l'exécution. Sinon, on décrément #{ coderay 'trial_divisor', inline: true} et on reprends du début.
+p Si le remainder est égal à 0, le #{ coderay 'trial_divisor', inline: true} divise #{ coderay 'number', inline: true} et on a trouvé la solution, on peut arrêter l'exécution. Sinon, on décrémente #{ coderay 'trial_divisor', inline: true} et on reprend du début.
 
 h3 Test
 
