@@ -90,6 +90,3 @@ setActiveArticle = (article) ->
 # Main
 document.addEventListener 'DOMContentLoaded', ->
   listenArticles()
-
-  # for redirect via url
-  # document.querySelector("[data-article=the_thorns_s_predator]").click()
