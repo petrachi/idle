@@ -88,6 +88,23 @@ table class='align-right'
 
 p As-tu remarqué cher lecteur ? Lorsque le nombre est négatif, le bit de poids fort (le plus à gauche) est toujours à #{ coderay '1', inline: true}. C'est une règle universelle, et ça sera très pratique pour tester le signe d'un nombre, d'ailleurs, on va bientôt en avoir besoin.
 
+p D'ailleurs, avant de continuer, voici un petite méthode qui te permettra d'afficher la valeur d'un nombre signé (c'est comme ça qu'on apelle les nombres qui utilisent la technique du complément à deux), ce sera utile puisque comme je le disait tout à l'heure, ruby ne gére pas naturellement ce genre de représentation des nombres.
+
+= coderay do
+  | class Integer
+      def to_signed(bits)
+        mask = (1 << (bits - 1))
+        (self & ~mask) - (self & mask)
+      end
+    end
+
+    ?> 0b1011
+    => 5
+
+    ?> 0b1011.to_signed(4)
+    => -5
+
+
 h3 William's Tube
 
 p Maintenant que nous avons fini notre travail sur l'accumulateur, nous pouvons nous intéresser à la mémoire de l'ordinateur, le tube Williams. Inspiré des tubes cathodiques couramment utilisés par les téléviseurs, le tube Williams est une révolution par rapport aux tubes à délai au mercure, la technologie la plus couramment utilisée pour la mémoire des ordinateurs à l'époque.
@@ -503,6 +520,30 @@ p Pour diviser, on va faire #{ coderay 'trial_divisor - number', inline: true}, 
 
 p Si le remainder est égal à 0, le #{ coderay 'trial_divisor', inline: true} divise #{ coderay 'number', inline: true} et on a trouvé la solution, on peut arrêter l'exécution. Sinon, on décrémente #{ coderay 'trial_divisor', inline: true} et on reprend du début.
 
+p Pour une meilleure conpréhension, voici ce que donne l'algorithme une fois traduit en ruby #{":"}
+
+= coderay do
+  | acc = 0
+    halt = false
+
+    number = 262144
+    initial_trial_divisor = number - 1
+
+    trial_divisor = initial_trial_divisor
+
+    begin
+      acc = number
+
+      begin
+        acc -= trial_divisor # division par soustraction successives
+      end while acc >= 0
+
+      remainder = acc + trial_divisor # on récupére le reste de la division entière
+      break if remainder <= 0 # si le reste est égal à 0, le trial_divisor divise number
+
+      trial_divisor -= 1
+    end while true
+
 h3 Test
 
 p Voyons voir si tout se passera comme prévu. Je configure la machine avec le programme que je viens de vous présenter, où #{ coderay 'number == 262144', inline: true}, et, si tout se passe bien, le résultat devrait être #{ coderay '131072', inline: true}
@@ -554,5 +595,5 @@ h3 In Motion
 
 p Pour celles et ceux, curieux, qui voudraient voir à quoi cela ressemble quand le Baby calcule (puisqu'après tout l'écran, c'est la mémoire), voici justement une vidéo pour vous #{":"}
 
-div class='video'
-  iframe src='https://www.youtube-nocookie.com/embed/UkJm7-acIac?rel=0&amp;showinfo=0' frameborder='0' allowfullscreen
+div class='video computer-display'
+  iframe src='https://www.youtube-nocookie.com/embed/7lLVVMNysRc?rel=0&amp;showinfo=0' frameborder='0' allowfullscreen
