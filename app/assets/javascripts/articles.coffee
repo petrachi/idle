@@ -11,9 +11,8 @@ listenArticles = ->
 
   e = document.querySelector('#close-icon')
   e.clickHandler = ->
-    document.querySelector('body').removeAttribute 'data-active-group'
-    document.querySelector("#show .content").innerHTML = null
-    clearActiveArticle()
+    history.pushState {}, "", Routes.root_path
+    closeArticle()
   e.addEventListener 'click', e.clickHandler
 
 loadArticle = (article) ->
@@ -33,9 +32,14 @@ loadArticle = (article) ->
     content.innerHTML = null
     content.classList.remove 'active'
 
+    tag = article.getAttribute('data-article')
+    if article.historyBack
+      article.historyBack = false
+    else
+      history.pushState {tag: tag}, "", Routes.direct_to_path(tag: tag)
 
     xhr = new XMLHttpRequest()
-    xhr.open 'GET', Routes.article_path(tag: article.getAttribute('data-article'))
+    xhr.open 'GET', Routes.article_path(tag: tag)
     xhr.send(null)
 
     xhr.onreadystatechange = ->
@@ -54,6 +58,12 @@ loadArticle = (article) ->
         listenRating()
         loader.classList.remove 'active'
         content.classList.add 'active'
+
+closeArticle = ->
+  document.querySelector('body').removeAttribute 'data-active-group'
+  document.querySelector("#show .content").innerHTML = null
+  clearActiveArticle()
+
 
 listenTargets = ->
   [].forEach.call document.querySelectorAll('[data-article-target]'), (e) ->
@@ -86,7 +96,21 @@ setActiveArticle = (article) ->
   clearActiveArticle()
   article.classList.add 'active'
 
+directTo = (tag, historyBack = false) ->
+    direct_to = document.querySelector("[data-article=#{ tag }")
+    if direct_to
+      direct_to.historyBack = historyBack
+      direct_to.click()
+
+
 
 # Main
 document.addEventListener 'DOMContentLoaded', ->
   listenArticles()
+  directTo document.querySelector("#articles").getAttribute('data-d')
+
+window.onpopstate = (e) ->
+  if e.state && e.state.tag
+    directTo(e.state.tag, true)
+  else
+    closeArticle()
