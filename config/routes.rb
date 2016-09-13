@@ -4,6 +4,8 @@ Rails.application.routes.draw do
   controller :articles do
     get 'articles' => :index, as: :articles
     get 'article/:tag' => :show, as: :article
+
+    get 'd/:tag' => :index, as: :direct_to
   end
 
   controller :ratings do
