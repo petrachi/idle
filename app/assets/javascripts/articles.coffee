@@ -107,10 +107,10 @@ directTo = (tag, historyBack = false) ->
 # Main
 document.addEventListener 'DOMContentLoaded', ->
   listenArticles()
-  directTo document.querySelector("#articles").getAttribute('data-d')
+  directTo document.querySelector("#articles").getAttribute('data-d'), true
 
 window.onpopstate = (e) ->
   if e.state && e.state.tag
-    directTo(e.state.tag, true)
+    directTo e.state.tag, true
   else
     closeArticle()
