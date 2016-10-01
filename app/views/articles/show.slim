@@ -1,3 +1,4 @@
 - @article = @article.decorate view_context: self
 
-= @article.partial
+div id=@article.tag.dasherize
+  = @article.partial
