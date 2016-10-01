@@ -150,8 +150,6 @@ h2
     z-index: 0
 
 @keyframes spin
-  0%
-    transform: rotate(0deg)
   100%
     transform: rotate(360deg)
 
@@ -246,6 +244,9 @@ h2
       width: 100%
       height: 100%
 
+  .fluid
+    display: flex
+
 .btn
   margin: .5em 0
   padding: .75em
@@ -266,20 +267,20 @@ h2
     color: #111
     background-color: #fbfbfb
 
-[data-rating]
-  @extend .btn
-  border-radius: 0
-  background-color: #fbfbfb
-
-  &:hover
-    background-color: transparent
-
-  &.desactivated
+  &.disabled
     cursor: default
     background-color: #bbb
 
     &:hover
       color: inherit
+
+[data-rating]
+  @extend .btn
+  border-radius: 0
+  background-color: #fbfbfb
+
+  &:hover:not(.disabled)
+    background-color: transparent
 
   &.checked
     background-color: transparent

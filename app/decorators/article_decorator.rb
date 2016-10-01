@@ -14,7 +14,7 @@ class ArticleDecorator < ApplicationDecorator
     view.render template: "/articles/#{ group }/#{ tag }"
   rescue ActionView::MissingTemplate
     view.content_tag :p, class: :error do
-      "Ben t'es fou toi ! Cliquer partout sur mon beau site web alors que je suis encore en train de faire les réglages ! Non mais ça va pas bien, tu aurais pu tout me détraquer ! Heureusement que j'étais là, je vais pouvoir rattraper tes bêtises."
+      "Ben t'es fou toi ! Cliquer partout sur mon beau site web alors que je suis encore en train de faire les réglages ! Non mais ça va pas bien, tu aurais pu tout me détraquer ! Heureusement que j'étais là et attentif !"
     end
   end
 end

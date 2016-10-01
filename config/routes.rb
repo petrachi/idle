@@ -9,6 +9,7 @@ Rails.application.routes.draw do
   end
 
   controller :ratings do
-    post 'ratings' => :create, as: :ratings
+    get 'ratings' => :index, as: :ratings
+    post 'ratings' => :create
   end
 end

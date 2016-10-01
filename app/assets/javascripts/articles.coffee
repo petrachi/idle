@@ -50,7 +50,7 @@ loadArticle = (article) ->
           data = xhr.responseText
         else
           console.log('Error: ' + xhr.status)
-          data = "<p class='error'>M'enfin ! Ya quelque chose qui à bouché le machin et du coup n'a pas fonctionné. Mais ne t'inquiètes donc pas comme ça, c'est juste une affaire de quelques réglage, voilà tout.</p>"
+          data = "<p class='error'>M'enfin ! Ya quelque chose qui à bouché le machin et du coup ça n'a pas fonctionné. Mais ne t'inquiètes donc pas comme ça, c'est juste une affaire de quelques réglage, voilà tout.</p>"
           content.innerHTML = "Error"
 
         content.innerHTML = data
@@ -76,7 +76,7 @@ listenRating = ->
     e.clickHandler = ->
       e.classList.add 'checked'
       [].forEach.call document.querySelectorAll("[data-rating=#{ e.getAttribute('data-rating') }]"), (f) ->
-        f.classList.add 'desactivated'
+        f.classList.add 'disabled'
         f.removeEventListener 'click', f.clickHandler
       sendRating e
     e.addEventListener 'click', e.clickHandler

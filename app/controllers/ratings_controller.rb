@@ -1,8 +1,23 @@
 class RatingsController < ApplicationController
-  def create
-    p params
-    p "-"
+  def index
+    @ratings = Rating.select("max(value) as value, tag")
+      .order(:tag, 'value')
+      .group(:tag, :request_ip)
+      .group_by(&:tag)
+      .map{ |tag, ratings|
+        [
+          tag,
+          ratings.group_by(&:value).map{ |value, g_ratings|
+            [
+              value,
+              g_ratings.size * 100 / ratings.size
+            ]
+          }
+        ]
+      }
+  end
 
+  def create
     rating = Rating.new rating_params do |r|
       r.request_ip = request.remote_ip
     end
