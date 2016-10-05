@@ -6,15 +6,8 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-Article.find_or_create_by(tag: :'ch1-1') do |a|
-  a.title = "Chapitre 1 - Première Partie"
-  a.group = :hdli
-  a.published = true
-  # a.published_at = "11-09-2016"
-end
-
-Article.find_or_create_by(tag: :'ch1-2') do |a|
-  a.title = "Chapitre 1 - Seconde Partie"
+Article.find_or_create_by(tag: :'ch1') do |a|
+  a.title = "Chapitre 1 - Lectures"
   a.group = :hdli
   a.published = true
   # a.published_at = "11-09-2016"
@@ -34,4 +27,11 @@ Article.find_or_create_by(tag: :ssem) do |a|
   a.group = :bdd
   a.published = true
   # a.published_at = "11-09-2016"
+end
+
+Article.find_or_create_by(tag: :complex_engine) do |a|
+  a.title = "Complex Engine"
+  a.group = :bdd
+  a.published = true
+  # a.published_at = "29-09-2016"
 end
