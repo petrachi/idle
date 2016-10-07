@@ -1,16 +1,14 @@
-p Ami lecteur, cet article servira pour te faire savoir que j'expose au public un programme de mon invention, par le moyen duquel seul tu pourras, sans peine quelconque, dessiner en prenant compte de la perspective, et te soulager du travail qui t'a souvent fatigué l'esprit, lorsque tu as opéré manuellement #{":"} je puis, sans présomption, espérer qu'il ne te déplaira pas.
+p La géométrie est un domaine des mathématiques qui m'a toujours inspiré. Quoi de mieux alors que de se lancer dans le développement d'un moteur graphique en 3D pour allier programmation et géométrie ?
 
-p Aprés cette introduction pompeuse, librement inspiré des premières lignes de l'<i>Avis nécessaire à ceux qui auront curiosité de voir la Machine d'Arithmétique et de s'en servir</i> par Blaise Pascal, il est temps de faire une présentation plus sobre du projet
-
-p Il s'agira d'une librairie écrite en Ruby afin de dessiner et de transformer des formes en trois dimensions pour SVG, intitulée #{ coderay 'ComplexEngine', inline: true}.
+p C'est sans présomption donc que je me suis lancé dans la création de la mal nommée #{ coderay 'ComplexEngine', inline: true}. Pourquoi 'mal nommée' ? Tout simplement parce que le titre fait référence aux nombres complexes et que la #{ coderay 'ComplexEngine', inline: true} n'utilise pas ces nombres-là ...
 
 h3 D'autres Technologies
 
-p Il existe plusieurs manières, en matière de développement web, de dessiner en trois dimensions. On peut par exemple citer #{ coderay 'canvas', inline: true}, qui permet d'interagir avec la librairie WebGL. Je ne rentrerais cependant pas dans les détails de #{ coderay 'canvas', inline: true}, étant moi-même peu famillier avec cette technologie.
+p Il existe plusieurs manières, en matière de développement web, de dessiner en trois dimensions. On peut par exemple citer la balise #{ coderay 'canvas', inline: true}, qui permet d'interagir avec la librairie WebGL. Il s'agit là d'un moteur graphique trés complet, et j'ai bien peur de ne pas pouvoir rentrer dans les détails, étant moi-même assez peu familier avec cette technologie.
 
-p Une autre façon de faire consiste à se servir de la propriété #{ coderay 'transform', inline: true}, introduite avec la version 3 de la spécification CSS, qui permet d'appliquer des transformations 3D à des éléments HTML. Cette technique sera néanmoins limitée, en terme de dessin, par les formes que peuvent prendre les éléments HTML eux-même, de base, rectangulaires.
+p Une autre façon de faire consiste à se servir de la propriété #{ coderay 'transform', inline: true}, introduite en CSS 3, et qui permet d'appliquer des transformations 3D à des éléments HTML. Cette technique est cependant limitée par la forme rectangulaire des éléments HTML eux-mêmes.
 
-p Ceci dit, je ne veux pas nier ici l'utilité de la propriété #{ coderay 'transform', inline: true}, surtout lorsqu'elle est alliée à d'autres comme #{ coderay 'transition', inline: true} ou #{ coderay 'animation', inline: true}. J'en veux pour exemple la démonstration suivante, où le dessin se mettra en mouvement au passage du curseur de la souris #{":"}
+p Ceci dit, je ne cherche pas à nier ici l'utilité de la propriété #{ coderay 'transform', inline: true}, que j'utilise moi-même régulièrement, et qui, alliée à d'autres propriétés comme #{ coderay 'transition', inline: true} ou #{ coderay 'animation', inline: true}, permet de faire des choses remarquables. J'en veux pour exemple la démonstration suivante #{":"} <i>(le dessin se mouvra au passage de la souris)</i>
 
 div class='container cube'
   div id='cube'
@@ -27,13 +25,15 @@ div class='container cube'
     div id='back'
       span 6
 
-p C'est une autre solution encore que j'ai choisie pour la #{ coderay 'ComplexEngine', inline: true} #{":"} utiliser SVG (Scalable Vector Graphics) pour dessiner en deux dimensions, et faire appel à notre habileté afin de faire à croire à une forme en trois dimensions, tout comme en peinture, où l'agencement des traits nous fait imaginer une profondeur dans le dessin.
+p Mais, c'est une autre solution encore que j'ai choisie pour la #{ coderay 'ComplexEngine', inline: true} #{":"} nous allons utiliser SVG pour dessiner en deux dimensions, et notre ingéniosité afin de faire à croire à une forme en trois dimensions. Tout comme en peinture, où l'agencement des traits nous fait imaginer de la profondeur dans l'image.
 
-p Et quand je parle d'habilité, j'entends surtout notre habileté à programmer ! Puisque ce sera le rôle de la #{ coderay 'ComplexEngine', inline: true} que de calculer, pour les objets en trois dimensions que nous lui donnerons, la perspective et la profondeur.
+p Parlant d'ingéniosité, j'entends surtout notre habileté à programmer ! Puisque ce sera le rôle de la #{ coderay 'ComplexEngine', inline: true} de calculer la perspective, en fonction des objets que nous lui donnerons.
 
 h3 Complex
 
-p En mathématiques, les nombres peuvent servir à représenter des points sur des espaces en plusieurs dimensions. Les nombres réels par exemples peuvent servir à représenter des points sur une surface à une dimensions. Imaginez une droite, c'est notre espace à une dimensions, le nombre #{ coderay '5', inline: true} peut vouloir dire "se déplacer de cinq unités vers la droite". De la même manière, le nombre #{ coderay '-3', inline: true} peut vouloir dire "se déplacer de trois unités vers la gauche".
+p Mais avant de se lancer corps et âmes dans la programmation de la #{ coderay 'ComplexEngine', inline: true}, il faut que nous posions les bases mathématiques de ce dont nous allons avoir besoin #{":"} un moyen de représenter numériquement des formes dans un espace à trois dimensions.
+
+p Un nombre, qui généralement représente une quatitée, peut aussi servir à représenter un mouvement. Les nombres réels par exemple peuvent servir à représenter des points sur une droite (autrement dit, dans un espace à une dimension). Dans ce contexte, le nombre #{ coderay '5', inline: true} signifie <i>'se déplacer cinq fois vers la droite'</i>. Et de la même manière, #{ coderay '-3', inline: true} signifie <i>'se déplacer trois fois vers la gauche'</i>.
 
 svg class='quaternions' viewBox='-500 -50 1000 100'
   defs
@@ -65,9 +65,9 @@ svg class='quaternions' viewBox='-500 -50 1000 100'
   text x='-250' y='-10' -3
 
 
-p La même technique peut être utilisée pour un espace en deux dimensions, à l'aide des nombres complexes. Le nombre #{ coderay '3 + 4i', inline: true} représente trois unités vers la droite, et quatre vers le haut. #{ coderay '1 + 2i', inline: true} représente lui un mouvement à droite et deux vers le haut.
+p La même technique peut être utilisée pour un espace à deux dimensions, à l'aide des nombres dits <i>'complexes'</i>. Le nombre complexe #{ coderay '3+4i', inline: true} veut dire <i>'trois déplaçements vers la droite, et quatre vers le haut'</i>. #{ coderay '1+2i', inline: true} représente lui un mouvement à droite et deux vers le haut.
 
-p L'avantage de ce systéme, c'est que l'addition arithmétique de deux nombres complexes correspond parfaitement à une translation en géométrie. #{ coderay '(3 + 4i) + (1 + 2i)', inline: true} #{"="} #{ coderay '4 + 6i', inline: true}
+p L'avantage de cette représentation arithmétique de la géométrie, c'est que l'addition arithmétique de deux nombres complexes correspond parfaitement à une translation géométrique. Par exemple #{":"} #{ coderay '3+4i + 1+2i = 4+6i', inline: true}.
 
 svg class='quaternions' viewBox='-500 -500 1000 550'
 
@@ -99,11 +99,13 @@ svg class='quaternions' viewBox='-500 -500 1000 550'
   text x='230' y='-400' 1 + 2i
   text x='300' y='-487' 4 + 6i
 
-p Mais l'analogie ne s'arrête pas là, il se trouve également que multiplier deux nombres complexes revient à effectuer une rotation du premier nombre, en fonction de l'angle décrit par le second.
+p Mais l'analogie ne s'arrête pas là, puisque la multiplication arithmétique se traduit comme une rotation géométrique. Multiplier deux nombres complexes entre-eux revient à effectuer une rotation du premier nombre, en fonction de l'angle décrit par le second.
 
-p Si je voulais appliquer une rotation d'un huitième de tour, soit #{ coderay '45deg', inline: true} ou #{ coderay '(π/4)rad', inline: true}, au point désigné par le nombre #{ coderay '3 + 4i', inline: true}, il me suffit de le multiplier par #{ coderay '1/√2 + (1/√2)i', inline: true}. En faisant le calcul arithmétique, sachant que #{ coderay 'i * i = -1', inline: true}, on obtiens alors #{ coderay '3/√2 + (4/√2)i + (3/√2)i - 4/√2', inline: true} puis #{ coderay '-1/√2 + (7/√2)i', inline: true}.
+p Si je voulais appliquer une rotation d'un huitième de tour, soit #{ coderay '45deg', inline: true}, au point #{ coderay '3+4i', inline: true}, je peux le faire en le multipliant avec #{ coderay '1/√2+(1/√2)i', inline: true}.
 
-p De la même façon, #{ coderay '1/√2 + (1/√2)i', inline: true} multiplié par lui même donne #{ coderay 'i', inline: true}. Le dessin ci-dessous, qui se met en mouvement au passage du curseur de la souris, illustre cette rotation #{":"}
+p En faisant le calcul, sachant que #{ coderay 'i²=-1', inline: true}, on obtient #{ coderay '3/√2 + (4/√2)i + (3/√2)i - 4/√2', inline: true}, puis #{ coderay '-1/√2+(7/√2)i', inline: true}.
+
+p De la même façon, #{ coderay '1/√2 + (1/√2)i', inline: true} multiplié par lui-même donne #{ coderay 'i', inline: true}. Le dessin ci-dessous illustre cette rotation #{":"} <i>(le dessin se mouvra au passage de la souris)</i>
 
 svg class='quaternions' viewBox='-500 -500 1000 550'
 
@@ -134,13 +136,13 @@ svg class='quaternions' viewBox='-500 -500 1000 550'
   text x='-6' y='-88' class='light' i
   text x='40' y='-15' class='rad' 45°
 
-p Il existe également une classe de nombres dont les opérations arithmétiques servent de parfaite analogie avec les transformations géométriques qu'on peut appliquer aux points qu'ils décrivent, ce sont les quaternions.
+p Pour les espaces en trois dimensions, il existe également une classe de nombres dont les opérations arithmétiques servent de parfaites analogies avec les transformations géométriques, ce sont les quaternions.
 
 h3 Quaternions
 
-p Les quaternions sont des nombres à quatres dimensions (ce qui est nécéssaire pour effectuer une rotation en trois dimensions). Ils s'écrivent sous la forme #{ coderay 'a + bi + cj + dk', inline: true}, où #{ coderay '(a, b, c, d)', inline: true} sont des nombres réels, et #{ coderay 'i² = j² = k² = ijk = -1', inline: true}.
+p Les quaternions sont des nombres à quatres dimensions (ce qui est nécéssaire pour effectuer une rotation en trois dimensions), qui s'écrivent sous la forme #{ coderay 'a + bi + cj + dk', inline: true}, où #{ coderay 'a, b, c, d', inline: true} sont des nombres réels, et où #{ coderay 'i² = j² = k² = ijk = -1', inline: true}.
 
-p Avant de commencer notre travail sur la #{ coderay 'ComplexEngine', inline: true}, il faut d'abord créer une classe #{ coderay 'Quaternion', inline: true}, puisque Ruby ne gére pas ce type de nombres dans son support de base.
+p Et comme Ruby n'a pas de support de base pour les quaternions, on va commencer par ça #{":"}
 
 = coderay do
   | require 'mathn'
@@ -238,7 +240,7 @@ p Avant de commencer notre travail sur la #{ coderay 'ComplexEngine', inline: tr
       end
 
       def to_s
-        "#{@a} + #{@b}i + #{@c}j + #{@d}k"
+        "\#{@a} + \#{@b}i + \#{@c}j + \#{@d}k"
       end
     end
 
@@ -246,11 +248,11 @@ p Je tines à signaler que la classe #{ coderay 'Quaternion', inline: true} ci-d
 
 p Maintenant que c'est fait, nous allons pouvoir commencer le travail sur la #{ coderay 'ComplexEngine', inline: true}.
 
-h3 Polyédres
+h3 Polyèdres
 
-p Selon Wikipedia, un polyédre est <i>une forme géométrique à trois dimensions ayant des faces planes polygonales qui se rencontrent selon des segments de droite qu'on appelle arêtes</i>. Ce sera la base de la #{ coderay 'ComplexEngine', inline: true}.
+p Selon Wikipedia, un polyèdre est <i>une forme géométrique à trois dimensions ayant des faces planes polygonales qui se rencontrent selon des segments de droite qu'on appelle 'arêtes'</i>. C'est donc avec des polyédres que nous représenterons nos formes dans la #{ coderay 'ComplexEngine', inline: true}. Cela nous évitera d'avoir à gérer différents types de formes (lignes, courbes, cercles), et nous permettra de conserver un code simple.
 
-p Mais commençons d'abord par les points. Ils seront représentés par la partie imaginaire des quaternions, le travail sur la classe #{ coderay 'Point', inline: true} est alors assez simple, puisque la majorité à déjà été fait dans la classe #{ coderay 'Quaternion', inline: true}.
+p Mais commençons d'abord par les points. Ils seront représentés par la partie imaginaire des #{ coderay 'Quaternion', inline: true}. Le travail sur la classe #{ coderay 'Point', inline: true} est alors assez simple, puisque la majorité à déjà été fait dans la classe #{ coderay 'Quaternion', inline: true}.
 
 = coderay do
   | class ComplexEngine::Point
@@ -258,10 +260,6 @@ p Mais commençons d'abord par les points. Ils seront représentés par la parti
 
       def initialize *coords
         @q = Quaternion 0, *coords
-      end
-
-      def q= other
-        @q = other.round(4)
       end
 
       def x
@@ -303,13 +301,13 @@ p ... et #{ coderay 'Polyhedron', inline: true}.
       end
     end
 
-p Il faut remarquer la présence de l'attribut #{ coderay '@points', inline: true} pour la classe #{ coderay 'Polyhedron', inline: true}, qui est là par souci d'optimisation puisque les polygones partagent des points en communs, le long des arrêtes du polyédre. En ajoutant cet attribut, nous pourrons partager un même point pour plusieurs polygones.
+p Il faut remarquer la présence de l'attribut #{ coderay '@points', inline: true} pour la classe #{ coderay 'Polyhedron', inline: true}, qui est là par souci d'optimisation puisque les polygones partagent des points en commun, le long des arrêtes du polyèdre. En ajoutant cet attribut, nous pourrons partager un même #{ coderay 'Point', inline: true} pour plusieurs #{ coderay 'Polygon', inline: true}.
 
 h3 Draw
 
-p Il est temps maintenant d'ajouter une méthode #{ coderay 'to_svg', inline: true}, qui dessinera le polyédre. Nous ne occuperons pas, pour l'instant, de la perspective, et nous contenterons d'ignorer la coordonnée de la prodondeur.
+p Il est temps maintenant d'ajouter une méthode #{ coderay 'to_svg', inline: true}, qui dessinera le polyèdre. En paramétre, nous enverrons l'objet de vue afin de pouvoir accéder à la méthode #{ coderay 'content_tag', inline: true} des helpers de Rails.
 
-p Afin de pouvoir utiliser la méthode #{ coderay 'content_tag', inline: true}, nous passerons en paramétre l'objet de vue. Cela nous permettra d'accéder aux méthodes de helpers de Rails.
+p Nous ne nous occuperons pas, pour l'instant de la perspective et nous contenterons d'ignorer l'axe #{ coderay 'z', inline: true}.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -328,11 +326,9 @@ p Afin de pouvoir utiliser la méthode #{ coderay 'content_tag', inline: true}, 
       end
     end
 
-p Voyons le résultat. Commençons par une forme simple, un ou deux triangles devront faire l'affaire. Nous nous attaquerons à des formes plus complexes une fois que la #{ coderay 'ComplexEngine', inline: true} sera plus avancée.
+p Tu noteras cher lecteur, que le signe de la coordonnée #{ coderay 'y', inline: true} est inversé. C'est tout simplement pour compenser l'inversion que fait SVG lui-même, comparé aux conventions habituelles.
 
-p Ho, et tu notera, cher lecteur, que le signe de la coordonnée #{ coderay 'y', inline: true} est inversé. C'est tout simplement pour compenser l'inversion que fait SVG lui même, comparé aux conventions habituelles.
-
-p Si tout fonctionne bien, nous devrions voir apparaitre une image connue.
+p Testons le code maintenant. Pour un premier test, quelques triangles devront faire l'affaire. Des formes plus compliquées ne donneraient rien à ce stade du développement.
 
 = coderay do
   | ?> Polyhedron.new(points: [
@@ -357,16 +353,16 @@ p Si tout fonctionne bien, nous devrions voir apparaitre une image connue.
 
     => '<path d="M 0 0 L 0 -4 L -1 -3 Z"></path><path d="M 0 -4 L -2 -4 L -1 -3 Z"></path><path d="M -2 -4 L -1 -3 L -3 -3 Z"></path><path d="M -1 -3 L -3 -3 L -3 -1 Z"></path><path d="M -3 -3 L -3 -1 L -4 -2 Z"></path><path d="M -3 -1 L -4 -2 L -4 0 Z"></path><path d="M -4 0 L -3 -1 L 0 0 Z"></path><path d="M 0 0 L -1 -3 L -3 -1 Z"></path>'
 
-p Et voilà le résultat (avec un peu de CSS) !
+p Et voilà le résultat ! <i>(j'ai ajouté un peu de CSS 'custom')</i>
 
 svg id='ruby-2d' class='demo' viewbox='-4 -4 4 4'
   = ComplexEngine.ruby_2d.to_svg self
 
+p Maintenant que la base est faite, il est temps de s'occuper des trasformations applicables aux polyèdres, c'est-à-dire la translation et la rotation.
+
 h3 Translate
 
-p Maintenant que la base est là, il est temps de s'occuper des trasformations applicables aux polyédres, c'est à dire, la translation et la rotation.
-
-p Commençons par la translation, via la méthode #{ coderay 'translate', inline: true}. Pour cela, nous utiliserons simplement la méthode #{ coderay '+', inline: true} des #{ coderay 'Quaternion', inline: true}. Un #{ coderay 'Quaternion', inline: true} sera également passé en paramétre, comme référence de la translation à éffectuer.
+p Commençons par la translation, via la méthode #{ coderay 'translate', inline: true}. Pour cela, nous utiliserons simplement la méthode #{ coderay '+', inline: true} des #{ coderay 'Quaternion', inline: true}. Un #{ coderay 'Quaternion', inline: true} sera également passé en paramètre, comme référence de la translation à effectuer.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -382,7 +378,7 @@ p Commençons par la translation, via la méthode #{ coderay 'translate', inline
       end
     end
 
-p Un test, comme toujours, s'impose. Cette fois-ci, nous utiliserons un simple carré que nous ferons se déplacer en haut à droite.
+p Encore une fois, un test s'impose. Cette fois-ci, nous utiliserons un simple carré que nous ferons se déplacer vers le haut et la droite.
 
 = coderay do
   | ?> square = Polyhedron.new(points: [
@@ -408,13 +404,13 @@ svg id='translate' class='demo' viewbox='0 -4 4 4'
   line x1='0' y1='-3' x2='.9' y2='-3.9' marker-end='url(#markerArrow)'
   = ComplexEngine.square.translate!(Quaternion(0,1,1,0)).to_svg self
 
-p Ça fonctionne parfaitement ! J'ai ajouté des fléches sur chaque point afin de bien voir la transformation qui s'opére.
+p Ça fonctionne comme prévu. Au passage, j'ai ajouté des flèches sur chaque point afin de pouvoir bien identifier la transformation qui s'opère.
 
 h3 Rotate
 
-p Pour la rotation, les choses vont êtres un poil plus compliquées. On va avoir besoin de deux paramétres, un axe (atour duquel on fait tourner le polyédre) et un angle (qu'on exprimera en radiant).
+p Pour la rotation maintenant, les choses vont être un poil plus compliquées. D'abord, on va avoir besoin de deux paramètres #{":"} un axe (atour duquel on fait tourner le polyèdre) et un angle (qu'on exprimera en radian, #{ coderay 'πrad = 180deg', inline: true}).
 
-p À l'aide de ces deux éléments, nous pourrons construire un #{ coderay 'Quaternion', inline: true} particulier, que j'appelerais #{ coderay 'h', inline: true}. On pourra finalement calculer la rotation d'un point désigné par le quaternion #{ coderay 'q', inline: true} à l'aide de la formule suivante #{ coderay 'h * q * h.inverse', inline: true}.
+p À l'aide de ces deux éléments, nous pourrons construire un #{ coderay 'Quaternion', inline: true} particulier #{":"} #{ coderay 'h', inline: true}. La rotation d'un point désigné par le quaternion #{ coderay 'q', inline: true} est donnée à l'aide de la formule #{ coderay 'h*q*h.inverse', inline: true}.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -435,7 +431,7 @@ p À l'aide de ces deux éléments, nous pourrons construire un #{ coderay 'Quat
       end
     end
 
-p Pour la démonstration, on va récupérer notre carré de tout à l'heure, et effectuer une rotation de 60° autour de la diagonale du carré. Je ferais aussi, à titre de comparaison, la même transformation via la propriété #{ coderay 'transform', inline: true} de CSS.
+p Pour la démonstration, on va récupérer notre carré de tout à l'heure, et effectuer une rotation de 60° autour de la diagonale du carré. Je ferai aussi, à titre de comparaison, la même transformation via la propriété #{ coderay 'transform', inline: true} de CSS.
 
 = coderay do
   | ?> TAU = Math::PI * 2
@@ -462,7 +458,7 @@ div id='demo-rotate' class='fluid'
 
 p Et voilà !
 
-p Je dois tout de même signaler qu'il existe une autre méthode pour calculer la rotation, en calculant la matrice orthogonale d'un quaternion. Ce sera une technique plus adapté pour ceux qui choississent ne ne pas implémenter les #{ coderay 'Quaternion', inline: true}, et de préférer le système 'classique' de représentation d'un point, avec les trois coordonnées #{ coderay '(x, y, z)', inline: true}.
+p Je dois tout de même signaler qu'il existe une autre méthode pour calculer la rotation, à l'aide de la matrice orthogonale d'un quaternion. C'est une technique qui sera plus adaptée pour ceux qui choississent de ne pas implémenter les #{ coderay 'Quaternion', inline: true}, et qui préférent le système plus classique de représentation à l'aide des trois coordonnées #{ coderay '(x, y, z)', inline: true}.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -471,9 +467,9 @@ p Je dois tout de même signaler qu'il existe une autre méthode pour calculer l
         cos = Math.cos phi / 2
 
         q0 = cos
-        q1 = q.unify.imag[0] * sin
-        q2 = q.unify.imag[1] * sin
-        q3 = q.unify.imag[2] * sin
+        q1 = q.unify.imag[0] * sin # q.x * sin
+        q2 = q.unify.imag[1] * sin # q.y * sin
+        q3 = q.unify.imag[2] * sin # q.z * sin
 
         rotation_matrix = Matrix[
           [q0**2 + q1**2 - q2**2 - q3**2, 2*(q1*q2 - q0*q3), 2*(q1*q3 + q0*q2)],
@@ -497,11 +493,13 @@ p Je dois tout de même signaler qu'il existe une autre méthode pour calculer l
       end
     end
 
+p Faites attention cependant à ce que votre vecteur de rotation (ici #{ coderay 'q', inline: true}), soit un vecteur unaire, c'est-à-dire de taille #{ coderay '1', inline: true}. Cela vaut pour les deux méthodes, et pour la rotation 2D.
+
 h3 Perspective
 
-p Il est temps d'ajouter le calcul de la perspective. L'idée ici est relativement simple #{":"} On commence par définir un point de #{ coderay 'perspective', inline: true}, c'est la position de l'observateur par rapport au plan d'équation #{ coderay 'z = 0', inline: true} (tous les points qui vérifient cette équation constituent le plan), formé par les axes #{ coderay '(x, y)', inline: true}. Cela nous permettra ensuite de calculer, pour chaque point du polyédre, l'endroit où la droite formée entre le point de perspective et le plan se croisent.
+p Il est temps maintenant d'ajouter le calcul de la perspective. L'idée ici est relativement simple #{":"} On commence par définir un point de #{ coderay 'perspective', inline: true}, c'est la position de l'observateur. Cela nous permettra ensuite de calculer, pour chaque point du polyèdre, l'endroit où la droite formée entre le point de perspective et le plan d'équation #{ coderay 'z = 0', inline: true} (tous les points qui vérifient cette équation constituent le plan) se croisent.
 
-p Dans l'illisutration ci-dessous, on étudie le point #{ coderay '2i + 2j + 4k', inline: true} avec un point de perspective à #{ coderay '-7.5k', inline: true}.
+p Dans l'illustration ci-dessous, on étudie le point #{ coderay '2i+2j+4k', inline: true} avec #{ coderay 'perspective = -7.5k', inline: true}.
 
 svg class='quaternions' viewBox='-500 -250 1000 500'
 
@@ -543,18 +541,20 @@ svg class='quaternions' viewBox='-500 -250 1000 500'
   circle cx='78.26' cy='-78.26' r='1' class='rad'
 
   text x='-15' y='-5' 0
-  text x='290' y='-195' 2i + 2j + 4k
-  text x='-305' y='170' p (-7.5k)
+  text x='290' y='-195' 2i+2j+4k
+  text x='-305' y='170' perspective(-7.5k)
   text x='0' y='-78' class='rad' 1,3i + 1,3j
-  text x='-190' y='-130' z #{"="} 0
+  text x='-190' y='-130' plan(z #{"="} 0)
 
-p La méthode est la suivante #{":"} On commence par calculer le vecteur qui correspond à la droite formée par les deux points (celui de la perspective, et celui du point étudié). Le vecteur sert à définir la direction de la droite, il nous sert ensuite à définir la réprésentation paramétrique de la droite (un point de référence et une direction).
+p La méthode est la suivante #{":"} On commence par calculer le <i>vecteur</i> qui correspond à la droite formée par les deux points (celui de la perspective, et celui du point étudié). Le <i>vecteur</i> nous indique la direction de la droite, il va nous servir à définir la <i>représentation paramétrique</i> de la droite.
 
-p Il faut faire attention à ce moment là que la droite ne soit pas parralléle au plan, auquel cas il n'y aura pas de point d'intersection. Si cette condition est validée, on peux commencer à résoudre notre système d'équation. La représentation paramétrique exprime les trois coordonnées #{ coderay '(x, y, z)', inline: true} selon une variable, généralement appellée #{ coderay 't', inline: true}.
+p Si la droite n'est pas parallèle au plan (dans ce cas, il n'y aura pas de point d'intersection) on peut commencer à résoudre le système d'équation qu'on vient de construire #{":"}
 
-p On peut se servir de l'équation du plan pour trouver la valeur de #{ coderay 't', inline: true}. En utilisant cette valeur dans la représentation paramétrique de la droite, on peut calculer les valeurs de #{ coderay '(x, y)', inline: true} du point d'intersection.
+p La représentation paramétrique exprime les trois coordonnées #{ coderay 'x,y,z', inline: true} selon une variable, généralement appelée #{ coderay 't', inline: true}. En remplaçant les variable #{ coderay 'x,y,z', inline: true} dans l'équation du plan, on peut trouver la valeur de #{ coderay 't', inline: true}.
 
-p Cette procédure se résume à un bref calcul, en pseudo-code #{":"} #{ coderay 'x = point.x + ((point.x - perspective.x) * (-point.z / (point.z - perspective.z)))', inline: true}, et c'est la même chose pour la coordonnée #{ coderay 'y', inline: true}.
+p Il ne nous suffit plus que d'utiliser cette valeur dans la <i>représentation paramétrique</i> de la droite pour calculer les coordonnées #{ coderay 'x,y', inline: true} du point d'intersection.
+
+p Voici à quoi ça ressemble en pseudo-code #{":"} <br> #{ coderay 'x = point.x + (point.x-perspective.x) * (-point.z/(point.z - perspective.z))', inline: true}. La même opération vaut pour la coordonnée #{ coderay 'y', inline: true}.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -588,9 +588,9 @@ p Cette procédure se résume à un bref calcul, en pseudo-code #{":"} #{ codera
       end
     end
 
-p Je crois qu'encore une fois, une démonstration s'impose ! Remarquez au passage qu'ignorer la perspective revient à définir un point de perspective infiniment loin.
+p Remarquez au passage qu'ignorer la perspective revient à définir un point de perspective infiniment loin.
 
-p Nous allons encore récupérer notre carré, que nous allons cette fois faire tourner autour de l'axe #{ coderay 'x', inline: true} d'un angle de #{ coderay '-45°', inline: true}, de sorte qu'il ait l'air de basculer vers nous.
+p Pour notre démonstration, nous allons encore récupérer notre carré que cette fois nous allons faire tourner autour de l'axe #{ coderay 'x', inline: true}, d'un angle de #{ coderay '-45°', inline: true} de sorte qu'il ait l'air de basculer vers nous.
 
 = coderay do
   | ?> square.rotate!(Quaternion(0,1,0,0), -TAU/8).to_svg self
@@ -618,13 +618,15 @@ div id='demo-perspective' class='fluid'
 
 h3 Origin
 
-p Peut-être auras-tu remarqué cher lecteur, mais notre roration n'est pas tout à fait au point, en effet, l'axe de la rotation est représenté par un #{ coderay 'Quaternion', inline: true}. Autrement dit, l'axe de la rotation passe nécéssairement par le point #{ coderay '(0, 0, 0)', inline: true}.
+p Peut-être, comme moi, auras-tu remarqué cher lecteur que notre rotation n'est pas tout à fait au point #{":"} l'axe de la rotation est représenté par un #{ coderay 'Quaternion', inline: true}. Autrement dit, l'axe de la rotation passe nécessairement par le point #{ coderay '(0, 0, 0)', inline: true}.
 
-p Je m'en suis rendu compte avec l'exemple ci-dessus #{":"} on fait une rotation autour de l'axe #{ coderay 'x', inline: true}, qui donne l'impression que le carré tourne autour de l'arrête du bas, mais il serait actuellement impossible de le faire tourner autour de l'arrête du haut ! C'est un problème.
+p Je me suis rendu compte de ce problème pendant que je faisait l'exemple précédent #{":"} on fait faire une rotation autour de l'axe #{ coderay 'x', inline: true}, ce qui donne l'impression que le carré tourne autour de son arête du bas, mais comment faire pour le faire tourner autour de son arête du haut ?
 
-p Il n'y a pas de solution mathématique à ce problème, pas de formule qui peut nous aider ici (en tout cas, aucune que je connaisse). Il va falloir utiliser notre astuce pour contourner ce problème.
+p En l'état, ça n'est pas possible. Et pour nous aider ici, je n'ai pas trouvé de formule mathématique, il va falloir utiliser notre astuce pour contourner ce problème.
 
-p La translation nous permet de déplacer un point par rapport au point d'origine #{ coderay '(0, 0, 0)', inline: true}, ou, vu autrement, on peut déplacer le point d'origine par rapport à un point. Si on faisait deux translations, une avant la rotation, et une ensuite, pour compenser, on pourrait effectivement 'déplacer' le point d'origine, le centre de la rotation.
+p Une translation nous permet de faire mouvoir un point par rapport à sa position d'origine. Ou, vu selon un autre référentiel, de faire mouvoir un point par rapport au point #{ coderay '(0, 0, 0)', inline: true}. Ou encore, vu autrement, une translation nous permet de faire se déplacer tous les points (y compris #{ coderay '(0, 0, 0)', inline: true}) par rapport à soi-même.
+
+p Alors avec deux translations, une avant la rotation, et une ensuite, pour compenser, on pourrait effectivement 'déplacer' le point #{ coderay '(0, 0, 0)', inline: true} (qui est le centre de la rotation) par rapport à soi-même.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -678,11 +680,13 @@ div id='demo-origin' class='fluid'
     path d='M 0 -3 L 1 -3 L .9 -3.075 L .9 -2.925 L 1 -3' class='rad'
     text x='-.3' y='-3.3' class='rad' 3j
 
-p Et ça y est, nos deux tranformations fonctionnement à merveille. La prochaine étape sera d'ajouter du mouvement dans nos dessins. Un peu de dynamisme ! Que diable !
+p Et ça y est, nos deux transformations fonctionnement à merveille.
+
+p La prochaine étape, c'est d'ajouter du mouvement dans nos dessins. Un peu de dynamisme ! Que diable !
 
 h3 Traduction
 
-p Ami lecteur, j'ai peur. J'ai peur d'avoir sélectionné le mauvais language de programmation pour notre librairie, puisque si on veut pouvoir manipuler dynamiquement nos polyédres, le meilleur choix semble être Javascript. Je vais donc m'occupper dans la section suivante de traduire complétement notre librairie dans ce language. (note #{":"} le code suivant est écrit en CoffeeScript)
+p Ami lecteur, j'ai bien peur d'avoir sélectionné le mauvais langage de programmation pour notre librairie. Il paraît évidement maintenant que si on veut pouvoir manipuler dynamiquement nos polyèdres, il va falloir réécrire tous le code en Javascript #{":"} <i>(le code suivant utilise la syntaxe CoffeeScript)</i>
 
 
 = coderay lang: :javascript do
@@ -794,7 +798,7 @@ p Ami lecteur, j'ai peur. J'ai peur d'avoir sélectionné le mauvais language de
 
 h3 Synergie
 
-p On va aussi écrire une méthode #{ coderay 'to_js', inline: true} dans la partie Ruby de la #{ coderay 'ComplexEngine', inline: true}, juste au cas où on aurait besoin de conserver une synergie entre les parties de la librairie, si elles devaient dans le futur évoluer indépendeamment, et se spécialiser.
+p On va aussi écrire une méthode #{ coderay 'to_js', inline: true} dans la partie Ruby de la #{ coderay 'ComplexEngine', inline: true}, juste au cas où on aurait besoin de conserver une synergie entre les deux parties de la librairie. Elles pourraient à l'avenir évoluer indépendamment et se spécialiser.
 
 = coderay do
   | class ComplexEngine::Polyhedron
@@ -803,7 +807,7 @@ p On va aussi écrire une méthode #{ coderay 'to_js', inline: true} dans la par
           points: points.map(&:q).map(&:imag),
           faces: faces
         }.to_json
-        "Polyhedron.initialize(#{params})".html_safe
+        "Polyhedron.initialize(\#{params})".html_safe
       end
     end
 
@@ -814,9 +818,9 @@ p On va aussi écrire une méthode #{ coderay 'to_js', inline: true} dans la par
 
 h3 Animation
 
-p À partir de là, faire une animation n'est pas bien compliqué. On peut, en fonction de la durée de l'animation, calculer chaque étape intermédiaire, et redessiner le polyédre à chacune de ces étapes.
+p À partir de là, faire une animation n'est pas bien compliqué. On peut calculer chaque étape intermédiaire en fonction de la durée de l'animation, et redessiner le polyèdre à chacune de ces étapes.
 
-p Par exemple, pour un octahédre légérement incliné, qu'on ferait tourner indéfiniement autour de l'axe 'nord-sud' #{":"}
+p Par exemple, pour un octaédre (qui fait partie des cinq polyédres réguliers de platon) légèrement incliné vers l'avant, qu'on ferait tourner indéfiniment autour de son axe 'nord-sud' #{":"}
 
 = coderay lang: :javascript do
   | TAU = Math.PI * 2.0
@@ -859,12 +863,12 @@ javascript:
 div id='start-demo-octahedrons'
   p Pour ceux qui veulent aller plus loin dans les animations, je vous recommande la lecture d'un de mes projets sur github #{":"} #{ link_to 'ModelEngine', 'https://github.com/petrachi/ModelEngine', target: :_blank }, qui m'a servi de base pour l'écriture de cet article.
 
-  p Vous pouvez également télécharger tous les fichier de la #{ coderay 'ComplexEngine', inline: true} en cliquant sur le bouton ci-dessous.
+  p Vous pouvez également télécharger tous les fichier de la #{ coderay 'ComplexEngine', inline: true} en cliquant sur le bouton ci-dessous #{":"}
 
   p class='align-center'
     = link_to "Télécharger les fichiers", "/dl/complex_engine.zip", class: :btn
 
-  p Quand à moi, je vous laisse avec une dernière animation que personnellement je trouve hypnotisante ...
+  p Je vous laisse, en attendant le prochain article, avec une toute dernière animation #{":"} <i>(je trouve cette 'danse' d'octaédres quasi-hypnotisante ... c'est beau !)</i>
 
   svg id='demo-octahedrons' class='demo' viewBox='-1 -1 2 2'
 

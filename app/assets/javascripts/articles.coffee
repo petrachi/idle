@@ -37,7 +37,10 @@ loadArticle = (article) ->
     if article.historyBack
       article.historyBack = false
     else
-      history.pushState {tag: tag}, "", Routes.direct_to_path(tag: tag)
+      if document.querySelector("#articles").getAttribute('data-p')
+        history.pushState {tag: tag}, "", Routes.preview_path(tag: tag)
+      else
+        history.pushState {tag: tag}, "", Routes.direct_to_path(tag: tag)
 
     xhr = new XMLHttpRequest()
     xhr.open 'GET', Routes.article_path(tag: tag)

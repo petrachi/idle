@@ -32,6 +32,6 @@ end
 Article.find_or_create_by(tag: :complex_engine) do |a|
   a.title = "Complex Engine"
   a.group = :bdd
-  a.published = true
+  a.published = false
   # a.published_at = "29-09-2016"
 end
