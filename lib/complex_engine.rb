@@ -2,6 +2,9 @@ require 'quaternion'
 TAU = Math::PI * 2.0
 
 module ComplexEngine
+  require 'complex_engine/point'
+  require 'complex_engine/polygon'
+  require 'complex_engine/polyhedron'
 
   # Demos
   def ruby_2d
