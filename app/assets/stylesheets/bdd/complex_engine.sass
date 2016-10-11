@@ -1,0 +1,343 @@
+#complex-engine
+  @keyframes cube-fold
+    1%
+      transform: rotateY(0) rotateX(0)
+    9%
+      transform: rotateY(-90deg) rotateX(0)
+    11%
+      transform: rotateY(-90deg) rotateX(0)
+    19%
+      transform: rotateY(0) rotateX(0)
+    21%
+      transform: rotateY(0) rotateX(0)
+    29%
+      transform: rotateY(0) rotateX(-90deg)
+    31%
+      transform: rotateY(0) rotateX(-90deg)
+    39%
+      transform: rotateY(0) rotateX(0)
+    41%
+      transform: rotateY(0) rotateX(0)
+    49%
+      transform: rotateY(90deg) rotateX(0)
+    51%
+      transform: rotateY(90deg) rotateX(0)
+    59%
+      transform: rotateY(180deg) rotateX(0)
+    61%
+      transform: rotateY(180deg) rotateX(0)
+    69%
+      transform: rotateY(180deg) rotateX(90deg)
+    70%
+      transform: rotateY(180deg) rotateX(90deg)
+    100%
+      transform: rotateY(360deg) rotateX(360deg)
+
+  @keyframes cube-fold-top
+    61%
+      transform: translateZ(-2.5em) rotateX(0)
+    69%
+      transform: translateZ(-2.5em) rotateX(-90deg)
+    75%
+      transform: translateZ(-2.5em) rotateX(-90deg)
+    85%
+      transform: translateZ(-2.5em) rotateX(-90deg) translateZ(-2em) rotateZ(-15deg)
+
+  @keyframes cube-fold-bottom
+    21%
+      transform: translateZ(-2.5em) rotateX(0)
+    29%
+      transform: translateZ(-2.5em) rotateX(90deg)
+    75%
+      transform: translateZ(-2.5em) rotateX(90deg)
+    85%
+      transform: translateZ(-2.5em) rotateX(90deg) translateZ(-2em) rotateZ(-15deg)
+
+  @keyframes cube-fold-left
+    1%
+      transform: translateZ(-2.5em) rotateX(0)
+    9%
+      transform: translateZ(-2.5em) rotateY(90deg)
+    75%
+      transform: translateZ(-2.5em) rotateY(90deg)
+    85%
+      transform: translateZ(-2.5em) rotateY(90deg) translateZ(-2em) rotateZ(-15deg)
+
+  @keyframes cube-fold-right
+    41%
+      transform: translateZ(-2.5em) rotateX(0)
+    49%
+      transform: translateZ(-2.5em) rotateY(-90deg)
+    75%
+      transform: translateZ(-2.5em) rotateY(-90deg)
+    85%
+      transform: translateZ(-2.5em) rotateY(-90deg) translateZ(-2em) rotateZ(-15deg)
+
+  @keyframes cube-fold-back
+    41%
+      transform-origin: -100% 100%
+      transform: translateZ(-2.5em) rotateX(0)
+    49%
+      transform-origin: -100% 100%
+      transform: translateZ(-2.5em) rotateY(-90deg)
+    51%
+      transform-origin: -100% 100%
+      transform: translateZ(-2.5em) rotateY(-90deg)
+    59%
+      transform-origin: -50% 100%
+      transform: translateZ(2.5em) rotateY(-180deg)
+    75%
+      transform-origin: -50% 100%
+      transform: translateZ(2.5em) rotateY(-180deg)
+    85%
+      transform-origin: -50% 100%
+      transform: translateZ(2.5em) rotateY(-180deg) translateZ(-2em) rotateZ(-15deg)
+
+  @keyframes cube-fold-front
+    75%
+      transform: translateZ(-2.5em)
+    85%
+      transform: translateZ(-2.5em) translateZ(-2em) rotateZ(-15deg)
+
+  .container.cube
+    transform-style: preserve-3d
+    perspective: 60em
+
+    &:hover
+      #cube
+        animation: cube-fold 6s infinite linear
+
+        #top
+          animation: cube-fold-top 6s infinite linear
+
+        #front
+          animation: cube-fold-front 6s infinite linear
+
+        #bottom
+          animation: cube-fold-bottom 6s infinite linear
+
+        #left
+          animation: cube-fold-left 6s infinite linear
+
+        #right
+          animation: cube-fold-right 6s infinite linear
+
+        #back
+          animation: cube-fold-back 6s infinite linear
+
+  #cube
+    height: 15em
+    width: 25em
+    margin: auto
+
+    border: 1px dotted #111
+
+    position: relative
+    transform-style: preserve-3d
+
+    > *
+      height: 5em
+      width: 5em
+
+      background-color: rgba(#fbfbfb, .8)
+      box-shadow: 0 0 0 1px #111 inset
+
+      position: absolute
+      text-align: center
+
+      transform: translateZ(-2.5em)
+
+      span
+        font-size: 3em
+        font-weight: 100
+        color: rgba(#111, .5)
+        line-height: 1.625em
+
+    #top
+      top: 0
+      left: 10em
+      transform-origin: 50% 100%
+
+    #front
+      top: 5em
+      left: 10em
+
+    #bottom
+      top: 10em
+      left: 10em
+      transform-origin: 50% 0%
+
+    #left
+      top: 5em
+      left: 5em
+      transform-origin: 100% 50%
+
+    #right
+      top: 5em
+      left: 15em
+      transform-origin: 0% 50%
+
+    #back
+      top: 5em
+      left: 20em
+
+  svg
+    line
+      stroke: #111
+
+    &.quaternions
+      font-size: 16px
+
+      line
+        &.rad
+          stroke: firebrick
+
+      path
+        stroke: #111
+
+        &.plan
+          fill: rgba(#fbfbfb, .4)
+
+        &.rad
+          fill: transparent
+          stroke: firebrick
+
+      text
+        &.rad
+          fill: firebrick
+
+        &.light
+          stroke: transparent
+
+      .light
+        stroke: #769B29
+        fill: #769B29
+
+      @keyframes rotate45
+        5%
+          transform: rotate(0)
+        90%
+          transform: rotate(-45deg)
+        95%
+          transform: rotate(-45deg)
+        100%
+          transform: rotate(0)
+
+      .rotate45
+        transform: rotate(0)
+
+      &:hover
+        .rotate45
+          animation: rotate45 4s ease infinite
+
+    &.demo
+      padding: .25em
+      height: 10em
+
+      path
+        fill: rgba(#fbfbfb, .4)
+        stroke: #111
+        stroke-width: .1px
+
+
+        &.rad
+          stroke: firebrick
+          fill: transparent
+
+      line,
+      .line
+
+        stroke-width: .02px
+        fill: transparent
+
+      text
+        font-size: .25px
+        letter-spacing: .05px
+
+      .rad
+        fill: firebrick
+
+      .light
+        stroke: #769B29
+
+      .dotted
+        stroke-dasharray: .02px .08px
+
+      &#ruby-2d
+        path
+          fill: firebrick
+          stroke: yellowgreen
+          stroke-width: .05px
+
+          &:nth-child(2n + 1)
+            fill: rgba(firebrick, .75)
+
+      &#rotate-css
+        path:not(.line)
+          transform: rotate3d(1, -1, 0, 60deg)
+
+  #demo-rotate,
+  #demo-perspective,
+  #demo-origin
+    margin-top: 2em
+    position: relative
+
+    &:before,
+    &:after
+      display: block
+      position: absolute
+      top: 0
+      background-color: rgba(#fbfbfb, .25)
+      padding: .25em .5em
+      border-radius: 1em
+      font-size: 16px
+
+  #demo-rotate
+    &:before
+      content: "Complex Engine"
+      left: 0
+
+    &:after
+      content: "CSS transform"
+      left: 50%
+
+    &:hover
+      #rotate-css
+        @keyframes rotate-css
+          0%
+            transform: rotate3d(1, -1, 0, 60deg)
+          100%
+            transform: rotate3d(1, -1, 0, 420deg)
+
+        path:not(.line)
+          animation: rotate-css 4s linear infinite
+
+  #demo-perspective
+    &:before
+      content: "Sans Perspective"
+      left: 0
+
+    &:after
+      content: "Avec Perspective"
+      left: 50%
+
+  #demo-origin
+    svg
+      path.rad
+        stroke-width: .05px
+
+  svg#demo-octahedron,
+  svg#demo-octahedrons
+    height: 25em
+    margin: 1em 0
+
+    path
+      stroke-width: .25px
+      stroke-linejoin: round
+      fill: rgba(#fbfbfb, .5)
+
+  svg#demo-octahedrons
+    path
+      stroke-width: .01px
+      fill: rgba(255, 165, 0, 0.74902)
+      stroke: orangered

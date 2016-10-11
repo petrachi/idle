@@ -4,10 +4,11 @@
 
 # Articles
 listenArticles = ->
-  [].forEach.call document.querySelectorAll('[data-article]'), (e) ->
-    e.clickHandler = ->
-      loadArticle(e)
-    e.addEventListener 'click', e.clickHandler
+  for e in document.querySelectorAll('[data-article]')
+    do (e) ->
+      e.clickHandler = ->
+        loadArticle(e)
+      e.addEventListener 'click', e.clickHandler
 
   e = document.querySelector('#close-icon')
   e.clickHandler = ->
@@ -36,7 +37,10 @@ loadArticle = (article) ->
     if article.historyBack
       article.historyBack = false
     else
-      history.pushState {tag: tag}, "", Routes.direct_to_path(tag: tag)
+      if document.querySelector("#articles").getAttribute('data-p')
+        history.pushState {tag: tag}, "", Routes.preview_path(tag: tag)
+      else
+        history.pushState {tag: tag}, "", Routes.direct_to_path(tag: tag)
 
     xhr = new XMLHttpRequest()
     xhr.open 'GET', Routes.article_path(tag: tag)
@@ -50,12 +54,13 @@ loadArticle = (article) ->
           data = xhr.responseText
         else
           console.log('Error: ' + xhr.status)
-          data = "<p class='error'>M'enfin ! Ya quelque chose qui à bouché le machin et du coup n'a pas fonctionné. Mais ne t'inquiètes donc pas comme ça, c'est juste une affaire de quelques réglage, voilà tout.</p>"
+          data = "<p class='error'>M'enfin ! Ya quelque chose qui à bouché le machin et du coup ça n'a pas fonctionné. Mais ne t'inquiètes donc pas comme ça, c'est juste une affaire de quelques réglage, voilà tout.</p>"
           content.innerHTML = "Error"
 
         content.innerHTML = data
         listenTargets()
         listenRating()
+        executeScripts()
         loader.classList.remove 'active'
         content.classList.add 'active'
 
@@ -66,20 +71,22 @@ closeArticle = ->
 
 
 listenTargets = ->
-  [].forEach.call document.querySelectorAll('[data-article-target]'), (e) ->
-    e.clickHandler = ->
-      document.querySelector("[data-article=#{ e.getAttribute('data-article-target') }]").click()
-    e.addEventListener 'click', e.clickHandler
+  for e in document.querySelectorAll('[data-article-target]')
+    do (e) ->
+      e.clickHandler = ->
+        document.querySelector("[data-article=#{ e.getAttribute('data-article-target') }]").click()
+      e.addEventListener 'click', e.clickHandler
 
 listenRating = ->
-  [].forEach.call document.querySelectorAll('[data-rating]'), (e) ->
-    e.clickHandler = ->
-      e.classList.add 'checked'
-      [].forEach.call document.querySelectorAll("[data-rating=#{ e.getAttribute('data-rating') }]"), (f) ->
-        f.classList.add 'desactivated'
-        f.removeEventListener 'click', f.clickHandler
-      sendRating e
-    e.addEventListener 'click', e.clickHandler
+  for e in document.querySelectorAll('[data-rating]')
+    do (e) ->
+      e.clickHandler = ->
+        e.classList.add 'checked'
+        for f in document.querySelectorAll("[data-rating=#{ e.getAttribute('data-rating') }]")
+          f.classList.add 'disabled'
+          f.removeEventListener 'click', f.clickHandler
+        sendRating e
+      e.addEventListener 'click', e.clickHandler
 
 sendRating = (e) ->
   xhr = new XMLHttpRequest()
@@ -88,9 +95,11 @@ sendRating = (e) ->
   xhr.setRequestHeader 'Content-type', 'application/x-www-form-urlencoded'
   xhr.send("rating[tag]=#{ e.getAttribute('data-rating') }&rating[value]=#{ e.getAttribute('data-rating-value') }")
 
+executeScripts = ->
+  eval(scr.innerHTML) for scr in document.querySelectorAll('script')
+
 clearActiveArticle = ->
-  [].forEach.call document.querySelectorAll('[data-article].active'), (e) ->
-    e.classList.remove 'active'
+  e.classList.remove('active') for e in document.querySelectorAll('[data-article].active')
 
 setActiveArticle = (article) ->
   clearActiveArticle()

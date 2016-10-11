@@ -6,9 +6,11 @@ Rails.application.routes.draw do
     get 'article/:tag' => :show, as: :article
 
     get 'd/:tag' => :index, as: :direct_to
+    get 'p/:tag' => :index, as: :preview, preview: :true
   end
 
   controller :ratings do
-    post 'ratings' => :create, as: :ratings
+    get 'ratings' => :index, as: :ratings
+    post 'ratings' => :create
   end
 end
