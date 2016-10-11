@@ -7,7 +7,7 @@
 #   Character.create(name: 'Luke', movie: movies.first)
 
 Article.find_or_create_by(tag: :'ch1') do |a|
-  a.title = "Chapitre 1 - Lectures"
+  a.title = "Chapitre 1 - Lecture"
   a.group = :hdli
   a.published = true
   # a.published_at = "11-09-2016"
