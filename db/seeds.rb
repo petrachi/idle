@@ -42,3 +42,10 @@ Article.find_or_create_by(tag: :mult_engine) do |a|
   a.published = false
   # a.published_at = "12-01-2017"
 end
+
+Article.find_or_create_by(tag: :lambda) do |a|
+  a.title = "Lambda Calcul"
+  a.group = :bdd
+  a.published = false
+  # a.published_at = "22-01-2017"
+end
