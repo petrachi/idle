@@ -35,3 +35,10 @@ Article.find_or_create_by(tag: :complex_engine) do |a|
   a.published = true
   a.published_at = "12-10-2016"
 end
+
+Article.find_or_create_by(tag: :mult_engine) do |a|
+  a.title = "Forme & Multiplication"
+  a.group = :bdd
+  a.published = false
+  # a.published_at = "12-01-2017"
+end
