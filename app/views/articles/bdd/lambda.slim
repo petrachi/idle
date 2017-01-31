@@ -1,51 +1,87 @@
-p Il y a environ trois ou quatre ans, j'ai lu un article intitulé <i>Programming with Nothing</i>. Dans cet article, l'auteur nous raconte comment il a programmé un algorithme de <i>FizzBuzz</i> uniquement à l'aide de #{ coderay 'Proc', inline: true}. C'est une lecture qui m'a beaucoup marqué, que je ne comprenais pas, comment pouvait-il programmer uniquement avec des #{ coderay 'Proc', inline: true} ? Comment pouvait-il faire un algorithme <i>FizzBuzz</i> sans utiliser ni assignations, ni tableaux, ni strings, ni nombres, ni booléens ?
+p Il y a des lectures qui marquent. Pour moi, ça n'a été ni Marx, ni Proust (bien que j'apprécie ce dernier), mais Tom Stuart, auteur d'un magnifique article #{":"} <i>Programming with Nothing</i>.
 
-p Ça n'est que trés récement que j'ai compris ce dont il était vraiment question dans cet article que j'avais du mal à comprendre #{":"} le λ-calcul (lambda calcul). En 1938, Alan Turing écrivait un article qui fera marque dans l'histoire de l'informatique dans lequel il décrit son modéle des machines de Turing. Mais à l'époque, Turing ne cherche pas à inventer l'ordinateur, il veut répondre à une question mathématique importante #{":"} donner une définition formelle au concept de <i>calculabilité</i>.
+p Si je devais le résumer simplement, <i>Programming with Nothing</i> propose de réaliser un algorithme simplissime, un algorithme de <i>FizzBuzz</i>, mais sans utiliser aucune notion "classique" du développement informatique. En clair, il s'agit de programmer sans rien, ou presque rien, puisque l'auteur s'autorise tout de même à utiliser des #{ coderay 'lambda', inline: true}.
 
-p Ce que ne savait pas Turing, c'est que quelques mois plus tôt seulement, un autre mathématicien venait de répondre à la même question, mais d'une manière absolument différente. Pour définir la calculabilité, Alonzo Church se sert d'un systéme de calcul qu'il à développé quelques années auparavent et qu'il appelle le λ-calcul. Tout ce qui est calculable, on peut le calculer à l'aide du λ-calcul, le reste, ce n'est pas calculable.
+p Pendant longtemps, je n'ai rien compris à cet article. Comprendre comment il était possible de programmer sans utiliser ni d'assignation de variables, ni de tableaux, ni de texte, ou de nombres, ou des booléens, ... C'était visiblement trop compliqué pour moi. Et puis un beau jour, j'ai entendu parlé du λ-calcul.
 
 h3 Lambda Calcul
 
-p Le λ-calcul est une expression des calculs mathématiques qui utilise uniquement des fonctions abstraites. Par exemple, voici comment s'écrit la fonction d'<i>identité</i> #{":"} #{ coderay 'λx.x', inline: true}. Et voici une fonction constante #{":"} #{ coderay 'λx.y', inline: true}, peut importe la valeur du paramètre, la fonction renverra toujours la même valeur #{ coderay 'y', inline: true}.
+p Le λ-calcul (prononcez "lambda calcul") est une façon différente d'écrire les mathématiques, mais ça n'est pas tout, le λ-calcul permet aussi de définir formellement la notion de "calculabilité", une question mathématique centrale dans les années 1930.
 
-p Il est également possible d'<i>appliquer</i> une fonction à une autre, c'est à dire que l'on utilise une fonction en argument d'un autre fonction, et pour cela, on utilise des parenthèses #{":"} #{ coderay '(λx.x)y', inline: true} signifie "j'applique la fonction #{ coderay 'λx.x', inline: true} (la fonction d'identitée) à #{ coderay 'y', inline: true}".
+p De fait, le λ-calcul possède une structure terriblement simple, afin de lui permettre d'être le plus flexible possible. Concrètement, le λ-calcul n'utilise que des fonctions abstraites, c'est-à-dire, des fonctions que l'on ne nomme pas.
 
-p Tout le principe du λ-calcul est là #{":"} on peut définir des fonctions et les appliquer entre-elles. C'est tout. Mais malgrè la simplicité de ses règles, le λ-calcul n'est pas un outil facile à manipuler. Voici un exemple qui devrait te convaincre, ami lecteur, il s'agit de la fonction d'addition #{":"} #{ coderay 'λm.λn.λf.λx.m f (n f x)', inline: true}.
+p En mathématiques classiques, une fonction est généralement nommée par une lettre. Par exemple #{":"} #{ coderay 'f(x) = x', inline: true} définit le comportement de la fonction #{ coderay 'f', inline: true}. En λ-calcul, le nom de la fonction va disparaître au profit du signe #{ coderay 'λ', inline: true} qui sera commun à toutes les fonctions. Exprimée en λ-calcul, notre fonction #{ coderay 'f', inline: true} s'écrit #{ coderay 'λx.x', inline: true}.
 
-p Pour autant, le λ-calcul reste un outil extrêment puissant (c'est, rappelons-le, la définition même de la calculabilité), et qui peut être parfois utile. Et ce n'est pas pour rien qu'il est aujourd'hui intégré dans la quasi-totalité des languages informatiques, c'est ce que nous appellons les <i>lambda expression</i> en C#, les <i>fonctions anonymes</i> en javascript, ou bien les #{ coderay 'Proc', inline: true}, #{ coderay 'lambda', inline: true} ou <i>blocks</i> en Ruby.
+p Et si on s'amusait à définir une fonction constante #{ coderay 'c(x) = y', inline: true}, en λ-calcul on aurait écrit #{ coderay 'λx.y', inline: true}.
 
-h3 Syntaxe
+h3 Calcul
 
-p Pour définir une expression lambda en Ruby, il existe plusieurs syntaxes #{":"}
+p À première vue, on se dit que ça ne change pas grand chose. Plutôt que d'écrire #{ coderay 'f(x) = 2*x + 6', inline: true}, il faut écrire #{ coderay 'λx.2*x + 6', inline: true}. Tout ça ne semble pas bien compliqué.
+
+p Malheureusement, c'est un peu plus complexe que ça. Parce que, pour rappel, le λ-calcul n'utilise QUE des fonctions anonymes. Donc pas d'additions, pas de multiplications, et pas de nombres entiers. La seule opération qui est possible de faire en λ-calcul, c'est d'<i>appliquer</i> une fonction à une autre. En clair, vous prenez une fonction, et vous l'utilisez en tant que paramètre d'une autre fonction.
+
+p #{ coderay '(λx.x)y', inline: true}. Ça veut dire, la fonction #{ coderay 'λx.x', inline: true} appliquée à #{ coderay 'y', inline: true} (qui lmui-même est une fonction). Vous suivez toujours ? Bien. Parce que c'est avec ce principe-là uniquement que l'on va apprendre, ou ré-apprendre, à calculer.
+
+p Pour les nombres entiers par exemple, on fait comment ? Une des solutions les plus simples s'inspire de la logique des nombres unaires. Pour représenter le nombre #{ coderay '1', inline: true}, on va faire une fonction qui appelle une autre fonction <i>une</i> fois. Pour le nombre #{ coderay '2', inline: true}, ça sera une fonction qui appelle une autre fonction <i>deux</i> fois. Etc. Etc.
+
+table class='align-left'
+  tr
+    th nombre
+    th lambda expression
+  tr
+    td class='align-center' #{ coderay '1', inline: true}
+    td #{ coderay 'λf.λx.(f x)', inline: true}
+  tr
+    td class='align-center' #{ coderay '2', inline: true}
+    td #{ coderay 'λf.λx.(f(f x))', inline: true}
+  tr
+    td class='align-center' #{ coderay '3', inline: true}
+    td #{ coderay 'λf.λx.(f(f(f x)))', inline: true}
+  tr
+    td class='align-center' #{ coderay '4', inline: true}
+    td #{ coderay 'λf.λx.(f(f(f(f x))))', inline: true}
+
+p Et pour le #{ coderay '0', inline: true}, c'est pareil, on fait une fonction qui appelle une autre fonction <i>zéro</i> fois #{":"} #{ coderay 'λf.λx.x', inline: true}.
+
+p Si le λ-calcul est un outil particulièrement puissant (il est, par définition, capable d'exprimer n'importe quel calcul possible ou imaginable), ça ne veut pas dire pour autant que c'est facile. Tenez, à titre d'illustration, voici ce à quoi ressemble une simple fonction d'addition #{":"} #{ coderay 'λm.λn.λf.λx.m f (n f x)', inline: true}. Lisible, n'est-ce pas ?
+
+p Et pourtant, depuis trente ans, le λ-calcul à véritablement envahi nos ordinateurs ! C'est le principe fondamental qui se cache derrière ce que nous appelons les <i>lambda expressions</i> en C#, les <i>fonctions anonymes</i> en Javascript, et même, les <i>blocks</i>, <i>procs</i> ou <i>lambdas</i> en Ruby.
+
+h3 Fibonacci
+
+p Il est temps maintenant de nous fixer un objectif #{":"} écrire un algorithme complet en λ-calcul. Pour les débutants que nous sommes, il faut en choisir un pas trop compliqué, et qui n'utilise que des calculs simples.
+
+p Il n'y a pas trop longtemps, on m'a demandé en entretient de faire un algorithme pour calculer le n-éme terme de la suite de Fibonacci. Le code ne fait que quelques lignes, et il n'a besoin que d'une banale addition pour tout calcul. C'est parfait !
+
+p Mais, écrire l'algorithme en λ-calcul ne sera pas suffisant, il faudra aussi s'assurer que l'algorithme fonctionne. Pour ça, on va pouvoir utiliser le langage Ruby et sa classe #{ coderay 'Proc', inline: true}, qui permet de définir et d'exécuter des fonctions anonymes.
+
+p Pour la syntaxe, il y en a plusieurs en Ruby, alors mettons nous d'accord. Pour la définition d'un #{ coderay 'Proc', inline: true}, nous utiliserons la syntaxe "flèche", et pour l'exécution, la syntaxe "crochets" #{":"}
 
 = coderay do
-  | Proc.new{ |x| x + 1 }
-    proc{ |x| x + 1 }
-    lambda{ |x| x + 1 }
-    -> x { x + 1 }
+  | p = Proc.new{ |x| x + 1 }
+    p = proc{ |x| x + 1 }
+    p = lambda{ |x| x + 1 }
+    p = -> x { x + 1 } # ------ sélection
 
-p De même que pour déclencher l'exécution de cette lambda (ou, pour reprendre les termes du λ-calcul, "appliquer la fonction") #{":"}
-
-= coderay do
-  | p.call(41)
-    p[41]
+    p.call(41)
+    p[41] # ------------------- sélection
     p === 41
     p.(41)
 
-p Afin de conserver un esprit fidèle, à la fois à l'article duquel je m'inspire, et à la fois à l'illisibilité du λ-calcul, nous allons choisir d'adopter la notion avec la flèche pour la définition des lambdas, et celle avec les crochets pour l'appel. Ainsi, plutôt que d'écrire #{ coderay 'lambda{ |x| x + 1 }.call(1)', inline: true}, nous écrirons #{ coderay '-> x { x + 1 }[1]', inline: true}.
-
 h3 Currying
 
-p Il est probablement utile, avant de continuer, de mentionner qu'avec le λ-calcul, une fonction ne posséde qu'un et qu'un seul argument. Mais il est également utile de mentionner que cette limitation peut être aisément contournée grâce à ce que l'on appelle le "currying". Une méthode qui permet de transformer une lambda à plusieurs arguments en plusieurs lambda avec un seul argument chacune.
+p Mais il reste encore un problème avant de continuer, le nombre d'arguments.
 
-p Cette lambda ...
+p En λ-calcul, une fonction ne possède qu'un seul argument, tandis qu'en Ruby, rien n'interdit de définir un #{ coderay 'Proc', inline: true} avec plusieurs arguments. Pour répondre à ce problème, nous allons utiliser une technique dite de <i>currying</i>.
+
+p Le <i>currying</i> permet de transformer une méthode à plusieurs arguments en plusieurs méthodes avec un argument chacune, sans modifier le comportement original #{":"}
 
 = coderay do
   | -> x, y {
       x + y
     }.call(3, 4)
 
-p ... est équivalente à #{":"}
+p Devient #{":"}
 
 = coderay do
   | -> x {
@@ -54,21 +90,18 @@ p ... est équivalente à #{":"}
       }
     }.call(3).call(4)
 
-p Maintenant que les bases sont posées, nous pouvons commencer !
+p Tout est prêt, nous pouvons commencer.
 
-h3 Fibonacci
+h3 Que Choisir ?
 
-p Dans l'article <i>Programming with Nothing</i>, l'auteur à décidé de s'attaquer à l'algorithme de <i>FizzBuzz</i>, à la fois parceque c'est une algorithme relativement simple, mais aussi parcequ'il utilise un certain nombre de notions algorithmiques de bases #{":"} des tableaux, des nombres, du texte, etc.
+p Pour ceux qui n'écoutaient pas en cours de maths ou qui n'apprécient pas les discours philosophiques autour du nombre d'or, voici la définition de la suite de Fibonacci #{":"} #{ coderay 'fib(0) = 0', inline: true}, #{ coderay 'fib(1) = 1', inline: true}, #{ coderay 'fib(n) = fib(n-1) + fib(n-2)', inline: true}. C'est-à-dire que vous commencez avec #{ coderay '0', inline: true} et #{ coderay '1', inline: true}, puis chaque terme est la somme des deux précédents.
 
-p Afin d'éviter de tomber dans du copier-coller basique, et aussi parce que je ne comprends pas entiérement certaines fonctions du λ-calcul (comme la représentation des tableaux, ou la soustraction), il ne parraissait pas honnête de choisir le même algorithme. J'ai donc opté pour un bout de code que l'on m'a demandé récemment en entretient technique, il s'agit de la suite de Fibonacci.
-
-p Pour ceux qui ne connaissent pas cette suite qui fait #{ coderay '0, 1, 1, 2, 3, 5, 8, ...', inline: true}, la définition est assez simple #{":"} #{ coderay 'fib(0) = 0', inline: true}, #{ coderay 'fib(1) = 1', inline: true} et #{ coderay 'fib(n) = fib(n-1) + fib(n-2)', inline: true}. En clair, chaque terme de la suite est l'addition des deux termes précédents.
 
 table
   tr
     th n
     th suite
-    th fonction
+    th fib(n)
     th résultat
   tr
     td #{ coderay '2', inline: true}
@@ -95,10 +128,13 @@ table
     td class='align-left' #{ coderay '0, 1, 1, 2, 3, 5', inline: true}
     td #{ coderay '3 + 5', inline: true}
     td #{ coderay '8', inline: true}
+  tr
+    td #{ coderay '7', inline: true}
+    td class='align-left' #{ coderay '0, 1, 1, 2, 3, 5, 8', inline: true}
+    td #{ coderay '5 + 8', inline: true}
+    td #{ coderay '13', inline: true}
 
-p À partir de là, trouver un algorithme pour calculer le n-ième terme reléve presque de la dictée.
-
-h3 Algorime
+p À partir de là, la conversion vers un algorithme récursif est un vrai jeu d'enfant. C'est presque du recopiage (et c'est d'ailleurs pour cela que cet algorithme est souvent appelé "l'algorithme naïf") #{":"}
 
 = coderay do
   | def fibonacci n
@@ -109,13 +145,13 @@ h3 Algorime
      end
     end
 
-p Cet algorithme récursif est une traduction littérale de la définition de la suite de Fibonacci (il est parfois appelé l'algorithme naïf), mais il pose un problème de taille #{":"} il est terriblement lent.
+p Si l'algorithme naïf fonctionne correctement, il n'est pas très efficace #{":"} il va systématiquement recalculer les mêmes valeurs de la suite, et devient rapidement très, très lent.
 
 = coderay do
   | ?> fibonacci(6) # 1.0e-06s
     => 8
 
-    ?> fibonacci(16) # 0.00012ss
+    ?> fibonacci(16) # 0.00012s
     => 987
 
     ?> fibonacci(26) # 0.020415s
@@ -127,7 +163,7 @@ p Cet algorithme récursif est une traduction littérale de la définition de la
     ?> fibonacci(46) # 245.223904s
     => 1836311903
 
-p Le souci, c'est que cet algorithme va calculer plusieurs fois les mêmes valeurs de la suite de Fibonacci. Pour éviter ce probléme, il faudrait intégrer une sorte de mémorisation des précédents calculs, mais il existe autre algorithme plus efficace encore. Celui-ci est itératif #{":"}
+p Heureusement, cet algorithme naïf n'est pas le seul à notre disposition. Par exemple, voici un algorithme itératif linéaire qui ne va conserver que les deux derniers nombres de la suite #{":"}
 
 = coderay do
   | def fibonacci n
@@ -139,7 +175,10 @@ p Le souci, c'est que cet algorithme va calculer plusieurs fois les mêmes valeu
       j
     end
 
-    ?> fibonacci(6) # 3.0e-06s
+p Et la différence de performance est évidente #{":"}
+
+= coderay do
+  | ?> fibonacci(6) # 3.0e-06s
     => 8
 
     # ...
@@ -147,26 +186,32 @@ p Le souci, c'est que cet algorithme va calculer plusieurs fois les mêmes valeu
     ?> fibonacci(46) # 7.0e-06s
     => 1836311903
 
-p La différence de performance est claire, malheureusement, nous ne pouvons pas utiliser ce dernier algorithme pour notre projet. En effet, cet algorithme utilise des assignations de variables, et il n'y a pas de telles choses dans le λ-calcul. Mais rassure-toi ami lecteur, nous pouvons utiliser un algorithme presque identique, c'est l'algorithme récursif terminal (un algorithme récursif assimilé à une itération) #{":"}
+p Ce n'est pourtant pas l'algorithme que nous allons choisir. Pourquoi ? Tout simplement parce que cet algorithme utilise des assignations de variables, et ça, en λ-calcul, c'est impossible !
+
+p Mais comment faire ? Nous avons déjà testé le récursif et l'itératif ? Quel choix nous reste-t-il ? Le récursif terminal #{":"} Un algorithme récursif inspiré et assimilé à un algorithme itératif. Voyez plutôt #{":"}
 
 = coderay do
   | def fibonacci n, i = 0, j = 1
-      if n <= 1
-        j
+      if n <= 0
+        i
       else
         fibonacci(n-1, j, i + j)
       end
     end
 
-p Et voilà !
+p Et voilà ! Comme quoi, récursivité et performance, c'est possible !
 
 h3 Formule de Binet
 
-p Avant de passer à la suite, je voudrais te parler de la formule de Binet (que tu pourras peut-être utiliser à ton prochain entretient technique si on te demande la suite de Fibonacci afin d'impressionner ton examinateur).
+p Ouvrons une courte parenthèse avant de passer à la suite pour parler de la formule de Binet.
 
-p La formule de Binet profite du la relation entre la suite de fibonnacci et le nombre d'or (définit par #{ coderay 'φ = a/b = (a+b)/a', inline: true}, ou bien #{ coderay 'φ = (1+√5) / 2', inline: true}). Du fait de leurs contruction respectives, il se trouve que le ratio de deux termes consécutifs de suite est une bonne approximation du nombre d'or (#{ coderay 'φ ≈ fib(n)/fib(n-1)', inline: true} ). Mais réciproquement, on peut exprimer la suite de fibonnaci en fonction du nombre d'or #{":"} #{ coderay 'fib(n) = (φ**n - (-1/φ)**n) / √5', inline: true}.
+p Il faut savoir qu'il y a une forte relation entre la suite de Fibonacci et le fameux nombre d'or. Vous savez ? Ce nombre définit par #{ coderay 'φ = a/b = (a+b)/a', inline: true} et qu'on retrouve souvent dans l'art ou dans la nature. Et bien il se trouve que le ratio de deux termes consécutifs de la suite de Fibonacci est en fait une très bonne approximation du nombre d'or (#{ coderay 'φ ≈ fib(n)/fib(n-1)', inline: true} ) !
 
-p Partant du fait que #{ coderay '-1/φ**n', inline: true} est strictement compris entre -1 et 0, et qu'il ira en diminuant plus les valeurs de #{ coderay 'n', inline: true} seront élevés, on peut assez aisément ignorer ce terme, et parvenir à cet algorithme "de binet" #{":"}
+p Et si on peux se servir de la suite de Fibonnaci pour trouver le nombre d'or, on peut également se servir du nombre d'or pour trouver un terme de la suite de Fibonacci !
+
+p Mais, ce nombre d'or, on connaît sa valeur ? Et bien oui ! À partir de sa définition, on peut trouver que #{ coderay 'φ = (1+√5) / 2', inline: true}, soit environ #{ coderay 'φ ≈ 1.618033...', inline: true}.
+
+p C'est Jacques Binet qui, à partir de ces éléments, à réussit à établir une formule pour calculer un terme de la suite de suite de Fibonacci à partir du nombre d'or, c'est la formule de Binet #{":"} #{ coderay 'fib(n) = (φ**n - (-1/φ)**n) / √5', inline: true}. Et à partir de cette formule, on peut mettre au point un algorithme hyper-performant #{":"}
 
 = coderay do
   | def fibonacci n
@@ -174,17 +219,33 @@ p Partant du fait que #{ coderay '-1/φ**n', inline: true} est strictement compr
       (φ**n / Math::sqrt(5)).to_i
     end
 
-p Il est intéressant de noter qu'avec cette méthode, on arrive sur une #{ coderay 'FloatDomainError', inline: true} avant de pouvoir observer une quelqconque baisse de performance, mais refermons-là cette parenthèse.
+p Mais refermons là notre petite parenthèse, et reprenons.
 
-h3 Nombres
+h3 Structure
 
-p Notre première étape pour écrire l'algorithme de récursion terminale en lambdas sera d'apprendre à écrire des nombres. Lorsqu'on ne dispose qu'uniquement de fonctions, la manière de représenter les nombres rapelle énormément la logique des nombres unaires (base 1) #{":"} on va procéder par répétition, ici on utilise une fonction qui appelle une fonction qui appelle une fonction qui appelle une fonction ... autant de fois que nécéssaire.
+p À partir de l'algorithme récursif terminal, nous pouvons déjà construire la structure de notre λ-expression finale #{":"}
+
+= coderay do
+  | FIBONACCI = -> n { -> i { -> j {
+      if n <= 0
+        i
+      else
+        FIBONACCI[n-1][j][i+j]
+      end
+    }}}
+    FIB = -> n { FIBONACCI[n][0][1] }
+
+p Dans laquelle nous allons travailler à remplacer petit à petit tout ce qui n'est pas du λ-calcul, à commencer par les nombres entiers.
+
+h3 Entiers
+
+p Comme nous avons déjà vu comment écrire les nombres entiers en λ-calcul, on va aller très vite. Commençons par un rapide rappel #{":"} En λ-calcul, un nombre, c'est une fonction qui appelle une autre fonction autant de fois que nécessaire.
 
 table class='align-left'
   tr
     th nombre
-    th lambda expression
-    th code (ruby)
+    th λ-calcul
+    th λ-ruby
   tr
     td class='align-center' #{ coderay '0', inline: true}
     td #{ coderay 'λf.λx.x', inline: true}
@@ -206,215 +267,243 @@ table class='align-left'
     td #{ coderay 'λf.λx.(f(f(f(f x))))', inline: true}
     td #{ coderay '-> f { -> x { f[f[f[f[x]]]] } }', inline: true}
 
-p Avec cette implémentation, représenter les nombres est facile, par contre, c'est un cauchemard de lecture. Il n'est pas simple de faire la différence vous entre #{ coderay '-> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]] } }', inline: true} et #{ coderay '-> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]]] } }', inline: true}. Simplifions-nous la vie avec une petite méthode de conversion, d'un lambda à un #{ coderay 'Fixnum', inline: true}.
+p C'est chouette, mais ça n'est pas très lisible. Tenez, savez-vous me dire de que nombre il s'agit #{":"} #{ coderay '-> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]]] } }', inline: true} ?
+
+p Simplifions-nous la vie avec une méthode de conversion #{":"}
 
 = coderay do
-  | def to_integer(λ)
-      λ[-> n { n + 1 }][0]
+  | def to_integer i
+      i[-> n { n + 1 }][0]
     end
 
     ?> to_integer(-> f { -> x { x } })
     => 0
 
-    ?> to_integer(-> f { -> x { f[f[f[x]]] } })
-    => 3
+    ?> to_integer(-> f { -> x { f[x] } })
+    => 1
 
-    ?> to_integer(-> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]] } })
-    => 15
+    ?> to_integer(-> f { -> x { f[f[x]] } })
+    => 2
 
     ?> to_integer(-> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]]] } })
     => 16
 
-p Nous pouvons nous servir des nombres pour démarrer la transformation de notre algorithme de fibonnacci #{":"}
+p Voilà, la transformation de notre algorithme peut débuter #{":"}
 
-= coderay do
-  | def fib n
-      fibonnacci n, 0, 1
-    end
+div id='integers'
+  = coderay do
+    | ZERO = -> f { -> x { x } }
+      ONE = -> f { -> x { f[x] } }
 
-    def fibonnacci n, i, j
-      if n <= 1
-        j
-      else
-        fibonnacci(n-1, j, i + j)
-      end
-    end
+      FIBONACCI = -> n { -> i { -> j {
+        if n <= ZERO
+          i
+        else
+          FIBONACCI[n-1][j][i+j]
+        end
+      }}}
+      FIB = -> n { FIBONACCI[n][ZERO][ONE] }
 
-p Devient
+javascript:
+  (function() {
+    Array.prototype.forEach.call(document.querySelector('#integers .CodeRay .code pre').childNodes, function(node){
+      if(['ZERO', 'ONE'].includes(node.innerHTML)) node.classList.add('highlight')
+    })
+  }).call(this)
 
-= coderay do
-  | FIB = -> n { FIBONACCI[n][ZERO][ONE] }
-    FIBONACCI = -> n { -> i { -> j {
-      if n <= ONE
-        j
-      else
-        FIBONACCI[n-1][j][i+j]
-      end
-    }}}
+p Maintenant que c'est réglé, voyons voir du côté des opérations arithmétiques.
 
 h3 Opérations
 
-p Maintenant que nous savons comment écrire des nombres, il faudrait pouvoir faire des calculs. Pour notre algorithme, nous allons avoir besoin de deux choses #{":"} l'addition et la décrémentation.
+p Nous n'avons que deux opérations dans notre algorithme #{":"} #{ coderay 'n-1', inline: true} et #{ coderay 'i+j', inline: true}. C'est-à-dire, une décrémentation, et une addition.
 
-p Pour l'addition, nous allons procéder par incrémentations successives. Et pour faire une incrémentation, rien de plus facile ! Enfin presque.
+p Nous avons déjà parlé de l'addition un peu plus tôt, et je vous avais donné cette fameuse formule #{":"} #{ coderay '-> m {-> n {-> f { -> x { m[f][n[f][x]] }}}}', inline: true}. Mais nous, on va faire plus simple, on va faire une addition à base d'incrémentations successives.
 
-p Puisqu'un nombre #{ coderay 'n', inline: true}, c'est la répétition #{ coderay 'n', inline: true} fois d'un appel à la fonction #{ coderay 'f', inline: true} (avec un argument #{ coderay 'x', inline: true}), il suffit, pour récupérer #{ coderay 'n + 1', inline: true}, d'appeller la fonction #{ coderay 'f', inline: true} une fois de plus. Pour cela, on peux se servir de l'argument #{ coderay 'x', inline: true} pour y placer une fois de plus la fonction #{ coderay 'f', inline: true}.
-
-p
-  = coderay do
-    | INCREMENT = -> n { -> f { -> x { f[n[f][x]] } } }
-
-      ONE = -> f { -> x { f[x] } }
-      THREE = -> f { -> x { f[f[f[x]]] } }
-      FIVE = -> f { -> x { f[f[f[f[f[x]]]]] } }
-      EIGHT = -> f { -> x { f[f[f[f[f[f[f[f[x]]]]]]]] } }
-      FIFTEEN = -> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]] } }
-
-      ?> to_integer INCREMENT[ONE]
-      => 2
-
-      ?> to_integer INCREMENT[EIGHT]
-      => 8
-
-p À partir de là, pour faire une addition entre deux nombres #{ coderay 'm', inline: true} et #{ coderay 'n', inline: true}, il suffit d'incrémenter #{ coderay 'm', inline: true}, #{ coderay 'n', inline: true} fois. (Mais l'addition peux aussi s'écrire directement, sans passer par une incrémentation successive)
+p Rappellez vous qu'un nombre, c'est simplement une méthode que l'on appelle plusieurs fois. Donc si on a un nombre #{ coderay 'n', inline: true} (qui est en fait un appel #{ coderay 'n', inline: true} fois de la fonction #{ coderay 'f', inline: true}), pour avoir son successeur, le nombre #{ coderay 'n + 1', inline: true}, il suffit d'appeler la fonction #{ coderay 'f', inline: true} une fois de plus.
 
 = coderay do
-  | # incrémentation successive
-    ADD = -> m { -> n { n[INCREMENT][m] } }
+  | INCREMENT = -> n { -> f { -> x { f[n[f][x]] } } }
+
+p Et on peut vérifier #{":"}
+
+= coderay do
+  | ?> to_integer INCREMENT[ZERO]
+    => 1
+
+    ?> to_integer INCREMENT[ONE]
+    => 2
+
+p Maintenant, pour additionner deux nombres #{ coderay 'm + n', inline: true}, il suffit d'incrémenter #{ coderay 'm', inline: true}, #{ coderay 'n', inline: true} fois.
+
+= coderay do
+  | TWO = INCREMENT[ONE] # 1 + 1
+    THREE = INCREMENT[INCREMENT[ONE]] # 1 + 2
+    FIVE = INCREMENT[INCREMENT[THREE]] # 3 + 2
+
+p Et si on transforme ce processus en λ-expression, ça donne #{":"}
+
+= coderay do
+  | ADD = -> m { -> n { n[INCREMENT][m] } }
 
     ?> to_integer ADD[THREE][FIVE]
     => 8
 
-    ?> to_integer ADD[THREE][EIGHT]
-    => 11
+p Bien. L'addition c'est fait, voyons pour la décrémentation...
 
-= coderay do
-  | # en utilisant le fait que f(m+n)(x) = fm(fn(x)))
-    ADD = -> m {-> n {-> f { -> x { m[f][n[f][x]] }}}}
+p Instinctivement, on pourrait penser que la fonction de décrémentation va ressembler à celle d'incrémentation, il suffira de compter un appel de la fonction #{ coderay 'f', inline: true} en moins. Seulement, ça n'est pas aussi simple que ça.
 
-    ?> to_integer ADD[FIVE][EIGHT]
-    => 13
+p Pour appeler la fonction #{ coderay 'f', inline: true} une fois de moins, il faudrait pouvoir remplacer un appel de la fonction par ... rien ! Et c'est ça le problème #{":"} "rien", en λ-calcul, ça n'existe pas. Alors il va falloir utiliser une autre technique.
 
-    ?> to_integer ADD[FIFTEEN][FIVE]
-    => 20
+p L'idée que nous allons appliquer est simple sur le principe. D'un côté, on prend un nombre #{ coderay 'n', inline: true}, et pour arriver à #{ coderay 'n-1', inline: true}, on va compter jusqu'à #{ coderay 'n', inline: true} et gardant toujours en mémoire le précédent nombre par lequel on est passé au cours du comptage.
 
-p Tout fonctionne. C'est très bien.
-
-p Pour la décrémentation (qui peux, à la manière de l'incrémentation, être utilisée pour faire une soustraction), c'est un peu plus compliqué. Comme on ne peux pas supprimmer à un nombre #{ coderay 'n', inline: true} un appel de fonction, la technique va être de repartir de zéro, et de compter jusqu'au nombre voulu. En faisant cela, on va prendre soin de se rappeller toujours du dernier nombre que l'on a compté. C'est ce nombre qui sera notre #{ coderay 'n-1', inline: true}.
+p Voici à quoi ressemble cette fonction #{":"}
 
 = coderay do
   | DECREMENT = -> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }][-> y { x }][-> y { y }] } } }
 
-    ?> to_integer PRED[FIVE]
+    ?> to_integer DECREMENT[FIVE]
     => 4
 
-    ?> to_integer PRED[FIFTEEN]
-    => 14
+p Et voilà ! Nous pouvons maintenant intégrer ces opérations dans notre algorithme de Fibonacci #{":"}
 
-p C'est tout ce dont nous avions besoin, mais si tu est curieux cher lecteur, voici quelques opérations supplémentaires #{":"}
+div id='operations'
+  = coderay do
+    | FIBONACCI = -> n { -> i { -> j {
+        if n <= ZERO
+          i
+        else
+          FIBONACCI[DECREMENT[n]][j][ADD[i][j]]
+        end
+      }}}
+      FIB = -> n { FIBONACCI[n][ZERO][ONE] }
+
+javascript:
+  (function() {
+    Array.prototype.forEach.call(document.querySelector('#operations .CodeRay .code pre').childNodes, function(node){
+      if(['ADD', 'DECREMENT'].includes(node.innerHTML)) node.classList.add('highlight')
+    })
+  }).call(this)
+
+p Pour les curieux, vous pourrez trouver une liste complète d'opérations dans les sources, mais en voici quelques-unes que l'on peut déjà construire facilement avec les éléments que nous possédons #{":"}
 
 = coderay do
-  | MULTIPLY  = -> m { -> n { n[ADD[m]][ZERO] } }
+  | SUBTRACT  = -> m { -> n { n[DECREMENT][m] } }
+    MULTIPLY  = -> m { -> n { n[ADD[m]][ZERO] } }
     POWER     = -> m { -> n { n[MULTIPLY[m]][ONE] } }
-    SUBTRACT  = -> m { -> n { n[DECREMENT][m] } }
 
-p Mais continuons la transformation de notre algorithme de Fibonacci #{":"}
 
-= coderay do
-  | FIB = -> n { FIBONACCI[n][ZERO][ONE] }
-    FIBONACCI = -> n { -> i { -> j {
-      if n <= ONE
-        j
-      else
-        FIBONACCI[DECREMENT[n], j, ADD[i][j]]
-      end
-    }}}
+h3 Conditionnelle
 
-h3 Booléens
+p Maintenant, on va s'attaquer au expressions conditionnelles, le #{ coderay 'if-else', inline: true}.
 
-p Pour représenter les booléens en λ-calcul, il faut changer un peu de perpective, ne pas considére ce qu'ils représentent (les valeurs "vrai" ou "faux") mais leur utilitée. Les booléens n'existent que pour être évaluée dans des expressions conditionnelles, "si [un booléen] alors <i>ceci</i> sinon <i>cela</i>". De ce point de vue, un booléen ne sert qu'à choisir entre deux options.
+p Mais comment ça fonctionne une expression conditionnelle ? À la base, on a deux blocks, et un booléen. Si le booléen dit #{ coderay 'true', inline: true}, c'est le premier block qui est exécuté. S'i 'il dit #{ coderay 'false', inline: true}, c'est le second block qui sera exécuté (ou bien, pas de blocks du tout dans le cas d'un #{ coderay 'if', inline: true} sans #{ coderay 'else', inline: true}).
 
-p En prenant ce parti, on peux représenter les booléens avec des méthodes qui prennent deux argument, et qui choississent l'un des deux.
-
-= coderay do
-  | def true(x, y)
-      x
-    end
-
-    def false(x, y)
-      y
-    end
-
-p En traduisant ces deux méthodes en λ-calcul, nous obtenons #{":"}
+p En regardant uniquement ce fonctionnement, on peut déterminer la structure des booléens en λ-calcul. Une fonction qui prend deux arguments, les deux blocks, et qui n'en renvoie qu'un seul. Pour la valeur #{ coderay 'true', inline: true}, cette fonction renverra le premier argument, et pour #{ coderay 'true', inline: true}, le second.
 
 = coderay do
   | TRUE  = -> x { -> y { x } }
     FALSE = -> x { -> y { y } }
 
-p Et de la même façon que nous avions crée une méthode de conversion pour les entiers, nous allons écrire une méthode de conversion pour les booléens.
+p Et comme on l'avait fait pour les entiers, on peut créer une méthode de conversion afin de pouvoir lire facilement ces valeurs #{":"}
 
 = coderay do
-  | def to_boolean(proc)
+  | def to_boolean proc
       proc[true][false]
     end
 
-    ?> to_boolean(TRUE)
+p Vérifions que tout fonctionne correctement.
+
+= coderay do
+  | ?> to_boolean(TRUE)
     => true
 
     ?> to_boolean(FALSE)
     => false
 
-p Cette représentation est, il faut l'avouer, assez simple. Mais elle à un autre avantage, elle nous dispense de devoir créer un #{ coderay 'if-else', inline: true} en λ-calcul.
+p Parfait. On peut alors s'occuper du #{ coderay 'if-else', inline: true} lui-même.
 
-p Si l'on codait une méthode #{ coderay 'if-else', inline: true}, elle prendrait trois paramétres #{":"} un booléen plus deux blocks, pour les deux cas. Le #{ coderay 'if-else', inline: true} serait alors responsable de déterminer, en fonction du booléen, quel bloc exécuter. Seulement c'est déjà ce que fait le booléen lui même, la méthode #{ coderay 'if-else', inline: true} ne servirait donc qu'à appliquer les deux blocks au booléen.
-
-= coderay do
-  | def if_else(b, x, y)
-      b[x][y]
-    end
-
-p D'ailleurs, si on traduit cette méthode en λ-calcul, et qu'on la simplifie, on arrive à la fonction d'identité #{":"}
+p Le rôle du #{ coderay 'if-else', inline: true} est donc de prendre trois arguments, deux blocks (ici #{ coderay 'x', inline: true} et #{ coderay 'y', inline: true}) et un booléen (ici #{ coderay 'b', inline: true}), et de décider, en fonction du booléen, quel block exécuter.
 
 = coderay do
-  | IF = -> b { -> x { -> y { b[x][y] }}}
-    IF = -> b { -> x { b[x] }}
-    IF = -> b { b }
+  | IF = -> b {
+      -> x {
+        -> y {
+          b[x][y]
+        }
+      }
+    }
 
-    ?> IF[TRUE][:foo][:bar]
-    => :foo
+p Mais on peut remarquer que cette fonction ne fait rien d'autre qu'appliquer les deux blocks #{ coderay 'x', inline: true} et #{ coderay 'y', inline: true} au booléen, et c'est le booléen qui choisi véritablement lequel des deux blocks renvoyer. La fonction #{ coderay 'IF', inline: true} serait-elle inutile ?
 
-    ?> TRUE[:foo][:bar]
-    => :foo
+p Et bien oui ! Et d'ailleurs, cette conclusion paraît bien plus évidente quand on commence à simplifier la fonction.
 
-    ?> IF[FALSE][:foo][:bar]
-    => :bar
-
-    ?> FALSE[:foo][:bar]
-    => :bar
-
-p Pour notre algorithme, voici ce que ça donne #{":"}
+p Prenez par exemple ce bout de code #{":"}
 
 = coderay do
-  | FIB = -> n { FIBONACCI[n][ZERO][ONE] }
-    FIBONACCI = -> n { -> i { -> j {
-      IF[n <= ONE][
-        j
-      ][
-        FIBONACCI[DECREMENT[n], j, ADD[i][j]]
-      ]
-    }}}
+  | p = -> x { x + 2 }
+    q = -> y { p.call(y) }
+
+    ?> q.call(17)
+    => 19
+
+p Vous pourriez me répondre que la lambda #{ coderay 'q = -> y { p.call(y) }', inline: true} est totalement inutile. Elle prends un argument pour appeler une autre lambda (ici #{ coderay 'p', inline: true}) avec ce même argument. Autant appeler directement #{ coderay 'p.call(17)', inline: true}, ça sera moins compliqué et on aura exactement le même résultat.
+
+p Bien, maintenant regardons de plus près notre fonction #{ coderay 'IF', inline: true}. À son centre, on peux voir #{ coderay '-> y { b[x][y] }', inline: true}. On a donc une lambda qui prend un argument #{ coderay 'y', inline: true} pour appeler ensuite une autre lambda (le résultat de #{ coderay 'b[x]', inline: true}) avec ce même argument. On peut donc simplifier la fonction #{ coderay 'IF', inline: true} à ce niveau #{":"}
+
+= coderay do
+  | IF = -> b {
+      -> x {
+        b[x]
+      }
+    }
+
+p Mais encore une fois, on trouve l'expression #{ coderay '-> x { b[x] }', inline: true}, que l'on peut simplifier de la même façon, et pour la même raison. Ce qui nous donne #{":"}
+
+= coderay do
+  | IF = -> b { b }
+
+p Alors ça ! La fonction #{ coderay 'IF', inline: true}, c'est la fonction identité ! C'est bien la preuve qu'elle n'était pas terriblement utile en terme de logique. Nous allons tout de même la conserver en tant que "sucre syntaxique", et pour que le code paraisse plus familier.
+
+= coderay do
+  | ?> to_integer IF[TRUE][ONE][FIVE]
+    => 1
+
+    ?> to_integer IF[FALSE][ONE][FIVE]
+    => 5
+
+p Appliqué à notre algorithme, voici le résultat #{":"}
+
+div id='conditionnal'
+  = coderay do
+    | FIBONACCI = -> n { -> i { -> j {
+        IF[n <= ZERO][
+          i
+        ][
+          FIBONACCI[DECREMENT[n]][j][ADD[i][j]]
+        ]
+      }}}
+      FIB = -> n { FIBONACCI[n][ZERO][ONE] }
+
+javascript:
+  (function() {
+    Array.prototype.forEach.call(document.querySelector('#conditionnal .CodeRay .code pre').childNodes, function(node){
+      if(['IF'].includes(node.innerHTML)) node.classList.add('highlight')
+    })
+  }).call(this)
+
+p Bien, il semble ne rester plus qu'une seule étape #{":"} le #{ coderay 'n <= ONE', inline: true} c'est la comparaison !
 
 h3 Comparaison
 
-p Nous approchons du but, nous y sommes presque en vérité, il nous ne nous manque plus qu'à transformer l'opération de comparaison #{ coderay '<=', inline: true} en λ-calcul et nous aurons fini !
+p Comment comparer deux nombres en λ-calcul ? Tout simplement en profitant d'une particularité du nombre #{ coderay '0', inline: true}.
 
-p Pour cette opération, nous allons profiter de l'implémentation particuliére du #{ coderay '0', inline: true}. Si on regarde une nouvelle fois l'implémentation des nombres, on remarque que le #{ coderay '0', inline: true} est la seule fonction qui n'utilise pas l'argument #{ coderay 'f', inline: true}.
+p Si vous avez bien suivi, vous savez qu'un nombre, c'est une fonction qui appelle une autre fonction un certain nombre de fois. Donc #{ coderay '0', inline: true}, c'est une fonction qui n'appelle pas cette autre fonction. Je vous remets le petit tableau #{":"}
 
 table class='align-left'
   tr
     th nombre
-    th lambda expression
-    th code (ruby)
+    th λ-calcul
+    th λ-ruby
   tr
     td class='align-center' #{ coderay '0', inline: true}
     td #{ coderay 'λf.λx.x', inline: true}
@@ -428,16 +517,18 @@ table class='align-left'
     td #{ coderay 'λf.λx.(f(f x))', inline: true}
     td #{ coderay '-> f { -> x { f[f[x]] } }', inline: true}
 
-p Si l'on apelle un nombre quelconque, il renverra la valeur de #{ coderay 'x', inline: true} si ce nombre est #{ coderay '0', inline: true}, sinon, il renverra ce que renvoie la fonction #{ coderay 'f', inline: true}. Si on donne à #{ coderay 'x', inline: true} la valeur #{ coderay 'TRUE', inline: true}, et que l'on fait de #{ coderay 'f', inline: true} une fonction constante qui renverra toujours #{ coderay 'FALSE', inline: true}, nous avons un exellent moyen de différentier le #{ coderay '0', inline: true} des autres nombres.
+p Remarquez que le nombre #{ coderay '0', inline: true} est le seul à renvoyer #{ coderay 'x', inline: true} inchangé. Tous les autres nombres renvoient ce que renvoie la fonction #{ coderay 'f', inline: true}.
+
+p En profitant de cela, on peut facilement tester si un nombre est égal à #{ coderay '0', inline: true} en utilisant pour l'argument #{ coderay 'x', inline: true} la valeur #{ coderay 'TRUE', inline: true}, et pour #{ coderay 'f', inline: true}, une fonction constante qui renvoie toujours #{ coderay 'FALSE', inline: true}.
 
 = coderay do
   | ?> to_boolean ZERO[-> x { FALSE }][TRUE]
     => true
 
-    ?> to_boolean TWO[-> x { FALSE }][TRUE]
+    ?> to_boolean FIVE[-> x { FALSE }][TRUE]
     => false
 
-p De là, la construction d'une fonction #{ coderay 'zero?', inline: true} est évidente #{":"}
+p De là, la construction d'une fonction #{ coderay 'IS_ZERO', inline: true} est simplissime #{":"}
 
 = coderay do
   | IS_ZERO = -> n { n[-> x { FALSE }][TRUE] }
@@ -445,74 +536,94 @@ p De là, la construction d'une fonction #{ coderay 'zero?', inline: true} est �
     ?> to_boolean IS_ZERO[ZERO]
     => true
 
-    ?> to_boolean IS_ZERO[TWO]
+    ?> to_boolean IS_ZERO[FIVE]
     => false
 
-p Un autre avantage du #{ coderay '0', inline: true} est qu'il ne peux pas être décrémenté (on ne peux pas appeller une fonction #{ coderay '-1', inline: true} fois). Vu que notre représentation des nombres est donc strictement positive (il ne peux pas y avoir de nombre négatifs), l'opération #{ coderay 'm <= n', inline: true} peut se réduire à savoir si le résultat de la soustraction #{ coderay 'm - n', inline: true} est égal à #{ coderay '0', inline: true}.
+p Maintenant, nous pouvons construire notre fonction de comparaison autour de la fonction #{ coderay 'IS_ZERO', inline: true}. L'idée, si l'on veut comparer deux nombres #{ coderay 'm', inline: true} et #{ coderay 'n', inline: true} sera de faire la soustraction #{ coderay 'm - n', inline: true} et de vérifier si le résultat est égal à zéro ou non pour savoir si #{ coderay 'm', inline: true} est plus grand ou plus petit que #{ coderay 'n', inline: true} #{":"}
 
 = coderay do
   | IS_LESS_OR_EQUAL = -> m { -> n {
       IS_ZERO[SUBTRACT[m][n]]
-    } }
+    }}
 
-    ?> to_boolean IS_LESS_OR_EQUAL[ONE][TWO]
-    => true
-
-    ?> to_boolean IS_LESS_OR_EQUAL[EIGHT][FIVE]
+    ?> to_boolean IS_LESS_OR_EQUAL[ONE][ZERO]
     => false
 
-    ?> to_boolean IS_LESS_OR_EQUAL[THREE][THREE]
+    ?> to_boolean IS_LESS_OR_EQUAL[ONE][ONE]
     => true
 
-p Appliqué à notre Fibonacci, le résultat est saisissant #{":"}
+    ?> to_boolean IS_LESS_OR_EQUAL[ONE][FIVE]
+    => true
 
-= coderay do
-  | FIB = -> n { FIBONACCI[n][ZERO][ONE] }
-    FIBONACCI = -> n { -> i { -> j {
-      IF[IS_LESS_OR_EQUAL[n][ONE]][
-        j
-      ][
-        FIBONACCI[DECREMENT[n], j, ADD[i][j]]
-      ]
-    }}}
+p Et voilà, il ne reste qu'à reporter cela sur notre algorithme préféré #{":"}
+
+div id='comparison'
+  = coderay do
+    | FIBONACCI = -> n { -> i { -> j {
+        IF[IS_LESS_OR_EQUAL[n][ZERO]][
+          i
+        ][
+          FIBONACCI[DECREMENT[n]][j][ADD[i][j]]
+        ]
+      }}}
+      FIB = -> n { FIBONACCI[n][ZERO][ONE] }
+
+javascript:
+  (function() {
+    Array.prototype.forEach.call(document.querySelector('#comparison .CodeRay .code pre').childNodes, function(node){
+      if(['IS_LESS_OR_EQUAL'].includes(node.innerHTML)) node.classList.add('highlight')
+    })
+  }).call(this)
 
 h3 Combinateur Y
 
-p Je t'ai dis, cher lecteur, au début du chapitre précédent que nous aurions terminé à la fin du chapitre pérécédent. Il se trouve que je me suis trompé.
+p Mais attendez ! Ça n'est pas fini ! Nous avons un problème ! Un gros problème même.
 
-p Tu vois, j'ai utilisé des constantes pour stocker certaines fonctions de λ-calcul, mais c'était uniquement afin de rendre cette article lisible. Nous l'avons déjà dit, il n'y a pas d'assignation en λ-calcul, il fallait donc pouvoir remplacer à n'importe que moment le nom des constantes par leur contenu.
+p Jusqu'à présent, nous avons utilisé des variables constantes pour sauvegarder certaines fonctions, bien que l'assignation de variable soit impossible en λ-calcul, il s'agissait surtout de ne pas complexifier davantage la lecture de cet article. Mais l'idée avec ces constantes était qu'à n'importe quel moment, nous pouvions les supprimer et les remplacer par leur véritable contenu.
 
-p C'est justement ce que j'ai essayé de faire au début de ce chapitre, sans succés. J'avais oubliè que nous utlisons une fonction récursive, la constante #{ coderay 'FIBONACCI', inline: true} ne peut donc pas être remplacé par son contenu, puisqu'elle à besoin d'elle-même dans sa propre définition. Il est clair qu'à ce moment, la constante #{ coderay 'FIBONACCI', inline: true} n'est pas simplement un raccourci, une commodité d'écriture, mais bel et bien une utilisation flagrante des propriétés d'assignation du language Ruby.
+p Et c'est d'ailleurs le cas pour toutes les variables que nous avons utilisées ... sauf une ! La variable #{ coderay 'FIBONACCI', inline: true}.
 
-p <i>Mince ! Tout est fini alors ?</i> Rassure-toi ami lecteur, il existe une solution, le Combinateur Y !
+p Pourquoi cele-ci en particulier pose problème et pas les autres ? Et bien par qu'elle est auto-référencée. Elle s'utilise elle-même dans sa propre définition ! La variable et son contenu sont donc indissociables. L'une ne va pas sans l'autre, et c'est ça le problème.
 
-p Le combinateur Y est une fonction de λ-calcul crée exactement pour régler ce propbléme d'auto-référencement dans les méthodes récursives. Seulement le Combinateur Y à été imaginé pour des laguages non-strict, comme Haskell. Nous, en Ruby, nous allons devoir utilizer une variante du Combinateur Y #{":"} le Combinateur Z !
+p Mais tout n'est pas fini pour autant. À notre rescousse, le Combinateur Y !
 
-= coderay do
-  | Z = -> f { -> x { f[-> y { x[x][y] }] }
-          [-> x { f[-> y { x[x][y] }] }] }
-
-p Grâce à ce combinateur, que je ne saurais pas expliquer en détail, mais qui grossiérement permet de créer un block qui se prends lui-même en paramétre, nous pouvons réecrire notre algorithme sans répétitions #{":"}
+p Le combinateur Y est une fonction du λ-calcul conçue exactement pour fixer ce problème d'auto-référencement. Et voici à quoi il ressemble #{":"}
 
 = coderay do
-  | FIB = -> n { FIBONACCI[n][ZERO][ONE] }
-    FIBONACCI = Z[ -> f {
-      -> n { -> i { -> j {
-        IF[IS_LESS_OR_EQUAL[n][ONE]][
-          j
-        ][
-          -> x {
-            f[DECREMENT[n], j, ADD[i][j]][x]
-          }
-        ]
-      }}}
-    }]
+  | Y = -> f { -> x { f[x[x]] }[-> x { f[x[x]] }] }
 
-p Bien joué ! Nous pouvons être fier de nous !
+p Joli, vous ne trouvez pas ? Peut-être, mais ça n'est pas suffisant. Vous voyez, le Combinateur Y à été imaginé pour des lagages non-strict, comme Haskell. Alors nous, en Ruby, nous allons devoir faire appel à son cousin #{":"} le Combinateur Z !
 
-h3 Ce Qui Compte ...
+= coderay do
+  | Z = -> f { -> x { f[-> y { x[x][y] }] }[-> x { f[-> y { x[x][y] }] }] }
 
-p ... c'est la beautée intérieure, n'est ce pas ? Alors on as de la chance parce que, de la beautée intérieur, notre algorithme de Fibonacci, il en as ! Par contre, de l'extérieur, il y a encore des progrés à faire #{":"}
+p Grâce à lui, notre problème d'auto-référencement, c'est du passé #{":"}
+
+div id='y-combinator'
+  = coderay do
+    | FIBONACCI = Z[ -> f {
+        -> n { -> i { -> j {
+          IF[IS_LESS_OR_EQUAL[n][ZERO]][
+            i
+          ][
+            -> x {
+              f[DECREMENT[n]][j][ADD[i][j]][x]
+            }
+          ]
+        }}}
+      }]
+      FIB = -> n { FIBONACCI[n][ZERO][ONE] }
+
+javascript:
+  (function() {
+    Array.prototype.forEach.call(document.querySelector('#y-combinator .CodeRay .code pre').childNodes, function(node){
+      if(['Z'].includes(node.innerHTML)) node.classList.add('highlight')
+    })
+  }).call(this)
+
+h3 Vraie Nature
+
+p Ça y est, c'est fini. Notre algorithme à été totalement remplacé par des λ-expressions, et il ne reste plus qu'à le tester. Mais avant, voyons déjà à quoi il ressemble dans son intégralité, je veux dire, sans les constantes #{":"}
 
 = coderay do
   | FIB = -> n {
@@ -524,8 +635,8 @@ p ... c'est la beautée intérieure, n'est ce pas ? Alors on as de la chance par
                 n[-> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }][-> y { x }][-> y { y }] } } }][m]
               } }[m][n]
             ]
-          } }[n][-> f { -> x { f[x] } }][
-            j
+          } }[n][-> f { -> x { x } }][
+            i
           ][
             -> x {
               f[
@@ -543,53 +654,44 @@ p ... c'est la beautée intérieure, n'est ce pas ? Alors on as de la chance par
       }][n][-> f { -> x { x } }][-> f { -> x { f[x] } }]
     }
 
-p Et pourtant, il s'agit bien toujours du même algorithme de Fibonacci que celui à partir duquel nous avons commencé. Il est simplement écrit différement.
+p Ha ouais ! Côté "capital sympathie", on peux faire mieux. Enfin, ce qui compte, c'est la beauté intérieure, pas vrai ?
 
 = coderay do
-  | ?> to_integer FIB[TWO]
-    => 1
+  | # map from fib(0) to fib(8)
+    ?> 9.times.map do |i|
+     >   to_integer FIB[i.times.inject(ZERO){ |n, _| INCREMENT[n] }]
+     > end
 
-    ?> to_integer FIB[THREE]
-    => 2
+    => [0, 1, 1, 2, 3, 5, 8, 13, 21]
 
-    ?> to_integer FIB[FOUR]
-    => 3
+p En tout cas, ça fonctionne ! Enfin ... à condition de ne pas être trop exigeant. À partir du calcul de la 22e valeur de la suite, mon ordinateur m'a renvoyé l'erreur redoutée #{":"} #{ coderay 'SystemStackError : stack level too deep', inline: true}.
 
-    ?> to_integer FIB[FIVE]
-    => 3
+p En soi, cette erreur n'est pas surprenante. Elle est là avant tout pour éviter que la machine tout entière soit incapacité en cas de boucle infinie dans un programme mal codé, ce qui arrive souvent avec les algorithmes récursifs. Mais parfois, surtout lorsqu'on calcule de grandes valeurs, il arrive que l'ordinateur confonde une boucle infinie avec ce qui est simplement un long calcul.
 
-    ?> to_integer FIB[SIX]
-    => 8
-
-p Et il fonctionne effectivement parfaitement, comme l'original. À une nuance prés, le #{ coderay 'SystemStackError', inline: true} arrive nettement plus tôt avec cette version.
-
-p C'est un probléme commun à tous les algorithmes récursifs, à partir d'un certains nombres d'appel récursifs en attente, l'ordinateur stoppe l'exécution. C'est le <i>stack level too deep</i> en Ruby, une erreur préventive, afin d'éviter une boucle récursive infinie due à une erreur de programmation.
-
-p La conséquence de cela, c'est que chaque algorithme récursif posséde une limite dans le nombre de récursion qu'il peut effectuer. Pour l'algorithme récursif terminal de la suite de Fibonacci (qui nous as servi de modéle), la limite est #{ coderay '8187', inline: true}. Essayez de calculer la 8188éme valeur de la suite et vous aurez le message <i>stack level too deep</i>. (Le résultat peut varier en fonction de la configuration de votre ordinateur).
-
-p Et c'est là que ce trouve la nuance, avec notre algorithme en λ-calcul, la limite, c'est #{ coderay '19', inline: true}.
+p Ce qui m'a surpris, c'est de ne pas pouvoir aller plus loin que la 22e valeur, alors que (j'ai fait le test ensuite), pour l'algorithme récursif terminal "classique", l'erreur n'intervient qu'à partir de la 8188e valeur.
+p Enfin, avec le nombre de lambdas que nous utilisons, cela doit faire grimper plus rapidement le compter de "stack", et déclencher l'erreur plus tôt.
 
 h3 Conclusion
 
-p Mais peu importe, et même si notre λ-algorithme est moins performant, je suis toujours autant suppris qu'il fonctionne, et qu'une chose aussi simple que le λ-calcul (définir des fonctions et les appliquer) permette de faire réelement des calculs.
+p Au final, peu importe. Le λ-calcul fonctionne, et cela me surprend toujours autant.
 
-p Je comprends aussi un peu mieux les critiques qui avaient été faites au λ-calcul, et pourquoi tout le monde préfére les machines de Turing (qui sont, mathématiquement parlant, identiques), infiniement plus simples.
-
-p Mais ho ! Hou là là ! L'heure avance et il est déjà temps pour moi de terminer cet article. Avant de te quitter, cher lecteur, je te donne ce petit bout de code à copier-coller dans ta console Ruby. Il s'agit de l'appel de la fonction de Fibonacci pour la valeur #{ coderay '15', inline: true}, intégrée avec la méthode de conversion #{ coderay 'to_integer', inline: true}. Si ton ordinateur calcule correctement, il trouvera la valeur correcte de mille cinq cents quatre-vingt dix-sept (ou #{ coderay '1597', inline: true}).
+p Avant de terminer, je vous laisse un petit bout de code à copier-coller dans votre console Ruby. Il s'agit de notre fonction de Fibonacci intégrée à la méthode de conversion #{ coderay 'to_integer', inline: true}. Si votre ordinateur fonctionne correctement, vous devriez voir s'afficher le 15e terme de la suite de Fibonacci, c'est-à-dire, mille cinq cents quatre-vingt-dix sept (#{ coderay '1597', inline: true}).
 
 = coderay do
   | -> n { -> f { -> x { n[f][x] } } }[-> n { -> f { -> x { f[-> _ { x[x][_] }] }[-> x { f[-> _ { x[x][_] }] }] }[ -> f { -> n { -> i { -> j { -> m { -> n { -> n { n[-> x { -> x { -> y { y } } }][-> x { -> y { x } }] }[ -> m { -> n { n[-> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }][-> y { x }][-> y { y }] }} }][m] }}[m][n]]}}[n][-> f { -> x { f[x] } }][j][-> x { f[-> n { -> f { -> x { n[-> g { -> h { h[g[f]] } }][-> y { x }][-> y { y }] } } }[n]][j][-> m { -> n { n[-> n { -> f { -> x { f[n[f][x]] }}}][m] }}[i][j]][x] }]}}}}][n][-> f { -> x { x } }][-> f { -> x { f[x] }}]}[-> f { -> x { f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[f[x]]]]]]]]]]]]]]]]]}}]][-> i { i + 1 }][0]
 
+p En attendant la prochaine fois, portez-vous bien, n'oubliez pas de vous amuser, et à bientôt !
+
 h3 Sources
 
-p Mon inspiration principale est l'article <i>Programming with Nothing</i>, ainsi que le répertoire Github de l'auteur appelé <i>Nothing</i> #{":"}
+p La source d'inspiration principale est l'article <i>Programming with Nothing</i>, ainsi que le répertoire Github du même auteur appelé <i>Nothing</i> #{":"}
 
 p class='btn-group'
   = link_to "Programming with Nothing", "https://codon.com/programming-with-nothing", class: :btn, target: :_blank
   = link_to "Github : Nothing", "https://github.com/tomstuart/nothing/blob/story/lib/nothing.rb", class: :btn, target: :_blank
   = link_to "Gist : FizzBuzz in λ-calculus", "https://gist.github.com/tomstuart/1466504", class: :btn, target: :_blank
 
-p J'ai aussi utilisé plusieurs pages Wikipedia, ou blogs divers pour des informations complémentaires #{":"}
+p J'ai aussi utilisé plusieurs pages Wikipedia, ou blogs divers pour recueillir des informations complémentaires #{":"}
 
 p class='btn-group'
   = link_to "Wiki : λ-calculus", "https://en.wikipedia.org/wiki/Lambda_calculus", class: :btn, target: :_blank
