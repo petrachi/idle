@@ -1,0 +1,407 @@
+p Quand ils ne sont pas occupés à résoudre un système de 29 équations linéaires, il arrive que les mathématiciens parlent de la beauté des maths. Ils trouvent les formules jolies, les propriétés agréables, et les nombres beaux.
+
+p C'est un concept qui peut être assez difficile à admettre, après tout, un <i>2</i> ou un <i>3</i>, ça n'a rien de beau ! Même un mathématiciens serait d'accord là-dessus. Et pourtant, la beauté en mathématiques existe #{":"} ça n'est pas la beauté des symboles en eux-mêmes, mais des relations, des interconnexions qu'ils décrivent. Avec une formule, les mathématiques représentent un certain arrangent des choses, elles donnent une forme à des idées abstraites, et parfois, ces formes peuvent être belles.
+
+h3 Nombres cycliques
+
+p Tu l'as deviné cher lecteur, aujourd'hui, on s'intéresse à un domaine particulier #{":"} l'art en mathématiques. Et plus précisément, à la représentation cyclique des tables de multiplications.
+
+svg id='mult-10-1' class='light-background'
+
+javascript:
+  (function() {
+    MultEngine.initialize({svg: document.querySelector('svg#mult-10-1'), table: 1, modulo: 10}).toSvg()
+  }).call(this)
+
+p <i>- C'est quoi ce cercle ?</i> Et bien, ami lecteur, ce cercle sera la base de notre représentation cyclique des tables de multiplications. Il va nous servir à dessiner les nombres selon ce que l'on appelle <i>l'arithmétique modulaire</i>. C'est-à-dire, une arithmétique où les nombres décrivent des cycles (ou cercles, plutôt que de se suivre le long d'une ligne droite). Dans cet exemple, nous avons placé dix nombres autour du cercle, il s'agit donc  d'une arithmétique <i>modulo 10</i>.
+
+p Donc, si tu voulais lister les nombres les uns à suites des autres, plutôt que de compter #{ coderay '... 7, 8, 9, 10, 11, ...', inline: true}, tu dirais plutôt #{ coderay '... 7, 8, 9, ...', inline: true}, puis le cycle recommence, #{ coderay '... 0, 1, 2, ...', inline: true}.
+
+h3 Modulo
+
+p <i>- D'accord, mais par exemple, si je prends 121, pour savoir à quel point je vais tomber sur ton cercle, je ne vais pas m'amuser à compter de 0 jusqu'à 121 quand même ?!</i> Voici, ami lecteur, une remarque très intelligente. Pour te répondre, il faut que je te parle d'une opération mathématique particliére, le #{ coderay 'modulo', inline: true}.
+
+p Tu connais peut-être déjà le #{ coderay 'modulo', inline: true}, c'est une opération souvent présente dans les langages de programmation informatique, généralement interprétée via le symbole #{ coderay '%', inline: true}. Ce que fait cette opération, c'est qu'elle récupère le <i>reste</i> de la division euclidienne entre deux nombres. <i>- La division euclidienne ???</i> Oui, j'ai eu la même réaction en face de mon professeur de mathématiques de terminale à l'époque où il m'apprenait le #{ coderay 'modulo', inline: true}.
+
+svg id="euclidian-div" viewBox='0 5 40 30'
+  defs
+    marker id='markerArrowB' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'
+      path d='M 0 0 L 6 4 L 0 8 Z' fill='dodgerblue'
+    marker id='markerArrowG' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'
+      path d='M 0 0 L 6 4 L 0 8 Z' fill='darkblue'
+    marker id='markerArrowR' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'
+      path d='M 0 0 L 6 4 L 0 8 Z' fill='firebrick'
+    marker id='markerArrowP' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'
+      path d='M 0 0 L 6 4 L 0 8 Z' fill='#d62d76'
+
+  line x1='18' y1='12' x2='18' y2='28'
+  line x1='18' y1='16.5' x2='28' y2='16.5'
+
+  g id='blue'
+    text x='22.5' y='15' 7
+    text x='18.75' y='8.75' diviseur
+    line x1='23' y1='12.5' x2='23' y2='10' marker-end='url(#markerArrowB)'
+
+  g id='red'
+    text x='22.5' y='20' 85
+    text x='20' y='25.5' quotient
+    line x1='23.75' y1='20.5' x2='23.75' y2='23.5' marker-end='url(#markerArrowR)'
+
+  g id='green'
+    text x='8' y='15' 598
+    text x='5' y='8.75' dividende
+    line x1='10' y1='12.5' x2='10' y2='10' marker-end='url(#markerArrowG)'
+
+  text x='7' y='17.5' -56
+  line x1='8' y1='18' x2='10.75' y2='18'
+  text x='9.5' y='20' 38
+  text x='8.5' y='22' -35
+  line x1='9.5' y1='22.5' x2='12.25' y2='22.5'
+
+  g id='pink'
+    text x='11' y='24.5' 3
+    text x='9' y='30' reste
+    line x1='11.5' y1='25.5' x2='11.5' y2='28' marker-end='url(#markerArrowP)'
+
+p La division euclidienne (autrement dit, la division que tu apprends au primaire) ne produit que des résultats entiers. Mais quand les deux nombres ne sont pas divisibles entre eux, ont dit qu'il y a un <i>reste</i>. Ici, #{ coderay '598/7 = 85 et il reste 3', inline: true}.
+
+p L'opération de modulo, elle, ne s'intéresse qu'au reste de cette division. Donc #{ coderay '598 % 7 = 3', inline: true}. C'est-à-dire que, sur un cercle où on n'aurait positionné que sept points, le nombre 598 serait placé au même endroit que le nombre 3.
+
+p Pour en revenir à ta question de tout à l'heure, pour déterminer où serait placé le nombre 121 sur notre cercle, il suffit de faire l'opération #{ coderay '121 % 10', inline: true} pour avoir notre réponse #{":"} #{ coderay '121 % 10 = 1', inline: true}.
+
+h3 MultEngine
+
+p Il est clair qu'on va avoir beaucoup de #{ coderay 'modulo', inline: true} dans cette histoire. Et beaucoup de cercles à dessiner. Alors, profitons du fait d'être des développeurs pour créer une petite librairie de <i>dessin de cercles de modulos</i>, plutôt que de s'embêter à tout faire à la main tout le temps.
+
+p Cette librairie, écrite en JavaScript (avec la syntaxe CoffeeScript), et que nous nommerons la #{ coderay 'MultEngine', inline: true}, permettra, en fonction de la valeur du paramètre #{ coderay 'modulo', inline: true}, de dessiner en SVG un cercle, et un correspondants nombre de points, équitablement répartis sur ce cercle.
+
+= coderay lang: :javascript do
+  | class window.MultEngine
+      this.initialize = (options) ->
+        new MultEngine options.svg, options.table, options.modulo
+
+      constructor: (@svg_elt, @table, @modulo) ->
+        this.initSvg()
+
+      initSvg: ->
+        circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+        circle.setAttribute 'cx', 0
+        circle.setAttribute 'cy', 0
+        circle.setAttribute 'r', 40
+
+        @svg_elt.setAttribute 'viewBox', '-50 -50 100 100'
+        @svg_elt.appendChild circle
+
+
+      setModulo: (modulo) ->
+        @modulo = modulo
+        this
+
+
+      clearModulo: ->
+        for elt in @modulo_elts
+          @svg_elt.removeChild elt.circle
+          @svg_elt.removeChild elt.text
+
+        @modulo_elts = null
+
+      drawModulo: ->
+        this.clearModulo() if @modulo_elts
+
+        @modulo_points = for i in [0..@modulo - 1]
+          angle = i * Math.PI * 2 / @modulo
+          x: Math.sin(angle), y: -Math.cos(angle)
+
+        @modulo_elts = for i in [0..@modulo - 1]
+          point = @modulo_points[i]
+
+          circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
+          circle.setAttribute 'cx', point.x * 40
+          circle.setAttribute 'cy', point.y * 40
+          circle.setAttribute 'r', 0.5
+
+          text = document.createElementNS("http://www.w3.org/2000/svg", "text")
+          text.setAttribute 'x', point.x * 43 - Math.abs(point.x * 0.625) - 0.625
+          text.setAttribute 'y', point.y * 42.5 + 0.75
+          text.textContent = i
+
+          circle: circle, text: text
+
+        for elt in @modulo_elts
+          @svg_elt.appendChild elt.circle
+          @svg_elt.appendChild elt.text
+
+      toSvg: ->
+        this.drawModulo()
+        this
+
+p Et voilà le résultat #{':'}
+
+table
+  tr
+    th Modulo
+    th Code
+    th Résultat
+  tr
+    td #{ coderay '4', inline: true}
+    td
+      = coderay lang: :javascript do
+        | MultEngine.initialize({
+            svg: document.querySelector('svg#mult-4-1'),
+            modulo: 4
+          }).toSvg()
+    td
+      svg id='mult-4-1' class='light-background'
+
+      javascript:
+        (function() {
+          MultEngine.initialize({svg: document.querySelector('svg#mult-4-1'), table: 1, modulo: 4}).toSvg()
+        }).call(this)
+  tr
+    td #{ coderay '7', inline: true}
+    td
+      = coderay lang: :javascript do
+        | MultEngine.initialize({
+            svg: document.querySelector('svg#mult-7-1'),
+            modulo: 7
+          }).toSvg()
+    td
+      svg id='mult-7-1' class='light-background'
+
+      javascript:
+        (function() {
+          MultEngine.initialize({svg: document.querySelector('svg#mult-7-1'), table: 1, modulo: 7}).toSvg()
+        }).call(this)
+  tr
+    td #{ coderay '11', inline: true}
+    td
+      = coderay lang: :javascript do
+        | MultEngine.initialize({
+            svg: document.querySelector('svg#mult-11-1'),
+            modulo: 11
+          }).toSvg()
+    td
+      svg id='mult-11-1' class='light-background'
+
+      javascript:
+        (function() {
+          MultEngine.initialize({svg: document.querySelector('svg#mult-11-1'), table: 1, modulo: 11}).toSvg()
+        }).call(this)
+
+p C'est très bien. Alors maintenant, il est enfin temps de rentrer dans le vif du sujet, et de nous occuper de la multiplication !
+
+h3 Table de 2
+
+p Ha ! Il est enfin temps de s'occuper de multiplication !
+
+p Le principe que nous allons appliquer afin de représenter visuellement les tables de multiplications sera de relier à l'intérieur du cercle les différents points en fonction de la valeur du <i>multiplicande</i> et du <i>résultat</i> de la multiplication.
+
+p Par exemple, avec la table de deux #{":"} comme #{ coderay '1 * 2 = 2', inline: true}, on ira relier le nombre #{ coderay '1', inline: true}, le <i>multiplicande</i> au nombre #{ coderay '2', inline: true}, le <i>résultat</i>. De la même façon, comme #{ coderay '2 * 2 = 4', inline: true}, on va relier le #{ coderay '2', inline: true} au #{ coderay '4', inline: true}. Et ainsi de suite ...
+
+p Voici ce que ça donne pour la table de deux, modulo dix #{':'} <i>(Passe ta souris sur le dessin pour relier les points)</i>
+
+svg id='mult-2-10' viewBox='-50 -50 100 100'
+  g class='table'
+    text x='-17.5' y='-20' (<tspan class='blue'>1</tspan> * 2) #{'='} <tspan class='green'>2</tspan> % 10 #{'='} <tspan class='red'>2</tspan>
+    text x='-17.5' y='-15' (<tspan class='blue'>2</tspan> * 2) #{'='} <tspan class='green'>4</tspan> % 10 #{'='} <tspan class='red'>4</tspan>
+    text x='-17.5' y='-10' (<tspan class='blue'>3</tspan> * 2) #{'='} <tspan class='green'>6</tspan> % 10 #{'='} <tspan class='red'>6</tspan>
+    text x='-17.5' y='-5' (<tspan class='blue'>4</tspan> * 2) #{'='} <tspan class='green'>8</tspan> % 10 #{'='} <tspan class='red'>8</tspan>
+    text x='-17.5' y='0' (<tspan class='blue'>5</tspan> * 2) #{'='} <tspan class='green'>10</tspan> % 10 #{'='} <tspan class='red'>0</tspan>
+    text x='-17.5' y='5' (<tspan class='blue'>6</tspan> * 2) #{'='} <tspan class='green'>12</tspan> % 10 #{'='} <tspan class='red'>2</tspan>
+    text x='-17.5' y='10' (<tspan class='blue'>7</tspan> * 2) #{'='} <tspan class='green'>14</tspan> % 10 #{'='} <tspan class='red'>4</tspan>
+    text x='-17.5' y='15' (<tspan class='blue'>8</tspan> * 2) #{'='} <tspan class='green'>16</tspan> % 10 #{'='} <tspan class='red'>6</tspan>
+    text x='-17.5' y='20' (<tspan class='blue'>9</tspan> * 2) #{'='} <tspan class='green'>18</tspan> % 10 #{'='} <tspan class='red'>8</tspan>
+
+  g class='point'
+    circle cx='0' cy='-40' r='0.5' class="blue"
+    circle cx='0' cy='-40' r='0.5' class="red"
+
+  g class='modulo'
+    text x='39.67601987800713' y='-12.383222260935266' 2
+    text x='24.282400065893555' y='35.13322226093527' 4
+    text x='-26.267131631259137' y='35.13322226093527' 6
+    text x='-42.114840523376074' y='-12.383222260935257' 8
+    text x='-0.625' y='-41.75' 0
+    text x='39.67601987800713' y='-12.383222260935266' 2
+    text x='24.282400065893555' y='35.13322226093527' 4
+    text x='-26.267131631259137' y='35.13322226093527' 6
+    text x='-42.114840523376074' y='-12.383222260935257' 8
+
+javascript:
+  (function() {
+    var svg_elt = document.querySelector('svg#mult-2-10')
+    MultEngine.initialize({svg: svg_elt, table: 2, modulo: 10}).toSvg();
+
+    svg_elt.appendChild(svg_elt.querySelector('g.point'));
+    svg_elt.appendChild(svg_elt.querySelector('g.modulo'));
+  }).call(this)
+
+p <i>- C'est curieux que ce dessin soit symétrique ... C'est vraiment trés curieux. Je ne pensais pas qu'une table de multiplication, c'était symétrique ... Enfin, peut-être que c'est lié au modulo dix ? Qu'est-ce qui se passe si on fait la même chose, les mêmes règles, mais modulo onze, ou douze, ou plus ?</i>
+
+p Encore une fois, voici une excellente question cher lecteur, et c'est justement le sujet de notre prochaine animation #{":"} la table de deux, du modulo dix au module soizante-quinze.
+
+div id='demo-2-10to75' class='triggered-animation'
+  svg id='mult-2-10to75'
+  p class='align-center'
+    span class='btn active' mult-engine-trigger='mult-2-10to75' Jouer l'animation
+
+javascript:
+  (function() {
+    MultEngine.initialize({svg: document.querySelector('svg#mult-2-10to75'), table: 2, modulo: 10}).toSvg().setAnimationTrigger({modulo: 75, speed: 0.375})
+  }).call(this)
+
+p <i>- On dirait qu'il y a comme une forme qui se dessine petit à petit ... Comme si la multiplication, qui n'était alors qu'une idée abstraite, se révélait peu à peu ... Qu'elle révélait sa structure ... D'une façon visible, tangible ... Avant, je connaissais son fonctionnement, ses formules, mais maintenant je peux en faire l'expérience ! Je peux la voir ! La sentir !</i>
+
+p Oui, cher lecteur. Je crois que tu commences à saisir la beauté des mathématiques.
+
+h3 MultEngine 2.0
+
+p Avant de continuer, ajoutons une nouvelle méthode à la #{ coderay 'MultEngine', inline: true} #{":"} #{ coderay 'drawTable', inline: true}, qui permettra de calculer et de relier automatiquement les différents points du cercle, en fonction d'un paramètre #{ coderay '@table', inline: true}, qui indique la table de multiplication à utiliser.
+
+= coderay lang: :javascript do
+  | class window.MultEngine
+      setTable: (table) ->
+        @table = table
+        @table_drawn = false
+        this
+
+      clearTable: ->
+        for elt in @table_elts
+          @svg_elt.removeChild elt.line
+        @table_elts = null
+
+      drawTable: ->
+        this.clearTable() if @table_elts
+
+        @table_elts = for i in [1..@modulo - 1]
+          angle = @table * i * Math.PI * 2 / @modulo
+          start_point = @modulo_points[i]
+          end_point =
+            x: Math.sin(angle),
+            y: -Math.cos(angle)
+
+          line = document.createElementNS("http://www.w3.org/2000/svg", "line")
+          line.setAttribute 'x1', start_point.x * 40
+          line.setAttribute 'y1', start_point.y * 40
+          line.setAttribute 'x2', end_point.x * 40
+          line.setAttribute 'y2', end_point.y * 40
+
+          start_point: start_point, end_point: end_point, line: line
+
+        for elt in @table_elts
+          @svg_elt.appendChild elt.line
+
+p On va pouvoir maintenant observer ce qui se passe pour les différentes tables de multiplications #{":"}
+
+table
+  tr
+    th Table
+    th Code
+    th Résultat
+  - 3.upto(5) do |i|
+    tr
+      td #{ coderay i, inline: true}
+      td
+        = coderay lang: :javascript do
+          | MultEngine.initialize({
+              svg: document.querySelector('svg#mult-#{i}-10to75'),
+              table: #{i},
+              modulo: 10
+            }).toSvg()
+      td
+        div id='demo-#{i}-10to75' class='triggered-animation'
+          svg id='mult-#{i}-10to75'
+          p class='align-center'
+            span class='btn active' mult-engine-trigger='mult-#{i}-10to75' Jouer l'animation
+
+        javascript:
+          (function() {
+            MultEngine.initialize({svg: document.querySelector('svg#mult-#{i}-10to75'), table: #{i}, modulo: 10}).toSvg().setAnimationTrigger({modulo: 75, speed: 0.5})
+          }).call(this)
+
+p Et pour terminer, voici le code qui permet de réaliser les différentes animations #{":"}
+
+= coderay lang: :javascript do
+  | class window.MultEngine
+      animate: (options = {}) ->
+
+        options.modulo = options.modulo ? @modulo
+        options.table = options.table ? @table
+        options.speed = options.speed ? 1.0
+
+        steps = 300 / options.speed
+        step_count = 0
+
+        modulo_step = (options.modulo - @modulo) / steps
+        table_step = (options.table - @table) / steps
+
+        that = this
+
+        animation = ->
+          that.setModulo(that.modulo + modulo_step) unless modulo_step == 0
+          that.setTable(that.table + table_step) unless table_step == 0
+          that.toSvg()
+
+          step_count += 1
+
+          if step_count < steps
+            requestAnimationFrame(animation)
+
+        animation()
+
+p <i>-Mais ... Attends ... Cette méthode permet aussi d'animer la valeur de table de multiplication, et pas simplement le modulo !</i> C'est effectivement le cas, cher lecteur, et je remarque que c'est un résultat que je nous n'avons pas encore eu la chance d'observer ensembler, alors voilà, la prochaine sera la transition, modulo cent cinquante, de la table de deux vers la table de neuf (en passant par toutes les tables intermédaires, la table de #{ coderay '2.1', inline: true}, celle de #{ coderay '2.2', inline: true}, etc).
+
+= coderay lang: :javascript do
+  | MultEngine.initialize({
+      svg: document.querySelector('svg#mult-2to9-150'),
+      table: 2,
+      modulo: 150
+    }).animate({
+      table: 9,
+      modulo: 150,
+      speed: 0.375
+    })
+
+p Et voilà le résultat #{":"}
+
+div id='demo-2to9-150' class='triggered-animation' data-table='Table de 2.00'
+  svg id='mult-2to9-150'
+  p class='align-center'
+    span class='btn active' mult-engine-trigger='mult-2to9-150' Jouer l'animation
+
+javascript:
+  (function() {
+    var svg_elt = document.querySelector('svg#mult-2to9-150');
+    MultEngine.initialize({svg: svg_elt, table: 2, modulo: 150}).toSvg().setAnimationTrigger({table: 9, speed: 0.375, each_step: function(mult){
+      document.querySelector('div#demo-2to9-150').setAttribute('data-table', "Table de " + mult.table.toFixed(2));
+    }});
+  }).call(this)
+
+h3 Conclusion
+
+p Ça y est, notre petite excursion dans le monde de l'art en mathématiques est terminé. J'espère que tu auras apprécié.
+
+p Comme d'habitude, tous les fichiers sont disponibles en cliquant sur le bouton de téléchargement #{":"}
+
+p class='align-center'
+  = link_to "Télécharger les fichiers", "/dl/mult_engine.zip", class: :btn
+
+p On se donne rendez-vous pour une prochaine fois, mais avant de se quitter, je te laisse avec une toute dernière animation plutôt fantastique, il s'agit de la transition de la table de #{ coderay '80', inline: true} vers la table de #{ coderay '110', inline: true}, le tout modulo #{ coderay '800', inline: true} ! À bientôt !
+
+div id='demo-80to110-800' class='triggered-animation'
+  svg id='mult-80to110-800'
+  p class='align-center'
+    span class='btn active' mult-engine-trigger='mult-80to110-800' Jouer l'animation
+
+javascript:
+  (function() {
+    var svg_elt = document.querySelector('svg#mult-80to110-800');
+    MultEngine.initialize({svg: svg_elt, table: 80, modulo: 800, draw_modulo: false}).toSvg().setAnimationTrigger({table: 110, speed: 0.05});
+  }).call(this)
+
+h3 Sources
+
+p Cet article à été en grande partie inspiré par cette vidéo de Mickaël Launay de la chaîne Youtube "Micmaths" #{":"}
+
+div class='video computer-display'
+  iframe src='https://www.youtube.com/embed/-X49VQgi86E' frameborder='0' allowfullscreen='1'

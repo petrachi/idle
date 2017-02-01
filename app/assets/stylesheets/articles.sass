@@ -4,7 +4,7 @@ body
   overflow: hidden
 
 html
-  font: 2vh "Helvetica Neue","Helvetica","Arial", sans-serif
+  font: 1.5vh "Helvetica Neue","Helvetica","Arial", sans-serif
   font-weight: 200
 
 body
@@ -201,16 +201,29 @@ h2
     &.align-right
       text-align: right
 
+    &.align-left
+      text-align: left
+
     tr + tr
       border-top: 1px solid rgba(#111, .35)
 
     th
       font-weight: 200
+      text-align: center
       text-transform: uppercase
       padding: 0.3em 0.5em
 
     td
       padding: .4em
+
+      &.align-right
+        text-align: right
+
+      &.align-left
+        text-align: left
+
+      &.align-center
+        text-align: center
 
       &+ td
         border-left: 1px solid rgba(#111, .35)
@@ -273,6 +286,14 @@ h2
 
     &:hover
       color: inherit
+
+.btn-group
+  .btn
+    margin: .25em .5em .25em 0
+    background-color: #fbfbfb
+
+    &:hover
+      text-decoration: underline
 
 [data-rating]
   @extend .btn

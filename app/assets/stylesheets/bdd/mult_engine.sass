@@ -1,0 +1,229 @@
+#mult-engine
+  svg
+    height: 36em
+
+    line
+      stroke: #111
+      stroke-width: .1
+
+    text
+      font-size: .125em
+
+    line
+      stroke: #111
+      stroke-width: .1
+
+    circle
+      fill: #111
+      stroke-width: .1
+
+      &:first-of-type
+        stroke: #111
+        fill: transparent
+
+    &.light-background
+      circle:first-of-type
+        fill: rgba(#fbfbfb, .4)
+
+    &#euclidian-div
+      height: 28em
+
+      g#blue
+        text
+          fill: dodgerblue
+        line
+          stroke: dodgerblue
+
+      g#green
+        text
+          fill: darkblue
+        line
+          stroke: darkblue
+
+      g#red
+        text
+          fill: firebrick
+        line
+          stroke: firebrick
+
+      g#pink
+        text
+          fill: #d62d76
+        line
+          stroke: #d62d76
+
+    &[id=mult-2-10]
+
+      @keyframes draw-line
+        75%
+          stroke-dashoffset: 0
+          stroke-width: .4
+        100%
+          stroke-dashoffset: 0
+          stroke-width: .1
+
+      @keyframes show-text
+        10%
+          opacity: 1
+        90%
+          font-weight: 400
+        100%
+          font-weight: 200
+          opacity: 1
+
+      @for $base from 1 through 2
+        @keyframes rotate-point-#{36 * $base}
+          @for $i from 1 through 9
+            #{($i - 1) * 10}%
+              transform: rotate(#{$i * 36 * $base}deg)
+            #{($i * 10) - 2.5}%
+              transform: rotate(#{$i * 36 * $base}deg)
+          87.5%
+            opacity: 1
+          90%
+            opacity: 0
+            transform: rotate(#{9 * 36 * $base}deg)
+          100%
+            opacity: 0
+            transform: rotate(#{9 * 36 * $base}deg)
+
+      @keyframes color-text-blue
+        0%
+          fill: dodgerblue
+        75%
+          fill: dodgerblue
+
+      @keyframes show-text-red
+        0%
+          opacity: 1
+        75%
+          opacity: 1
+
+      g.table
+        text
+          font-size: .2em
+          font-weight: 400
+          opacity: 0
+
+          tspan.blue
+            fill: dodgerblue
+
+          tspan.green
+            fill: darkblue
+
+          tspan.red
+            fill: firebrick
+
+      g.point
+        circle
+          opacity: 0
+
+          &.blue
+            fill: dodgerblue
+            stroke: dodgerblue
+
+          &.red
+            fill: firebrick
+            stroke: firebrick
+
+      g.modulo
+        text
+          opacity: 0
+          fill: firebrick
+
+      line
+        stroke-dasharray: 80
+        stroke-dashoffset: 80
+        stroke-width: .4
+
+      &:hover
+        g.table
+          text
+            animation: show-text 1s ease forwards
+
+            @for $i from 1 through 8
+              &:nth-child(#{$i + 1})
+                animation-delay: #{$i * 1.25}s
+
+        g.point
+          circle
+            opacity: 1
+
+            &.blue
+              animation: rotate-point-36 12.5s forwards
+
+            &.red
+              animation: rotate-point-72 12.5s forwards
+
+        g.modulo
+          text
+            animation: show-text-red 1s ease forwards
+
+            @for $i from 1 through 9
+              &:nth-child(#{$i})
+                animation-delay: #{($i - 1) * 1.25}s
+
+        text
+          @for $i from 0 through 8
+            &:nth-child(#{($i * 2) + 6})
+              animation: color-text-blue 1s ease forwards
+              animation-delay: #{$i * 1.25}s
+
+        line
+          animation: draw-line 1s ease forwards
+
+          @for $i from 1 through 8
+            &:nth-child(#{$i + 23})
+              animation-delay: #{$i * 1.25}s
+
+    &[id=mult-2to9-150]
+      text
+        font-size: .08em
+
+      text.table-of
+        font-size: .35em
+        fill: rgba(#fbfbfb, .4)
+
+      text.table-value
+        font-size: 1.25em
+        fill: rgba(#fbfbfb, .4)
+
+  table
+    svg
+      width: 24em
+      height: 24em
+
+  .triggered-animation[id^=demo]
+    position: relative
+
+    p
+      position: absolute
+      top: calc(50% - 1.4375em)
+
+      width: 100%
+      margin: 0
+
+      .btn
+        margin: 0
+        background-color: yellowgreen
+        opacity: 0
+        transition: opacity .5s ease
+        pointer-events: none
+
+        &:hover
+          background-color: #fbfbfb
+
+        &.active
+          opacity: 1
+          pointer-events: auto
+
+  div#demo-2to9-150:before
+    content: attr(data-table)
+    display: block
+    position: absolute
+    top: 0
+    left: 0
+    background-color: rgba(#fbfbfb, .25)
+    padding: .25em .5em
+    border-radius: 1em
+    font-size: 16px
