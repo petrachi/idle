@@ -1,6 +1,6 @@
 p Quand ils ne sont pas occupés à résoudre un système de 29 équations linéaires, il arrive que les mathématiciens parlent de la beauté des maths. Ils trouvent les formules jolies, les propriétés agréables, et les nombres beaux.
 
-p C'est un concept qui peut être assez difficile à admettre, après tout, un <i>2</i> ou un <i>3</i>, ça n'a rien de beau ! Même un mathématiciens serait d'accord là-dessus. Et pourtant, la beauté en mathématiques existe #{":"} ça n'est pas la beauté des symboles en eux-mêmes, mais des relations, des interconnexions qu'ils décrivent. Avec une formule, les mathématiques représentent un certain arrangent des choses, elles donnent une forme à des idées abstraites, et parfois, ces formes peuvent être belles.
+p C'est un concept qui peut être assez difficile à admettre, après tout, un <i>2</i> ou un <i>3</i>, ça n'a rien de beau ! Même un mathématicien serait d'accord là-dessus. Et pourtant, la beauté en mathématiques existe #{":"} ça n'est pas la beauté des symboles en eux-mêmes, mais des relations, des interconnexions qu'ils décrivent. Avec une formule, les mathématiques représentent un certain arrangement des choses, elles donnent une forme à des idées abstraites, et parfois, ces formes peuvent être belles.
 
 h3 Nombres cycliques
 
@@ -19,7 +19,7 @@ p Donc, si tu voulais lister les nombres les uns à suites des autres, plutôt q
 
 h3 Modulo
 
-p <i>- D'accord, mais par exemple, si je prends 121, pour savoir à quel point je vais tomber sur ton cercle, je ne vais pas m'amuser à compter de 0 jusqu'à 121 quand même ?!</i> Voici, ami lecteur, une remarque très intelligente. Pour te répondre, il faut que je te parle d'une opération mathématique particliére, le #{ coderay 'modulo', inline: true}.
+p <i>- D'accord, mais par exemple, si je prends 121, pour savoir à quel point je vais tomber sur ton cercle, je ne vais pas m'amuser à compter de 0 jusqu'à 121 quand même ?!</i> Voici, ami lecteur, une remarque très intelligente. Pour te répondre, il faut que je te parle d'une opération mathématique particuliére, le #{ coderay 'modulo', inline: true}.
 
 p Tu connais peut-être déjà le #{ coderay 'modulo', inline: true}, c'est une opération souvent présente dans les langages de programmation informatique, généralement interprétée via le symbole #{ coderay '%', inline: true}. Ce que fait cette opération, c'est qu'elle récupère le <i>reste</i> de la division euclidienne entre deux nombres. <i>- La division euclidienne ???</i> Oui, j'ai eu la même réaction en face de mon professeur de mathématiques de terminale à l'époque où il m'apprenait le #{ coderay 'modulo', inline: true}.
 
@@ -63,7 +63,7 @@ svg id="euclidian-div" viewBox='0 5 40 30'
     text x='9' y='30' reste
     line x1='11.5' y1='25.5' x2='11.5' y2='28' marker-end='url(#markerArrowP)'
 
-p La division euclidienne (autrement dit, la division que tu apprends au primaire) ne produit que des résultats entiers. Mais quand les deux nombres ne sont pas divisibles entre eux, ont dit qu'il y a un <i>reste</i>. Ici, #{ coderay '598/7 = 85 et il reste 3', inline: true}.
+p La division euclidienne (autrement dit, la division que tu apprends au primaire) ne produit que des résultats entiers. Mais quand les deux nombres ne sont pas divisibles entre eux, on dit qu'il y a un <i>reste</i>. Ici, #{ coderay '598/7 = 85 et il reste 3', inline: true}.
 
 p L'opération de modulo, elle, ne s'intéresse qu'au reste de cette division. Donc #{ coderay '598 % 7 = 3', inline: true}. C'est-à-dire que, sur un cercle où on n'aurait positionné que sept points, le nombre 598 serait placé au même endroit que le nombre 3.
 
@@ -71,9 +71,9 @@ p Pour en revenir à ta question de tout à l'heure, pour déterminer où serait
 
 h3 MultEngine
 
-p Il est clair qu'on va avoir beaucoup de #{ coderay 'modulo', inline: true} dans cette histoire. Et beaucoup de cercles à dessiner. Alors, profitons du fait d'être des développeurs pour créer une petite librairie de <i>dessin de cercles de modulos</i>, plutôt que de s'embêter à tout faire à la main tout le temps.
+p Il est clair qu'on va avoir beaucoup de #{ coderay 'modulo', inline: true} dans cette histoire. Et beaucoup de cercles à dessiner. Alors, profitons du fait d'être des développeurs pour créer une petite librairie de <i>dessins de cercles de modulos</i>, plutôt que de s'embêter à tout faire à la main tout le temps.
 
-p Cette librairie, écrite en JavaScript (avec la syntaxe CoffeeScript), et que nous nommerons la #{ coderay 'MultEngine', inline: true}, permettra, en fonction de la valeur du paramètre #{ coderay 'modulo', inline: true}, de dessiner en SVG un cercle, et un correspondants nombre de points, équitablement répartis sur ce cercle.
+p Cette librairie, écrite en JavaScript (avec la syntaxe CoffeeScript), et que nous nommerons la #{ coderay 'MultEngine', inline: true}, permettra, en fonction de la valeur du paramètre #{ coderay 'modulo', inline: true}, de dessiner en SVG un cercle, et un nombre de points correspondants, équitablement répartis sur ce cercle.
 
 = coderay lang: :javascript do
   | class window.MultEngine
@@ -192,11 +192,9 @@ p C'est très bien. Alors maintenant, il est enfin temps de rentrer dans le vif 
 
 h3 Table de 2
 
-p Ha ! Il est enfin temps de s'occuper de multiplication !
-
 p Le principe que nous allons appliquer afin de représenter visuellement les tables de multiplications sera de relier à l'intérieur du cercle les différents points en fonction de la valeur du <i>multiplicande</i> et du <i>résultat</i> de la multiplication.
 
-p Par exemple, avec la table de deux #{":"} comme #{ coderay '1 * 2 = 2', inline: true}, on ira relier le nombre #{ coderay '1', inline: true}, le <i>multiplicande</i> au nombre #{ coderay '2', inline: true}, le <i>résultat</i>. De la même façon, comme #{ coderay '2 * 2 = 4', inline: true}, on va relier le #{ coderay '2', inline: true} au #{ coderay '4', inline: true}. Et ainsi de suite ...
+p Par exemple, avec la table de deux #{":"} comme #{ coderay '1 * 2 = 2', inline: true}, on ira relier le nombre #{ coderay '1', inline: true}, le <i>multiplicande</i>, au nombre #{ coderay '2', inline: true}, le <i>résultat</i>. De la même façon, comme #{ coderay '2 * 2 = 4', inline: true}, on va relier le #{ coderay '2', inline: true} au #{ coderay '4', inline: true}. Et ainsi de suite ...
 
 p Voici ce que ça donne pour la table de deux, modulo dix #{':'} <i>(Passe ta souris sur le dessin pour relier les points)</i>
 
@@ -238,7 +236,7 @@ javascript:
 
 p <i>- C'est curieux que ce dessin soit symétrique ... C'est vraiment trés curieux. Je ne pensais pas qu'une table de multiplication, c'était symétrique ... Enfin, peut-être que c'est lié au modulo dix ? Qu'est-ce qui se passe si on fait la même chose, les mêmes règles, mais modulo onze, ou douze, ou plus ?</i>
 
-p Encore une fois, voici une excellente question cher lecteur, et c'est justement le sujet de notre prochaine animation #{":"} la table de deux, du modulo dix au module soizante-quinze.
+p Encore une fois, voici une excellente question cher lecteur, et c'est justement le sujet de notre prochaine animation #{":"} la table de deux, du modulo dix au modulo soizante-quinze.
 
 div id='demo-2-10to75' class='triggered-animation'
   svg id='mult-2-10to75'
@@ -349,7 +347,7 @@ p Et pour terminer, voici le code qui permet de réaliser les différentes anima
 
         animation()
 
-p <i>-Mais ... Attends ... Cette méthode permet aussi d'animer la valeur de table de multiplication, et pas simplement le modulo !</i> C'est effectivement le cas, cher lecteur, et je remarque que c'est un résultat que je nous n'avons pas encore eu la chance d'observer ensembler, alors voilà, la prochaine sera la transition, modulo cent cinquante, de la table de deux vers la table de neuf (en passant par toutes les tables intermédaires, la table de #{ coderay '2.1', inline: true}, celle de #{ coderay '2.2', inline: true}, etc).
+p <i>-Mais ... Attends ... Cette méthode permet aussi d'animer la valeur de la table de multiplication, et pas simplement le modulo !</i> C'est effectivement le cas, cher lecteur, et je remarque que c'est un résultat que je nous n'avons pas encore eu la chance d'observer ensemble, alors voilà, la prochaine sera la transition, modulo cent cinquante, de la table de deux vers la table de neuf (en passant par toutes les tables intermédaires, la table de #{ coderay '2.1', inline: true}, celle de #{ coderay '2.2', inline: true}, etc).
 
 = coderay lang: :javascript do
   | MultEngine.initialize({
