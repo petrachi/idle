@@ -1,5 +1,5 @@
 - @ratings.each do |(tag, values)|
-  h3 #{tag} (#{values.size})
+  h3 #{tag} (#{values.map(&:first).reduce(&:+)})
   p
     - values.each do |(value, percent)|
       span
