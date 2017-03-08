@@ -20,6 +20,20 @@ Article.find_or_create_by(tag: :'ch1-sources') do |a|
   a.published_at = "21-09-2016"
 end
 
+Article.find_or_create_by(tag: :'ch2') do |a|
+  a.title = "Chapitre 2 - Lecture"
+  a.group = :hdli
+  a.published = true
+  # a.published_at = "08-03-2017"
+end
+
+Article.find_or_create_by(tag: :'ch2-sources') do |a|
+  a.title = "Chapitre 2 - Sources"
+  a.group = :hdli
+  a.published = true
+  # a.published_at = "08-03-2017"
+end
+
 ########
 
 Article.find_or_create_by(tag: :ssem) do |a|
