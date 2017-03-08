@@ -2,7 +2,14 @@ p Quand ils ne sont pas occupés à résoudre un système de 29 équations liné
 
 p C'est un concept qui peut être assez difficile à admettre, après tout, un <i>2</i> ou un <i>3</i>, ça n'a rien de beau ! Même un mathématicien serait d'accord là-dessus. Et pourtant, la beauté en mathématiques existe #{":"} ça n'est pas la beauté des symboles en eux-mêmes, mais des relations, des interconnexions qu'ils décrivent. Avec une formule, les mathématiques représentent un certain arrangement des choses, elles donnent une forme à des idées abstraites, et parfois, ces formes peuvent être belles.
 
-h3 Nombres cycliques
+h3
+  | Nombres cycliques
+  svg id="mult-200-86"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-86"), table: 86, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
+
 
 p Tu l'as deviné cher lecteur, aujourd'hui, on s'intéresse à un domaine particulier #{":"} l'art en mathématiques. Et plus précisément, à la représentation cyclique des tables de multiplications.
 
@@ -17,7 +24,13 @@ p <i>- C'est quoi ce cercle ?</i> Et bien, ami lecteur, ce cercle sera la base d
 
 p Donc, si tu voulais lister les nombres les uns à suites des autres, plutôt que de compter #{ coderay '... 7, 8, 9, 10, 11, ...', inline: true}, tu dirais plutôt #{ coderay '... 7, 8, 9, ...', inline: true}, puis le cycle recommence, #{ coderay '... 0, 1, 2, ...', inline: true}.
 
-h3 Modulo
+h3
+  | Modulo
+  svg id="mult-200-51"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-51"), table: 51, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
 
 p <i>- D'accord, mais par exemple, si je prends 121, pour savoir à quel point je vais tomber sur ton cercle, je ne vais pas m'amuser à compter de 0 jusqu'à 121 quand même ?!</i> Voici, ami lecteur, une remarque très intelligente. Pour te répondre, il faut que je te parle d'une opération mathématique particuliére, le #{ coderay 'modulo', inline: true}.
 
@@ -69,7 +82,14 @@ p L'opération de modulo, elle, ne s'intéresse qu'au reste de cette division. D
 
 p Pour en revenir à ta question de tout à l'heure, pour déterminer où serait placé le nombre 121 sur notre cercle, il suffit de faire l'opération #{ coderay '121 % 10', inline: true} pour avoir notre réponse #{":"} #{ coderay '121 % 10 = 1', inline: true}.
 
-h3 MultEngine
+h3
+  | MultEngine
+  svg id="mult-200-49"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-49"), table: 49, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
+
 
 p Il est clair qu'on va avoir beaucoup de #{ coderay 'modulo', inline: true} dans cette histoire. Et beaucoup de cercles à dessiner. Alors, profitons du fait d'être des développeurs pour créer une petite librairie de <i>dessins de cercles de modulos</i>, plutôt que de s'embêter à tout faire à la main tout le temps.
 
@@ -190,7 +210,14 @@ table
 
 p C'est très bien. Alors maintenant, il est enfin temps de rentrer dans le vif du sujet, et de nous occuper de la multiplication !
 
-h3 Table de 2
+h3
+  | Table de 2
+  svg id="mult-200-73"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-73"), table: 73, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
+
 
 p Le principe que nous allons appliquer afin de représenter visuellement les tables de multiplications sera de relier à l'intérieur du cercle les différents points en fonction de la valeur du <i>multiplicande</i> et du <i>résultat</i> de la multiplication.
 
@@ -252,7 +279,14 @@ p <i>- On dirait qu'il y a comme une forme qui se dessine petit à petit ... Com
 
 p Oui, cher lecteur. Je crois que tu commences à saisir la beauté des mathématiques.
 
-h3 MultEngine 2.0
+h3
+  | MultEngine 2.0
+  svg id="mult-200-68"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-68"), table: 68, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
+
 
 p Avant de continuer, ajoutons une nouvelle méthode à la #{ coderay 'MultEngine', inline: true} #{":"} #{ coderay 'drawTable', inline: true}, qui permettra de calculer et de relier automatiquement les différents points du cercle, en fonction d'un paramètre #{ coderay '@table', inline: true}, qui indique la table de multiplication à utiliser.
 
@@ -375,7 +409,13 @@ javascript:
     }});
   }).call(this)
 
-h3 Conclusion
+h3
+  | Conclusion
+  svg id="mult-200-29"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-29"), table: 29, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
 
 p Ça y est, notre petite excursion dans le monde de l'art en mathématiques est terminé. J'espère que tu auras apprécié.
 
@@ -397,7 +437,14 @@ javascript:
     MultEngine.initialize({svg: svg_elt, table: 80, modulo: 800, draw_modulo: false}).toSvg().setAnimationTrigger({table: 110, speed: 0.05});
   }).call(this)
 
-h3 Sources
+h3
+  | Sources
+  svg id="mult-200-67"
+  javascript:
+    (function() {
+      MultEngine.initialize({svg: document.querySelector("svg#mult-200-67"), table: 67, modulo: 200, draw_modulo: false}).toSvg()
+    }).call(this)
+
 
 p Cet article à été en grande partie inspiré par cette vidéo de Mickaël Launay de la chaîne Youtube "Micmaths" #{":"}
 
