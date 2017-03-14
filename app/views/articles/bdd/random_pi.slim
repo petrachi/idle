@@ -1,0 +1,87 @@
+p Aujourd'hui, c'est le 14 mars, autrement connu outre-Atlantique comme le jour du nombre π ! Du coup, aujourd'hui, on va calculer π !
+
+h3 Méthode
+
+p Il existe de nombreuses techniques pour calculer le nombre π (qui, pour rappel, est défini comme le ratio de la circonférence d'un cercle, par rapport à son diamètre), mais celle que nous allons utiliser est probablement une des moins précises, puisqu'on va se servir des probabilités.
+
+p L'idée est simple #{":"} on tire deux nombres entiers au hasard et on regarde s'ils sont premiers entre eux, c'est-à-dire, est-ce que leur plus grand dénominateur commun est égal à #{ coderay '1', inline: true}. Si c'est le cas, on ajoutera un point au score, et on recommence. Après suffisamment de lancers, le score obtenu nous permettra de calculer π.
+
+p Tu dois déjà te demander, cher lecteur, comment, à partir de ça, on arrive à calculer notre fameuse <i>constante d’Archimède</i> (parfois aussi appelée π) ? Et bien ne t'inquiètes pas, ce sont des mathématiques, et d'autres, plus forts et plus intelligents, ont déjà réfléchis à ces problèmes avant toi et moi, il n'y a qu'à les suivre.
+
+p Il se trouve que la probabilité que deux nombres soient premiers entre eux est égale à #{ coderay '6/π²', inline: true}. Puisque de notre côté, nous calculons cette probabilité (#{ coderay 'x = [score]/[lancés]', inline: true}), nous pourrons transformer l'équation (#{ coderay 'x ≈ 6/π²', inline: true}) en #{ coderay 'π ≈ √(6/x)', inline: true}.
+
+h3 Code
+
+p Allez, ne perdons plus de temps ! Calculons !
+
+= coderay do
+  | def π throws = 1015
+      score = 0
+
+      throws.times do
+        a, b = Array.new(2){ rand(150) }
+        score += 1 if a.gcd(b) == 1
+      end
+
+      Math::sqrt(throws*6.0/score)
+    end
+
+p Alors, quelques clarifications sur deux choses. D'abord, tu as vu que j'ai choisi la valeur par défaut pour le nombre de lancers à #{ coderay '1015', inline: true} seulement. D'habitude, quand on fait des statistiques, plus il y en a, et mieux c'est. Mais je me suis inspiré des instituts de sondages pour qui #{ coderay '1015', inline: true} personnes suffit à créer un panel représentatif de la population. Alors, si #{ coderay '1015', inline: true} leur suffit à eux, je me suis dit que #{ coderay '1015', inline: true} nous suffirait à nous aussi.
+
+p Ensuite, tu remarqueras qu'on limite les possibilités dans le tirage des nombres aléatoires. Il n'y a aucune raison, du point de vue mathématique, à faire cela, c'est simplement plus facile à gérer comme ça dans le code.
+
+h3 Tirage
+
+p Bon ! Voyons voir comment ça marche #{":"}
+
+= coderay do
+  | ?> π
+    => 3.1674830590170173
+
+p Pas mal, encore une fois ?
+
+= coderay do
+  | ?> π
+    => 3.1066617241253995
+
+    ?> π
+    => 3.2292541231344463
+
+p Plutôt bon. À titre de comparaison, voici la valeur de la constante Ruby #{":"}
+
+= coderay do
+  | ?> Math::PI
+    => 3.141592653589793
+
+p D'ailleurs, on pourrait s'amuser à calculer notre taux de précision #{":"}
+
+= coderay do
+  | def reliability a, b
+      (100 - (100 - a*100/b).abs).round(2)
+    end
+
+    ?> reliability π, Math::PI
+    => 99.09
+
+    ?> reliability π, Math::PI
+    => 98.42
+
+p Très bon. Très très bon.
+
+h3 Conclusion
+
+p Et voilà, notre célébration du nombre π en ce jour est maintenant terminée. Et si tu te demandes, cher lecteur, pourquoi est-ce qu'on a pris le temps, aujourd'hui de célébrer le nombre π, c'est justement parce que ce nombre, aussi simple et banal soit-il, ne peux pas s'empêcher d'apparaitre de-ci de-là dans les formules mathématiques. Y compris dans la probabilité que deux nombres soient premiers entre eux. Et ça, cher lecteur, je crois que cela nous dit quelque chose d'important sur les mathématiques, et sur le monde qu'elles décrivent.
+
+p En attendant la prochaine fois, je te laisse avec un dernier résultat que je trouve assez surprenant, c'est l'incroyable taux de fiabilité de cette méthode alors même que nous avons réduit le nombre de lancers à seulement cinq #{":"}
+
+= coderay do
+  | ?> reliability π(5), Math::PI
+    => 77.97
+
+
+h3 Sources
+
+p La principale (et unique) source d'inspiration pour cet article est la vidéo (en anglais) de Matt Parker où justement, il utilise la même technique que nous avons utilisés ... mais sans ordinateur #{":"}
+
+div class='video computer-display'
+  iframe src='https://www.youtube.com/embed/RZBhSi_PwHU' frameborder='0' allowfullscreen='1'

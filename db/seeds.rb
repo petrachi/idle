@@ -24,14 +24,14 @@ Article.find_or_create_by(tag: :'ch2') do |a|
   a.title = "Chapitre 2 - Lecture"
   a.group = :hdli
   a.published = true
-  # a.published_at = "08-03-2017"
+  a.published_at = "08-03-2017"
 end
 
 Article.find_or_create_by(tag: :'ch2-sources') do |a|
   a.title = "Chapitre 2 - Sources"
   a.group = :hdli
   a.published = true
-  # a.published_at = "08-03-2017"
+  a.published_at = "08-03-2017"
 end
 
 ########
@@ -60,6 +60,17 @@ end
 Article.find_or_create_by(tag: :lambda) do |a|
   a.title = "Lambda Calcul"
   a.group = :bdd
+  a.published = true
+  a.published_at = "28-02-2017"
+end
+
+Article.find_or_create_by(tag: :random_pi) do |a|
+  a.title = "Pas d'la Tarte"
+  a.group = :bdd
+  a.published = false
+  # a.published_at = "14-03-2017"
+end
+
   a.published = false
   # a.published_at = "22-01-2017"
 end
