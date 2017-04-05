@@ -1,0 +1,85 @@
+#sandpile
+  h4
+    text-align: center
+    text-transform: uppercase
+    font-style: italic
+    font-size: 1.25em
+    font-weight: 400
+    margin: 2em 0 -.75em
+
+  table
+    tr
+      border: 1px solid rgba(17, 17, 17, 0.35)
+
+    tr + tr
+      border-top: none
+
+    td + td
+      border-left: 1px solid rgba(17, 17, 17, 0.35)
+
+    td.highlight
+      font-weight: 900
+
+  svg
+    path
+      fill: rgba(#fbfbfb, .4)
+      stroke: #111
+      stroke-width: .1px
+
+  .fluid
+    align-items: center
+    justify-content: center
+
+    table
+      margin: 0 1em
+
+  .flexpile
+    display: flex
+    flex-wrap: wrap
+    justify-content: center
+
+    // min-width: 1000px
+    // nb pixel * largeur pixel
+
+    div
+      height: 1em
+      // width: 1px
+      // width: attr(data-width)
+      // adapt width en fonction de nb pixel
+
+      &.c-0
+        background-color: rgba(#fbfbfb, 0)
+      &.c-1
+        background-color: rgba(#fbfbfb, .33)
+      &.c-2
+        background-color: rgba(#fbfbfb, .67)
+      &.c-3
+        background-color: rgba(#fbfbfb, 1)
+
+      &.clearbox
+        width: 100%
+        height: 0
+
+  #demo-to-png
+    svg
+      transition: opacity .35s ease
+
+    .flexpile
+      position: absolute
+      top: 3.22em
+      font-size: 1.02em
+
+      transition: opacity .35s ease
+      opacity: 0
+
+    &.switch
+      svg
+        transition: opacity 4.5s ease
+        opacity: 0
+
+      .flexpile
+        transition-duration: 4s
+        opacity: 1
+
+  img
+    width: 100%

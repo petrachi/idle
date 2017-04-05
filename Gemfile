@@ -51,6 +51,9 @@ group :development do
 
   gem "better_errors"
   gem "binding_of_caller"
+
+  # Create PNG files
+  gem 'chunky_png', '~> 1.3', '>= 1.3.5'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

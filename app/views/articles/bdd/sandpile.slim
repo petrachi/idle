@@ -1,0 +1,1132 @@
+h4 Auteur
+p Ami lecteur, as-tu déjà entendu parler des nombres <i>tas de sable</i> (ou <i>sandpile</i>, comme ils disent outre-manche) ?
+
+h4 Ami Lecteur
+p Des nombres tas de sable ? Non jamais. Ça ne me dit absolument rien.
+
+h4 Auteur
+p Alors c'est parfait, parce que c'est justement notre sujet du jour !
+
+h4 Ami Lecteur
+p D'accord. Alors vas-y, envoie. C'est quoi les nombres tas de sable ?
+
+h3 Acte I Scène 1
+
+h4 Auteur
+p Tu prends une grille, qui peut faire la taille que tu veux mais, pour ne pas tout complexifier dès le début, choississons une grille de taille modestes, disons 3x3 (c'est trois cases de hauteur pour trois cases de largeur).
+
+h4 Ami Lecteur
+p C'est une grille carrée donc ...
+
+h4 Auteur
+p Oui.
+
+h4 Ami Lecteur
+p Mais elle aurait pu être rectangulaire ?
+
+h4 Auteur
+p Oui, c'est possible.
+
+h4 Ami Lecteur
+p Et est-ce qu'elle aurait pu avoir une autre forme (au delà de carrée et rectangulaire) ?
+
+h4 Auteur
+p Oui aussi. On aurait aussi pu choisir une grille triangulaire ou hexagonale, mais dans cet article, on va se limiter à des grilles carrées.
+
+h4 Ami Lecteur
+p Ha bon. D'accord. Continue.
+
+h4 Auteur
+p Merci. Donc je disais, tu prends une grille, et sur chaque cases de la grille, tu peux déposer des grains de sables. Autant que tu veux.
+
+h4 Ami Lecteur
+p Autant que je veux ?
+
+h4 Auteur
+p Autant que tu veux. Vas-y !
+
+h4 Ami Lecteur
+p Bon d'accord. Alors disons que, pour ne pas t'embêter, on va commencer simple. Disons, quatres grains de sables au centre, et un seul sur la toute première case, en haut à gauche.
+
+h4 Auteur
+p Je te remercie de l'attention, et juste pour vérifier qu'on soit bien sur la même longueur d'ondes, normalement, ton nombre tas de sable devrait ressembler à ça #{':'}
+
+- sandpile = Sandpile[[1,0,0], [0,4,0], [0,0,0]]
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Ami Lecteur
+p Heu ... Oui ... Enfin, c'est pas tout à fait ce que j'avais en tête. Je m'étais plutôt imaginé un truc de ce genre #{':'}
+
+
+svg id='sandpile-3x3' viewBox='-30 -10 60 20'
+  - complex_sandpile = Sandpile[[1,0,0], [0,4,0], [0,0,0]].to_complex(viewbox: 40)
+
+javascript:
+  (function() {
+    TAU = Math.PI * 2.0
+
+    var grid = #{ complex_sandpile[:real].to_js };
+    var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+
+    var angle = 3*TAU/18;
+    var vector = new Quaternion(0,1,-0.125,0.125);
+    var perspective = new Quaternion(0,0,0,-256);
+
+    var svg_elt = document.querySelector('svg#sandpile-3x3');
+
+    grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+
+    sand.forEach(function(pile){
+      pile = (new Function ("return " + pile))();
+      pile.rotate(vector, angle).toSvg(svg_elt, perspective);
+    })
+
+  }).call(this)
+
+h4 Auteur
+p Ha oui. Fondamentalement ça ne change rien mais c'est vrai que c'est un peu plus graphique. Je remarques que tu as toujours beaucoup de goût, cher lecteur, et je pense que tu ne cessera jamais de m'impressionner.
+
+h3 Acte I Scène 2
+
+h4 Auteur
+p Maintenant, il faut que je te parle d'une particularité assez spéciale des nombres tas de sable. Ce que j'appelle le <i>renversement</i>.
+
+h4 Ami Lecteur
+p Le renversement ? Dis-moi tout !
+
+h4 Auteur
+p Et bien vois-tu, si tu met trop de grains de sables sur la même case de la grille, la pile devient instable et s'effondre, en éparpillant la majorité des grains de sable sur les cases à côté.
+
+h4 Ami Lecteur
+p D'accord.
+
+h4 Auteur
+p Pour te donner la règle formelle, sur une grille carrée comme la nôtre, dés qu'une pile de sable sur une case dépasse les trois grains de sables (donc il y a, sur la case, quatres grains ou plus), la pile s'effondre. On enlève donc quatres grains de sable de cette pile, qui vont aller s'ajouter aux quatres cases adjascentes, un grain par case.
+
+h4 Ami Lecteur
+p Je crois que j'ai compris, mais ça serait sans doute mieux avec un exemple et un dessin.
+
+h4 Auteur
+p OK. Reprenons notre exemple de tout à l'heure. Sur la case centrale, tu avais mis quatres grains sur la case centrale.
+
+h4 Ami Lecteur
+p Oui.
+
+h4 Auteur
+p Donc, cette case posséde trop de grains, la pile va se renverser. Donc, on enléve quatres grains sur la case centrale (il n'en reste donc plus aucun), et on ajoute un grain à chaque case adjacente à la case centrale, c'est à dire la case en haut au milieu, à droite au milieu, en bas au milieu et à gauche au milieu.
+
+h4 Ami Lecteur
+p Ok ... Et le dessin ?
+
+h4 Auteur
+p À ton service #{':'}
+
+div id='demo-topple' class='triggered-animation'
+  - complex_sandpile = Sandpile[[1,1,0], [1,4,1], [0,1,0]].to_complex(viewbox: 40)
+  svg id='sandpile-3x3-topple' viewBox='-30 -10 60 20'
+  p class='align-center'
+    span class='btn active' demo-trigger='topple' Jouer l'animation
+
+
+javascript:
+  (function() {
+    TAU = Math.PI * 2.0
+
+    var grid = #{ complex_sandpile[:real].to_js };
+    var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+
+    var angle = 3*TAU/18;
+    var vector = new Quaternion(0,1,-0.125,0.125);
+    var perspective = new Quaternion(0,0,0,-256);
+
+    var svg_elt = document.querySelector('svg#sandpile-3x3-topple');
+
+    grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+
+    var piles = sand.map(function(pile){
+     return (new Function ("return " + pile))().rotate(vector, angle);
+    });
+
+    [0, 3].forEach(function(i){
+      piles[i].toSvg(svg_elt, perspective);
+    })
+
+    var scale_point = (new Function ("return " + sand[3]))().points[4].q;
+    var scale_vector = Polyhedron.initialize({"points": [[scale_point.b, scale_point.c, 0]], "faces": []}).rotate(vector, angle).points[0].q;
+
+    var trigger = document.querySelector("[demo-trigger=topple]");
+    var active = false;
+    var max_steps = 150;
+    var steps;
+    var first = true;
+
+    var topple = function(){
+      piles[3].scale(1 - 1/steps, scale_vector).toSvg(svg_elt, perspective);
+      steps--;
+
+      [1,2,4,5].forEach(function(i){
+        piles[i].scale(1 + 1/(max_steps-steps), scale_vector).toSvg(svg_elt, perspective);
+      })
+
+      if(steps > 1){
+        requestAnimationFrame(topple);
+      }else{
+
+        piles[3].polygons.forEach(function(polygon){
+          polygon.path_elt.remove();
+        });
+
+        setTimeout(function(){
+          active = false;
+          trigger.classList.add('active');
+        }, 500);
+      }
+    }
+
+    trigger.addEventListener('click', function(){
+      if(!active){
+        active = true;
+
+        if(!first){
+          piles[3].scale(max_steps, scale_vector).toSvg(svg_elt, perspective);
+        }
+        first = false;
+
+        [1,2,4,5].forEach(function(i){
+          piles[i].scale(1/max_steps, scale_vector).toSvg(svg_elt, perspective);
+
+          piles[i].polygons.forEach(function(polygon){
+            polygon.path_elt.remove();
+          });
+        })
+
+        steps = max_steps;
+
+        trigger.classList.remove('active');
+        setTimeout(function(){
+          requestAnimationFrame(topple);
+        }, 250);
+      }
+    });
+  }).call(this)
+
+h4 Ami Lecteur
+p Je comprends mieux, mais j'ai encore quelques questions. Qu'est-ce qui se passe si il y a plus que quatres grains, s'il y en a six par exemple ?
+
+h4 Auteur
+p Et bien dans ce cas, quatres grains seront répartis sur les quatres cases adjacentes, et il restera deux grains sur la case de départ.
+
+h4 Ami Lecteur
+p D'accord. Et si il n'y a pas quatres cases adjencentes ? Si on est dans un coin par exemple, là il n'y a que deux cases sur lesquelles les grains peuvent se "renverser". Il se passa quoi alors ?
+
+h4 Auteur
+p Dans ce cas, les grains de sable tombent au delà de la grille, et sont perdus.
+
+h4 Ami Lecteur
+p Ok. Et est-ce que c'est possible qu'une pile de ... disons quatres grains ... se "renverse", même si sur les cases adjacentes, il y a déjà trop de grains (disons six) ?
+
+h4 Auteur
+p Oui. Dans ce cas, si on à une configuration dans ce genre là #{':'}
+
+- sandpile = Sandpile[[2,6,3], [6,4,6], [0,6,3]]
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+p Et qu'on fait d'abord se renverser la case du milieu, la règle ne change pas. On retire quatres grains à la case du milieu, et on ajoute un grain à chaque cases adjacentes, comme ceci #{':'}
+
+div class="fluid"
+  table
+    tr
+      td 2
+      td 6
+      td 3
+    tr
+      td 6
+      td class="highlight" 4
+      td 6
+    tr
+      td 0
+      td 6
+      td 3
+
+  p &#8594;
+
+  table
+    tr
+      td 2
+      td class="highlight" 7
+      td 3
+    tr
+      td class="highlight" 7
+      td 0
+      td class="highlight" 7
+    tr
+      td 0
+      td class="highlight" 7
+      td 3
+
+p Puis, on continue l'opération de renversement pour les autres cases (ce qui peux parfois entrainer une véritable réaction en chaine) #{':'}
+
+div class="fluid"
+  table
+    tr
+      td 2
+      td class="highlight" 7
+      td 3
+    tr
+      td class="highlight" 7
+      td 0
+      td class="highlight" 7
+    tr
+      td 0
+      td class="highlight" 7
+      td 3
+
+  p &#8594;
+
+  table
+    tr
+      td class="highlight" 4
+      td 3
+      td class="highlight" 5
+    tr
+      td 3
+      td class="highlight" 4
+      td 3
+    tr
+      td 2
+      td 3
+      td class="highlight" 5
+
+  p &#8594;
+
+  table
+    tr
+      td 0
+      td class="highlight" 6
+      td 1
+    tr
+      td class="highlight" 5
+      td 0
+      td class="highlight" 6
+    tr
+      td 2
+      td class="highlight" 5
+      td 1
+
+  p &#8594;
+
+  table
+    tr
+      td 2
+      td 2
+      td 3
+    tr
+      td 1
+      td class="highlight" 4
+      td 2
+    tr
+      td class="highlight" 4
+      td 1
+      td 3
+
+  p &#8594;
+
+  table
+    tr
+      td 2
+      td 3
+      td 3
+    tr
+      td 3
+      td 0
+      td 3
+    tr
+      td 0
+      td 3
+      td 3
+
+h4 Ami Lecteur
+p C'est clair maintenant. Bon, par contre, ça commence à faire un moment que tu me parles de tes nombres tas de sable, et pour l'instant, je t'ai laissé parler, mais je dois t'avouer que je suis en train de m'impatienter ... Elle commence quand la partie fun ?
+
+h4 Auteur
+p Malheureusement, pas tout de suite. Il va encore falloir qu'on parle du "zero" et des "max" ... Mais avant de continuer, je peux te proposer un petit entracte ?
+
+h4 Ami Lecteur
+p Oui, allez. Un moment détente. Ça me fera du bien.
+
+h3 Entracte
+
+h4 Auteur
+p Tiens, pendant que tu te repose, j'aimerais te montrer quelquechose de sympa qu'on peux faire avec les nombres tas de sable. À ton avis, que ce passe-t-il si tu prends une grille de 10x10, et tu dépose cent grains sur la case centrale ?
+
+h4 Ami Lecteur
+p Ben je sais pas moi, c'était pas cencé être une pause ? J'ai arrêté de réfléchir. Bon, disons, comme ça, ça fait un tas de sable comme dans la vraie vie, une dune quoi.
+
+h4 Auteur
+p Et bien ... non. Voilà le résultat #{':'}
+
+svg id='sandpile-drop-100' viewBox='-30 -10 60 20'
+  - sandpile = Sandpile.flat(11){ 0 }
+  - sandpile[5,5] = 100
+  - complex_sandpile = sandpile.topple.to_complex(viewbox: 40)
+
+javascript:
+  (function() {
+    TAU = Math.PI * 2.0
+
+    var grid = #{ complex_sandpile[:real].to_js };
+    var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+
+    var angle = 3*TAU/18;
+    var vector = new Quaternion(0,1,-0.125,0.125);
+    var perspective = new Quaternion(0,0,0,-256);
+
+    var svg_elt = document.querySelector('svg#sandpile-drop-100');
+
+    grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+
+    sand.forEach(function(pile){
+      pile = (new Function ("return " + pile))();
+      pile.rotate(vector, angle).toSvg(svg_elt, perspective);
+    })
+
+  }).call(this)
+
+h4 Ami Lecteur
+p Ha oui, c'est surprenant. Je vois d'ailleurs une forme de symétrie qui se dégage de là. Remarque, ça paraît assez logique, les mouvements de sable vers la doite, la gauche, le haut ou la bas sont identiques.
+
+h4 Auteur
+p Très bien vu.
+
+h4 Ami Lecteur
+p On peut refaire avec encore plus de grains ? Genre mille ?
+
+h4 Auteur
+p On peut faire ça, mais j'ai peur qu'avec notre représentation avec les petites pyramides là, on n'y voie pas grand chose...
+
+h4 Ami Lecteur
+p Mais non. Les pyramides c'est très bien, c'est une très bonne idée. T'es juste dégouté de ne pas l'avoir eue toi-même. Allez, envoie la sauce !
+
+h4 Auteur
+p Bon d'accord. Tu l'auras voulu #{':'}
+
+svg id='sandpile-drop-1000' viewBox='-30 -10 60 20'
+  - complex_sandpile = Sandpile.drop(1_000).to_complex(viewbox: 40)
+
+javascript:
+  (function() {
+    TAU = Math.PI * 2.0
+
+    var grid = #{ complex_sandpile[:real].to_js };
+    var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+
+    var angle = 3*TAU/18;
+    var vector = new Quaternion(0,1,-0.125,0.125);
+    var perspective = new Quaternion(0,0,0,-256);
+
+    var svg_elt = document.querySelector('svg#sandpile-drop-1000');
+
+    grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+
+    sand.forEach(function(pile){
+      pile = (new Function ("return " + pile))();
+      pile.rotate(vector, angle).toSvg(svg_elt, perspective);
+    })
+
+  }).call(this)
+
+h4 Ami Lecteur
+p Hum... Ouais t'avais peut-être raison finalement... On n'y voit plus rien du tout... Bon, tu propose quoi alors ?
+
+h4 Auteur
+p Simplement, on recadre un peu notre grille, et plutôt que d'utiliser des pyramides plus ou moins grandes, on utilise des couleurs. On n'a qu'à dire que transparent c'est quand il n'y a aucun grain sur la case, et que blanc, ça serait trois grains #{':'}
+
+div id='demo-to-png' class='triggered-animation'
+  - sandpile = Sandpile.drop(1_000)
+  - complex_sandpile = sandpile.to_complex(viewbox: 40)
+  svg id='sandpile-drop-to-png' viewBox='-30 -20 60 40'
+
+  div class='flexpile'
+    - sandpile.values.each do |row|
+      - width = 0
+      - value = row.first
+
+      - row.each do |c_value|
+        - if value != c_value
+          div class="c-#{value}" style="width: #{width}em;"
+          - value, width = c_value, 1
+        - else
+          - width += 1
+
+      div class="c-#{value}" style="width: #{width}em;"
+      div class='clearbox'
+
+  javascript:
+    (function() {
+      TAU = Math.PI * 2.0
+
+      var grid = #{ complex_sandpile[:real].to_js };
+      var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+      var piles = sand.map(function(pile){
+       return (new Function ("return " + pile))();
+      });
+
+      var angle = 3*TAU/18;
+      var vector = new Quaternion(0,1,-0.125,0.125);
+      var perspective = new Quaternion(0,0,0,-256);
+
+      var svg_elt = document.querySelector('svg#sandpile-drop-to-png');
+
+      grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+      piles.forEach(function(pile){
+        pile.rotate(vector, angle).toSvg(svg_elt, perspective);
+      })
+
+      var trigger = document.querySelector("[demo-trigger=to-png]");
+      var container = document.querySelector("#demo-to-png");
+      var active = false;
+      var max_steps = 75;
+      var steps;
+      var first = true;
+
+      var rotate = function(){
+        grid.rotate(vector, -angle/max_steps).toSvg(svg_elt, perspective);
+        piles.forEach(function(pile){
+          pile.rotate(vector, -angle/max_steps).toSvg(svg_elt, perspective);
+        })
+
+        steps--;
+
+        if(steps > 1){
+          requestAnimationFrame(rotate);
+        }else{
+          container.classList.add('switch');
+          setTimeout(function(){
+            active = false;
+            trigger.classList.add('active');
+          }, 3500);
+        }
+      }
+
+      trigger.addEventListener('click', function(){
+        if(!active){
+          active = true;
+
+          if(!first){
+            grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+            piles.forEach(function(pile){
+              pile.rotate(vector, angle).toSvg(svg_elt, perspective);
+            })
+          }
+
+          first = false;
+          steps = max_steps;
+
+          container.classList.remove('switch');
+          trigger.classList.remove('active');
+          setTimeout(function(){
+            requestAnimationFrame(rotate);
+          }, 250);
+        }
+      });
+
+    }).call(this)
+
+  p class='align-center'
+    span class='btn active' demo-trigger='to-png' Jouer l'animation
+
+h4 Ami Lecteur
+p D'accord. Et donc ça c'est avec mille grains ? C'est moins impressionnant que j'avais espéré.
+
+h4 Auteur
+p Peut-être qu'il n'y a pas encore assez de grains... Essaie avec un plus grand nombre.
+
+h4 Ami Lecteur
+p Dix mille ?
+
+h4 Auteur
+p Plus.
+
+h4 Ami Lecteur
+p Cent mille ?
+
+h4 Auteur
+p Plus.
+
+h4 Ami Lecteur
+p Un million ?
+
+h4 Auteur
+p Voilà ! Là on parle.
+
+h4 Ami Lecteur
+p Ok. Va pour un million... Et cinq cent mille ! Haha !
+
+h4 Auteur
+p À ton service #{':'}
+
+p class='align-center'
+  = image_tag "bdd/sandpile/drop_1500000.png"
+
+h4 Ami Lecteur
+p J'ai envie de dire #{":"} c'est beau. En tout cas, ça n'est pas du tout ce à quoi je m'attendais.
+
+h4 Auteur
+p À quoi es-ce que tu t'attendais ?
+
+h4 Ami Lecteur
+p Je ne sais ... Mais pas à ça.
+
+h3 Acte II Scène 1
+
+h4 Ami Lecteur
+p Ah ! La pause est finie ?
+
+h4 Auteur
+p Oui, et maintenant, il faut qu'on parle du 'zéro'.
+
+h4 Ami Lecteur
+p Du 'zéro' ? Tu veux dire une grille où il n'y aurait aucun grains de sable ? Comme ça #{":"}
+
+- sandpile = Sandpile.flat(3){0}
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Auteur
+p Et bien justement, pas exactement comme ça. C'est vrai que, si on prends n'importe quel nombre tas de sable (que l'on apperlera #{coderay 'a', inline: true}), et qu'on y ajoute le nombre "tout à 0" (ou "all-0s") que tu viens de donner, le résultat sera égal à #{coderay 'a', inline: true}. Autrement dit #{":"} #{coderay 'a + 0 = a', inline: true}).
+
+p Mais là o`on va commencer à avoir un problème, c'est lorsqu'on va vouloir résoudre une équation du type #{coderay 'a + x = 0', inline: true} (où #{coderay 'x', inline: true} est un nombre tas de sable qu'on ne connait pas, et qu'on essai de trouver). Le hic, dans cette situation, c'est qu'on cherche en réalité un nombre tas de sable qui serait l'opposé du nombre #{coderay 'a', inline: true}. Autrement dit #{":"} #{coderay 'x = -a', inline: true}. Et ça, et bien ça n'existe pas.
+
+p La raison est simple, pour partir du nombre #{coderay 'a', inline: true}, et arriver au "all-0s", il faudrait faire "perdre" tous les grains de sable du nombre #{coderay 'a', inline: true}. Et la seule façon de perdre des grains de sable, c'est qu'il y ait une opération de renversement sur un coin de la grille.
+
+div id='demo-topple-corner' class='triggered-animation'
+  - complex_sandpile = Sandpile[[4,1,0], [1,0,0], [0,0,0]].to_complex(viewbox: 40)
+  svg id='sandpile-3x3-topple-corner' viewBox='-30 -10 60 20'
+  p class='align-center'
+    span class='btn active' demo-trigger='topple-corner' Jouer l'animation
+
+
+javascript:
+  (function() {
+    TAU = Math.PI * 2.0
+
+    var grid = #{ complex_sandpile[:real].to_js };
+    var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+
+    var angle = 3*TAU/18;
+    var vector = new Quaternion(0,1,-0.125,0.125);
+    var perspective = new Quaternion(0,0,0,-256);
+
+    var svg_elt = document.querySelector('svg#sandpile-3x3-topple-corner');
+
+    grid.rotate(vector, angle).toSvg(svg_elt, perspective);
+
+    var piles = sand.map(function(pile){
+     return (new Function ("return " + pile))().rotate(vector, angle);
+    });
+
+    [0].forEach(function(i){
+      piles[i].toSvg(svg_elt, perspective);
+    })
+
+    var scale_point = (new Function ("return " + sand[0]))().points[4].q;
+    var scale_vector = Polyhedron.initialize({"points": [[scale_point.b, scale_point.c, 0]], "faces": []}).rotate(vector, angle).points[0].q;
+
+    var trigger = document.querySelector("[demo-trigger=topple-corner]");
+    var active = false;
+    var max_steps = 150;
+    var steps;
+    var first = true;
+
+    var topple = function(){
+      piles[0].scale(1 - 1/steps, scale_vector).toSvg(svg_elt, perspective);
+      steps--;
+
+      [1,2].forEach(function(i){
+        piles[i].scale(1 + 1/(max_steps-steps), scale_vector).toSvg(svg_elt, perspective);
+      })
+
+      if(steps > 1){
+        requestAnimationFrame(topple);
+      }else{
+
+        piles[0].polygons.forEach(function(polygon){
+          polygon.path_elt.remove();
+        });
+
+        setTimeout(function(){
+          active = false;
+          trigger.classList.add('active');
+        }, 500);
+      }
+    }
+
+    trigger.addEventListener('click', function(){
+      if(!active){
+        active = true;
+
+        if(!first){
+          piles[0].scale(max_steps, scale_vector).toSvg(svg_elt, perspective);
+        }
+        first = false;
+
+        [1,2].forEach(function(i){
+          piles[i].scale(1/max_steps, scale_vector).toSvg(svg_elt, perspective);
+
+          piles[i].polygons.forEach(function(polygon){
+            polygon.path_elt.remove();
+          });
+        })
+
+        steps = max_steps;
+
+        trigger.classList.remove('active');
+        setTimeout(function(){
+          requestAnimationFrame(topple);
+        }, 250);
+      }
+    });
+  }).call(this)
+
+p Seulement, il n'existe aucune case, sur notre grille, qui permette de perdre en une seule fois les quatres grains de sable sur une case. Ce qui signifie que, peu importe ce que l'on ajouté à un nombre qui posséde au moins un grain de sable, il ne pourras jamais perdre tous ses grains, et donc, le résulata ne pourra jamais être égal au "all-0s". Donc l'équation #{coderay 'a + x = 0', inline: true} est insoluble si #{coderay 'a ≠ 0', inline: true}.
+
+h4 Ami Lecteur
+p D'accord. Du coup, on est coincé.
+
+h4 Auteur
+p Oui, mais on peut trouver une solution en réduisant notre champs d'opération.
+
+h4 Ami Lecteur
+p comment ça ?
+
+h4 Auteur
+p Et bien, plutôt que de travailler sur "tous les nombres tas de sable possibles pour une grille 3x3", on va se limiter à "tous les nombres tas de sable dérivés de la grille all-3s".
+
+h4 Ami Lecteur
+p Heu ... "tous les nombres tas de sable déduits de la grille des all-3s", ça veut dire quoi ?
+
+h4 Auteur
+p Commençon par définir la grille "all-3s". C'est simplement le nombre tas de sable où il y a trois grains sur chaque case, comme ceci #{":"}
+
+- sandpile = Sandpile.flat(3){3}
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Ami Lecteur
+p Oui ... D'accord ...
+
+h4 Auteur
+p Ensuite, on va ajouter à ce nombre toutes les possibilités de grills 3x3 possibles. Par exemple #{":"}
+
+div class='fluid'
+  - sandpile = Sandpile.flat(3){3}
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+  p +
+
+  - sandpile = Sandpile[[0,1,0], [2,2,1], [0,0,3]]
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+  p #{"="}
+
+  - sandpile = Sandpile[[3, 1, 3], [2, 1, 2], [3, 1, 2]]
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+h4 Ami Lecteur
+p D'accord mais tu ne m'apprends rien là.
+
+h4 Auteur
+p Non, rien de nouveau, mais simplement, à partir de maintenant, on ne vas travailler que sur l'ensemble des nombres tas de sable qui proviennent de ces addition. Donc par exemple, on n'aura pas le nombre "all-0s", puisqu'il ne peut pas être obtenu par l'addition du "all-3s" avec n'importe quel autre nombre.
+
+h4 Ami Lecteur
+p Ok. C'est plus clair. Et donc c'est ça que tu voulais dire avec ton "tous les nombres tas de sable dérivés de la grille all-3s" ?
+
+h4 Auteur
+p Oui.
+
+h4 Ami Lecteur
+p Ok.
+
+h4 Auteur
+p Bien.
+
+h4 Ami Lecteur
+p On passe à la suite ?
+
+h3 Acte II Scène 2
+
+h4 Ami Lecteur
+p Bon, et comment ça aide notre problème du zéro ?
+
+h4 Auteur
+p Et bien, dans cet ensemble de nombres déduits de la grille "all-3s", il existe un nombre #{coderay 'x', inline: true} tel que #{coderay 'a + x = a', inline: true} (donc on garde la notion d'identité du zéro), et tel que l'équation #{coderay 'a + y = x', inline: true} devient solvable. Par exemple, pour les grilles 3x3, ce nombre c'est #{":"}
+
+- sandpile = Sandpile.identity(3)
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Ami Lecteur
+p Attends, laisse-moi vérifier. Si je fais #{":"}
+
+div class="fluid"
+  - sandpile = Sandpile[[3, 1, 3], [2, 1, 2], [3, 1, 2]]
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+  p +
+
+  - sandpile = Sandpile.identity(3)
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+h4 Auteur
+p Tu obtiens bien #{":"}
+
+- sandpile = Sandpile[[3, 1, 3], [2, 1, 2], [3, 1, 2]]
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Ami Lecteur
+p Ok. Et si je prends au hasard le nombre "all-3s", ça veut dire qu'il existe un nombre #{coderay 'y', inline: true} qui, ajouté au "all-3s", nous donne notre zéro ?
+
+h4 Auteur
+p Exactement, comme ceci #{":"}
+
+div class="fluid"
+  - sandpile = Sandpile.flat(3){3}
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+  p +
+
+  - sandpile = Sandpile[[3,3,3], [3,1,3], [3,3,3]]
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+  p #{"="}
+
+  - sandpile = Sandpile.identity(3)
+  table
+    - sandpile.values.each do |row|
+      tr
+        - row.each do |value|
+          td = value
+
+h4 Ami Lecteur
+p Très bien. Et ça marche avec n'importe quelle taille de grille ?
+
+h4 Auteur
+p Oui. Je te donne un autre exemple. Voici le nombre "zéro" pour l'ensemble des grilles 2x2 dérivés de la grille "all-3s" #{":"}
+
+- sandpile = Sandpile.identity(2)
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Ami Lecteur
+p Oh. En fait, je pensais plutôt voir à quoi ça ressemblerait avec des grilles plus grandes en fait...
+
+h4 Auteur
+p Pas de problème, voici pour les grilles 4x4 #{":"}
+
+- sandpile = Sandpile.identity(4)
+table
+  - sandpile.values.each do |row|
+    tr
+      - row.each do |value|
+        td = value
+
+h4 Ami Lecteur
+p Heum ... Tu calcules ça à la main à chaque fois ? Ou bien il y a une méthode mathématique pour trouver ce "nombre zérp" à chaque fois ?
+
+h4 Auteur
+p Non non, il y a une méthode. Tu prends la grille "all-6s", tu fais l'opération de renversement, puis tu soustrait le résultat à une autre grille "all-6s" sur laquelle tu n'as pas fait l'opération de renversement. Ensuite tu fais l'opération de renversement sur le résultat de la soustraction, et voilà !
+
+h4 Ami Lecteur
+p C'est pas clair.
+
+h4 Auteur
+p Ça sera peut-être plus simple écrit en pseudo-code #{":"} #{coderay '([all-6s] - [all-6s].reverser).renverser', inline: true}.
+
+h4 Ami Lecteur
+p Ha oui ! En effet c'est plus clair. Mais du coup, plutôt que de me montrer pour les grilles 2x2 ou 3x3, pourquoi tu me me montres pas pour des super grandes grilles ? J'ai envie de voir si ça donne un truc cool comme ce que tu m'as montré tout à l'heure pendant la pause.
+
+h4 Auteur
+p On peux faire ça oui, je peux te montrer pour une grille 100x100.
+
+h4 Ami Lecteur
+p Non ! Fais pour du 1000x1000, on va directement sur des grosses dimensions cette fois-ci !
+
+h4 Auteur
+p 1000x1000 dans ce cas. C'est parti #{":"}
+
+p class='align-center'
+  = image_tag "bdd/sandpile/identity_1000.png"
+
+h4 Ami Lecteur
+p Whaow ! C'est toujours aussi cool ! On peux essayer encore plus grand ?
+
+h4 Auteur
+p Malheureusement ... non. Je crains que mon ordinateur n'en soit pas capable.
+
+h4 Ami Lecteur
+p Ha ? Un problème d'optimisation dans ton code ?
+
+h4 Auteur
+p En quelque sorte... Oui.
+
+h4 Ami Lecteur
+p Montre-moi ça.
+
+h3 Acte III Scène 1
+
+h4 Auteur
+p Alors, on va commencer par le commençement #{":"}
+
+= coderay do
+  | class Sandpile
+      def initialize values
+        self.width = values.first.size
+        self.list = values.flatten
+        self.adjency_list = (0...list.size).inject({}) do |adjency_list, index|
+          adjency_list[index] = case index % width
+          when 0
+            [index + 1, index - width, index + width]
+          when width - 1
+            [index - width, index - 1, index + width]
+          else
+            [index + 1, index - width, index - 1, index + width]
+          end.select{ |i| i >= 0 && i < list.size }
+          adjency_list
+        end
+      end
+    end
+
+p La méthode d'initialisation prends un paramètre #{ coderay "values", inline: true }, un tableau de tableaux qui représentent chacun une ligne du nombre tas de sable. Mais ce paramètre va être transformé en une simple liste d'entiers (la variable d'instance #{ coderay "list", inline: true }), afin de faciliter ensuite sa manipulation à l'intérieur de l'objet.
+
+p Enfin, on va prè-calculer un paramètre #{ coderay "adjency_list", inline: true } qui permet de sauvegarder pour chaque case du nombre tas de sable la liste des cases adjascentes, ce qui rendra l'opération de renversement d'autant plus simple.
+
+h4 Ami Lecteur
+p Alors, tout ça c'est très clair mais je t'arrête deux secondes. Si je lis correctement ton code, et surtout la variable d'instance #{ coderay "width", inline: true }, tu ne gères que les nombres tas de sable sur des grilles carrés ?
+
+h4 Auteur
+p C'est tout à fait vrai. Comme le but de cette expérience était principalement de travailler sur des grilles carrées, je n'ai pas pris le temps de travailler sur un code qui pourrait gérer des grilles rectangulaires, triangulaires ou autres.
+
+h4 Ami Lecteur
+p D'accord. C'est fair-play.
+
+h4 Auteur
+p Donc, pour continuer, voici la méthode qui gére l'opération de renversement #{":"}
+
+= coderay do
+  | def topple
+      wobble while needs_toppling?
+      self.to_check = (0...list.size).to_set
+      self
+    end
+
+p Le principe est clair, la méthode #{ coderay "needs_toppling?", inline: true } va faire la liste des cases qui possédent plus de quatre grains de sables, et en fonction, la méthode #{ coderay "wobble", inline: true } va réaliser l'opération de renversement pour les cases concernées.
+
+= coderay do
+  | def needs_toppling?
+      self.to_topple = self.to_check.map{ |i| i if list[i] > 3 }.compact
+      self.to_check.clear
+
+      to_topple.any?
+    end
+
+= coderay do
+  | def wobble
+      to_topple.each do |index|
+        toppling_factor = list[index] / 4
+
+        adjency_list[index].each do |neighbour_index|
+          list[neighbour_index] += toppling_factor
+          to_check << neighbour_index
+        end
+        list[index] -= toppling_factor * 4
+      end
+    end
+
+h4 Ami Lecteur
+p Heu ... C'est quoi exactement cette variable #{ coderay "to_check", inline: true } ?
+
+h4 Auteur
+p Ça me permet d'éviter d'avoir à vérifier à chaque fois la totalité des cases de la grille. À la place, je référence seulement la liste des cases qui sont suceptibles de posséder plus de quatre grains de sable, et je laisse de côté celles dont je suis sûr qu'elles possédent moins de quatre grains. C'est une petite optimisation.
+
+h4 Ami Lecteur
+p OK. Et là, c'est bon, on as tout ?
+
+h4 Auteur
+p Pas tout à fait. J'ai rajouté quelques méthodes "accesseurs" (pour accéder à une case en particulier par exemple), et des méthodes d'opérations (addition, soustraction, ...) #{":"}
+
+= coderay do
+  | def [] i, j
+      list[i * width + j]
+    end
+
+    def []= i, j, value
+      list[i * width + j] = value
+    end
+
+    def + other
+      Sandpile[*[list, other.list].transpose.map{|x| x.reduce(:+)}.in_groups_of(width)]
+    end
+
+    def - other
+      Sandpile[*[list, other.list].transpose.map{|x| x.reduce(:-)}.in_groups_of(width)]
+    end
+
+    def * n
+      self.list = list.map{|x| x * n }
+      self
+    end
+
+    def dup
+      self + Sandpile[*width.times.map{|_| Array.new(width){0}}]
+    end
+
+p Et encore quelques méthodes afin d'exporter un nombre tas de sable sous forme textuelle, ce qui peut-être assez utile pour sauvegarder le résultat d'un calcul long #{":"}
+
+= coderay do
+  | def pack
+      txt = "\#{width}w\#{list.map(&:to_s).join.to_i(4).to_s(16)}"
+    end
+
+    def self.unpack txt
+      width, list = txt.split "w"
+      Sandpile[("%0\#{width.to_i**2}i" % list.to_i(16).to_s(4).to_i).split(//).map(&:to_i).in_groups_of(width.to_i)]
+    end
+
+    def self.unpack_from_file filename
+      file = File.open filename
+      sandpile = Sandpile.unpack file.read
+      file.close
+
+      sandpile
+    end
+
+h4 Ami Lecteur
+p Très bien, rien à dire là dessus, sauf peut-être une chose, j'aime beaucoup comment tu as converti la liste vers de l'hexadécimal dans ta méthode #{ coderay "pack", inline: true }, afin d'économiser un peu d'espace de stockage.  C'est le beau geste.
+
+h4 Auteur
+p Merci cher lecteur, ça me fait plaisir. Et pour finir, voici trois méthodes de "raccourcis" pour certains nombres tas de sable, en particuliers ceux que je t'ai présentés dans cet article #{":"}
+
+= coderay do
+  | def self.flat width, &block
+      Sandpile[*width.times.map{|_| Array.new(width, &block)}]
+    end
+
+    def self.identity width
+      (flat(width){6} - flat(width){6}.topple).topple
+    end
+
+    def self.drop n
+      width = Math.sqrt(n/1.5).to_i
+      sandpile = flat(width){0}
+      sandpile[width/2, width/2] = n
+      sandpile.topple
+    end
+
+h4 Ami Lecteur
+p Je vois. C'est pratique. Et donc, qu'es-ce qui ne fonctionne pas bien ? Pour l'instant, rien ne m'a vraiment choqué.
+
+h4 Auteur
+p C'est tout simplement l'opération de renversement qui est beaucoup trop longue. Pour te donner un exmple, il à fallu à mon ordinateur un peu plus de cinq jours pour calculer le nombre "zéro" pour les nombres 1000x1000.
+
+h4 Ami Lecteur
+p Ha oui ! C'est beaucoup. Et tu as des pistes d'améliorations ?
+
+h4 Auteur
+p Une surtout #{":"} les matrices. Je n'ai pas utilisé de matrices parce que dans le language Ruby, les matrice sont des objets immuables, c'est-à-dire qu'une fois que la matrice est crée, on ne peut pas la modifier. Mais je pense qu'utilisé correctement, le calcul matriciel pourrait améliorer de beaucoup la performance de l'opération de renversement, en évitant par exemple d'avoir recours à la liste des cases voisines actuellement sauvegardée dans la variable #{ coderay "adjency_list", inline: true }.
+
+h4 Ami Lecteur
+p D'accord. Du coup on peut espérer une version 2.0 bientôt ?
+
+h4 Auteur
+p Peut-être, cela dépendra de toi, ami lecteur.
+
+h4 Ami Lecteur
+p Hein ?
+
+h4 Auteur
+p Oui. C'est un défi que je te lance #{":"} je vais te donner un lien pour télécharger le code que j'ai fait, et je te propose d'essayer d'optimiser le code et de me renvoyer ce que tu auras trouvé.
+
+h4 Ami Lecteur
+p Hum ... Pourquoi pas, après tout. Défi accepté !
+
+h3 Acte IV
+
+h4 Auteur
+p Comme promis, voici le code (et quelques fichiers d'exemples) #{":"}
+
+p class='align-center'
+  = link_to "Télécharger les fichiers", "/dl/sandpile.zip", class: :btn
+
+p Et c'est la fin. Ça t'as plu, ami lecteur ?
+
+h4 Ami Lecteur
+p Un début un peu long, mais ça en valait le coup. Oui, ça m'a bien plû.
+
+h4 Auteur
+p Et bien comme ça c'est parfait. On se retrouve bientôt alors, et pour ta réponse au défi, envoie-moi un #{ link_to 'mail', "mailto:tpetrachizago@gmail.com?subject=Idle - Commentaire de #{ @article.tag }" } !
+
+h3 Épilogue
+
+h4 Auteur
+p Cet article à été principalement inspiré par cette vidéo de la chaine youtbe numberphile #{":"}
+
+div class='video computer-display'
+  iframe src='https://www.youtube.com/embed/1MtEUErz7Gg' frameborder='0' allowfullscreen='1'
+
+p Et complété par ces deux articles #{":"}
+
+p class='btn-group'
+  = link_to "Find the identity sandpile", "http://codegolf.stackexchange.com/questions/106963/find-the-identity-sandpile", class: :btn, target: :_blank
+  = link_to "The Amazing, Autotuning Sandpile", "http://nautil.us/issue/23/dominoes/the-amazing-autotuning-sandpile", class: :btn, target: :_blank
