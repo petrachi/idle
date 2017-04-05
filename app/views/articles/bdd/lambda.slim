@@ -4,7 +4,7 @@ p Si je devais le résumer simplement, <i>Programming with Nothing</i> propose d
 
 p Pendant longtemps, je n'ai rien compris à cet article. Comprendre comment il était possible de programmer sans utiliser ni assignation de variables, ni tableaux, ni texte, nombres ou booléens, ... C'était visiblement trop compliqué pour moi. Et puis un beau jour, j'ai entendu parlé du λ-calcul.
 
-h3 Lambda Calcul
+h3 Lambda Calcul (1)
 
 p Le λ-calcul (prononcez "lambda calcul") est une façon différente d'écrire les mathématiques, mais ça n'est pas tout, le λ-calcul permet aussi de définir formellement la notion de "calculabilité", une question mathématique centrale dans les années 1930.
 
@@ -14,7 +14,7 @@ p En mathématiques classiques, une fonction est généralement nommée par une 
 
 p Et si on s'amusait à définir une fonction constante #{ coderay 'c(x) = y', inline: true}, en λ-calcul on aurait écrit #{ coderay 'λx.y', inline: true}.
 
-h3 Calcul
+h3 Calcul (2)
 
 p À première vue, on se dit que ça ne change pas grand chose. Plutôt que d'écrire #{ coderay 'f(x) = 2*x + 6', inline: true}, il faut écrire #{ coderay 'λx.2*x + 6', inline: true}. Tout ça ne semble pas bien compliqué.
 
@@ -47,7 +47,7 @@ p Si le λ-calcul est un outil particulièrement puissant (il est, par définiti
 
 p Et pourtant, depuis trente ans, le λ-calcul à véritablement envahi nos ordinateurs ! C'est le principe fondamental qui se cache derrière ce que nous appelons les <i>lambda expressions</i> en C#, les <i>fonctions anonymes</i> en Javascript, et même, les <i>blocks</i>, <i>procs</i> ou <i>lambdas</i> en Ruby.
 
-h3 Fibonacci
+h3 Fibonacci (3)
 
 p Il est temps maintenant de nous fixer un objectif #{":"} écrire un algorithme complet en λ-calcul. Pour les débutants que nous sommes, il ne faut pas en choisir un trop compliqué, et qui n'utilise que des calculs simples.
 
@@ -68,7 +68,7 @@ p Pour la syntaxe, il y en a plusieurs en Ruby, alors mettons nous d'accord. Pou
     p === 41
     p.(41)
 
-h3 Currying
+h3 Currying (5)
 
 p Mais il reste encore un problème avant de continuer, le nombre d'arguments.
 
@@ -92,7 +92,7 @@ p Devient #{":"}
 
 p Tout est prêt, nous pouvons commencer.
 
-h3 Que Choisir ?
+h3 Que Choisir ? (8)
 
 p Pour ceux qui n'écoutaient pas en cours de maths ou qui n'apprécient pas les discours philosophiques autour du nombre d'or, voici la définition de la suite de Fibonacci #{":"} #{ coderay 'fib(0) = 0', inline: true}, #{ coderay 'fib(1) = 1', inline: true}, #{ coderay 'fib(n) = fib(n-1) + fib(n-2)', inline: true}. C'est-à-dire que vous commencez avec #{ coderay '0', inline: true} et #{ coderay '1', inline: true}, puis chaque terme est la somme des deux précédents.
 
@@ -201,7 +201,7 @@ p Mais comment faire ? Nous avons déjà testé le récursif et l'itératif ? Qu
 
 p Et voilà ! Comme quoi, récursivité et performance, c'est possible !
 
-h3 Formule de Binet
+h3 Formule de Binet (13)
 
 p Ouvrons une courte parenthèse avant de passer à la suite pour parler de la formule de Binet.
 
@@ -221,7 +221,7 @@ p C'est Jacques Binet qui, à partir de ces éléments, a réussi à établir un
 
 p Mais refermons là notre petite parenthèse, et reprenons.
 
-h3 Structure
+h3 Structure (21)
 
 p À partir de l'algorithme récursif terminal, nous pouvons déjà construire la structure de notre λ-expression finale #{":"}
 
@@ -237,7 +237,7 @@ p À partir de l'algorithme récursif terminal, nous pouvons déjà construire l
 
 p Dans laquelle nous allons travailler à remplacer petit à petit tout ce qui n'est pas du λ-calcul, à commencer par les nombres entiers.
 
-h3 Entiers
+h3 Entiers (34)
 
 p Comme nous avons déjà vu comment écrire les nombres entiers en λ-calcul, on va aller très vite. Commençons par un rapide rappel #{":"} En λ-calcul, un nombre, c'est une fonction qui appelle une autre fonction autant de fois que nécessaire.
 
@@ -313,7 +313,7 @@ javascript:
 
 p Maintenant que c'est réglé, voyons voir du côté des opérations arithmétiques.
 
-h3 Opérations
+h3 Opérations (55)
 
 p Nous n'avons que deux opérations dans notre algorithme #{":"} #{ coderay 'n-1', inline: true} et #{ coderay 'i+j', inline: true}. C'est-à-dire, une décrémentation, et une addition.
 
@@ -384,7 +384,7 @@ javascript:
     })
   }).call(this)
 
-p Pour les curieux, vous pourrez trouver une liste complète d'opérations dans les sources, mais en voici quelques-unes que l'on peut déjà construire facilement avec les éléments que nous possédons #{":"}
+p Pour les curieux, vous pourrez trouver une liste complète d'opérations dans les sources, mais en voici quelques-unes que l'on peut déjà construire facilement à partir d'une répétition des celles que nous possédons déjà #{":"}
 
 = coderay do
   | SUBTRACT  = -> m { -> n { n[DECREMENT][m] } }
@@ -392,7 +392,7 @@ p Pour les curieux, vous pourrez trouver une liste complète d'opérations dans 
     POWER     = -> m { -> n { n[MULTIPLY[m]][ONE] } }
 
 
-h3 Conditionnelle
+h3 Conditionnelle (89)
 
 p Maintenant, on va s'attaquer au expressions conditionnelles, le #{ coderay 'if-else', inline: true}.
 
@@ -493,7 +493,7 @@ javascript:
 
 p Bien, il semble ne rester plus qu'une seule étape #{":"} le #{ coderay 'n <= ONE', inline: true} c'est la comparaison !
 
-h3 Comparaison
+h3 Comparaison (144)
 
 p Comment comparer deux nombres en λ-calcul ? Tout simplement en profitant d'une particularité du nombre #{ coderay '0', inline: true}.
 
@@ -555,6 +555,12 @@ p Maintenant, nous pouvons construire notre fonction de comparaison autour de la
     ?> to_boolean IS_LESS_OR_EQUAL[ONE][FIVE]
     => true
 
+p Précisons cependant que la représentations des nombres que nous avons choisi ne permet de représenter que les nombres entiers positifs. Donc une soustraction ne peux pas, dans notre cas, avoir un résultat inférieur à zéro #{":"}
+
+= coderay do
+  | ?> to_integer SUBTRACT[ONE][FIVE]
+    => 0
+
 p Et voilà, il ne reste qu'à reporter cela sur notre algorithme préféré #{":"}
 
 div id='comparison'
@@ -575,7 +581,7 @@ javascript:
     })
   }).call(this)
 
-h3 Combinateur Y
+h3 Combinateur Y (233)
 
 p Mais attendez ! Ça n'est pas fini ! Nous avons un problème ! Un gros problème même.
 
@@ -621,7 +627,7 @@ javascript:
     })
   }).call(this)
 
-h3 Vraie Nature
+h3 Vraie Nature (377)
 
 p Ça y est, c'est fini. Notre algorithme à été totalement remplacé par des λ-expressions, et il ne reste plus qu'à le tester. Mais avant, voyons déjà à quoi il ressemble dans son intégralité, je veux dire, sans les constantes #{":"}
 
@@ -670,9 +676,9 @@ p En soi, cette erreur n'est pas surprenante. Elle est là avant tout pour évit
 
 p Ce qui m'a surpris, c'est de ne pas pouvoir aller plus loin que la 22e valeur, alors que (j'ai fait le test ensuite), pour l'algorithme récursif terminal "classique", l'erreur n'intervient qu'à partir de la 8188e valeur.
 
-p Enfin, avec le nombre de lambdas que nous utilisons, cela doit faire grimper plus rapidement le compter de "stack", et déclencher l'erreur plus tôt.
+p Enfin, avec le nombre de lambdas que nous utilisons, cela doit faire grimper plus rapidement le compteur de "stack", et déclencher l'erreur plus tôt.
 
-h3 Conclusion
+h3 Conclusion (610)
 
 p Au final, peu importe. Le λ-calcul fonctionne, et cela me surprend toujours autant.
 
@@ -683,7 +689,7 @@ p Avant de terminer, je vous laisse un petit bout de code à copier-coller dans 
 
 p En attendant la prochaine fois, portez-vous bien, n'oubliez pas de vous amuser, et à bientôt !
 
-h3 Sources
+h3 Sources (987)
 
 p La source d'inspiration principale est l'article <i>Programming with Nothing</i>, ainsi que le répertoire Github du même auteur appelé <i>Nothing</i> #{":"}
 

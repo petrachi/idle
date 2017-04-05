@@ -36,6 +36,10 @@ class ComplexEngine::Point
     self.q = Quaternion.new(0, x, y, z) + origin
   end
 
+  def scale! length, origin
+    self.q = (origin.conjugate + q) * length + origin
+  end
+
   def q= other
     @q = other.round(4)
   end

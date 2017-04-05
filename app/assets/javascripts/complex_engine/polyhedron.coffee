@@ -18,6 +18,10 @@ class window.Polyhedron
     point.rotate(h, origin) for point in @points
     this
 
+  scale: (length, origin = new Quaternion(0,0,0,0)) ->
+    point.scale(length, origin) for point in @points
+    this
+
   toSvg: (svg_elt, perspective = new Quaternion(0, 0, 0, -Infinity)) ->
     polygons = @polygons.sort (a,b) ->
       b.sumZ() - a.sumZ()
