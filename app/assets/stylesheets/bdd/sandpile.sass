@@ -26,6 +26,14 @@
       stroke: #111
       stroke-width: .1px
 
+    text
+      font-size: .3em
+      font-weight: 900
+
+      fill-opacity: .8
+      transform: skew(19deg) rotate(-3deg)
+
+
   .fluid
     align-items: center
     justify-content: center
@@ -38,14 +46,10 @@
     flex-wrap: wrap
     justify-content: center
 
-    // min-width: 1000px
-    // nb pixel * largeur pixel
+    width: 100%
 
     div
       height: 1em
-      // width: 1px
-      // width: attr(data-width)
-      // adapt width en fonction de nb pixel
 
       &.c-0
         background-color: rgba(#fbfbfb, 0)
@@ -59,6 +63,14 @@
       &.clearbox
         width: 100%
         height: 0
+
+  .flexpile-21
+    @extend .flexpile
+    min-width: 21em
+
+  .flexpile-34
+    @extend .flexpile
+    min-width: 34em
 
   #demo-to-png
     svg

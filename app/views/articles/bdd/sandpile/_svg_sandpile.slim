@@ -1,0 +1,15 @@
+- defined? print_numbers or print_numbers = true
+
+svg id="sandpile-#{ svg_id }" viewBox='-30 -10 60 20'
+  - complex_sandpile = sandpile.to_complex(viewbox: 40)
+  - if print_numbers
+    - [[-12,-2.75], [-1,-2.75], [9,-2.5], [-12,1.5], [-1,1.5], [9,2], [-12,6.5], [-1,6.5], [9,6.5]].each_with_index do |(x, y), i|
+      text x=x y=y = sandpile.list[i]
+
+javascript:
+  (function() {
+    var grid = #{ complex_sandpile[:real].to_js };
+    var sand = #{ complex_sandpile[:imag].values.map(&:to_js).to_s.html_safe };
+
+    new SandpileHelper(grid, sand).draw(document.querySelector("svg#sandpile-#{ svg_id }"));
+  }).call(this)
