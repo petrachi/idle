@@ -1,5 +1,4 @@
 require 'quaternion'
-TAU = Math::PI * 2.0
 
 module ComplexEngine
   require 'complex_engine/point'

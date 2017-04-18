@@ -844,8 +844,6 @@ svg id='demo-octahedron' class='demo' viewBox='-35 -35 70 70'
 
 javascript:
   (function() {
-    TAU = Math.PI * 2.0
-
     var octahedron = #{ ComplexEngine.octahedron(r: 30).rotate!(Quaternion(0, -1, 0, -1), TAU/24).to_js }
     var svg_elt = document.querySelector('svg#demo-octahedron')
 
