@@ -12,3 +12,5 @@
 //
 //= require js-routes
 //= require_tree .
+
+TAU = Math.PI * 2.0

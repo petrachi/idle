@@ -193,30 +193,6 @@
       width: 24em
       height: 24em
 
-  .triggered-animation[id^=demo]
-    position: relative
-
-    p
-      position: absolute
-      top: calc(50% - 1.4375em)
-
-      width: 100%
-      margin: 0
-
-      .btn
-        margin: 0
-        background-color: yellowgreen
-        opacity: 0
-        transition: opacity .5s ease
-        pointer-events: none
-
-        &:hover
-          background-color: #fbfbfb
-
-        &.active
-          opacity: 1
-          pointer-events: auto
-
   #demo-2to9-150:before
     content: attr(data-table)
     display: block

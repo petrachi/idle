@@ -156,12 +156,16 @@ h2
 .content
   opacity: 0
   transition: opacity ease .4s
-  padding: 0 1em 1em
+  padding: 0 1.5em 1em
   letter-spacing: .25px
   line-height: 1.35em
 
   &.active
     opacity: 1
+
+  > *:first-child
+    max-width: 48em
+    margin: auto
 
   .error
     padding: 1em
@@ -259,6 +263,30 @@ h2
 
   .fluid
     display: flex
+
+  .triggered-animation
+    position: relative
+
+    p
+      position: absolute
+      top: calc(50% - 1.6em)
+
+      width: 100%
+      margin: 0
+
+      .btn
+        margin: 0
+        background-color: yellowgreen
+        opacity: 0
+        transition: opacity .5s ease
+        pointer-events: none
+
+        &:hover
+          background-color: #fbfbfb
+
+        &.active
+          opacity: 1
+          pointer-events: auto
 
 .btn
   margin: .5em 0

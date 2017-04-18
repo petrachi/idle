@@ -55,4 +55,9 @@ class ComplexEngine::Polyhedron
     points.each{ |pt| pt.rotate_alt! rotation_matrix }
     self
   end
+
+  def scale! length, origin: Quaternion(0, 0, 0, 0)
+    points.each{ |pt| pt.scale! length, origin }
+    self
+  end
 end
