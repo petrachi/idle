@@ -1,0 +1,132 @@
+p Ami lecteur, aujourd'hui je vais te raconter l'histoire de mon cousin. Tu vois, mon cousin n'est pas français, il est d'origine marocaine, mais réçement, il s'est mis en tête de le devenir (français), et de se faire naturaliser.
+
+p La première étape dans le processus de naturalisation française, c'est de décrocher un rendez-vous afin de déposer son dossier. Seulement il y a peu de places libres, et à chaque fois qu'il essayait de s'inscrire sur le site web du gouvernement, le site annonçait #{":"} "Il n'existe plus de plage horaire libre pour votre demande de rendez-vous. Veuillez recommencer ultérieurement".
+
+p À la limite d'être submergé par le désespoir, il ne lui restait qu'une seule lueur brillant à l'horizon, cette lueur, c'est moi #{":"} le geek de la famille. Et il me dit #{":"}
+
+p - <i>Thomas, tu ne saurais pas faire un truc pour que je reçoive un mail dés qu'il y a des plages horaires de libres sur le site, pour que je puisse m'inscrire ?</i>
+
+p Et je lui ai répondu, armé de ma plus grande modestie #{":"}
+
+p - <i>Je vais voir ce que je peux faire, je ne te promet rien.</i>
+
+h3 Capybara
+
+p En réalité, je savais tout à fait ce qu'il fallait faire, et je me suis donc mis au travail. J'ai commencé par installer #{ coderay 'Capybara', inline: true}, une gem souvent utilisée en Rails pour les test full-stack, et #{ coderay 'Poltergeist', inline: true}, une librairie qui permet d'utiliser <i>PhamtomJS</i> en rails, un navigateur head-less.
+
+p Avec tout ça, j'allais pouvoir écrire un programme simple, qui allait visiter le site gouvernemental toutes les cinq minutes, remplir les cases à cocher du formulaire et vérifier la réponse #{":"} reste-il des places ou non ?
+
+= coderay do
+  | require 'capybara'
+    require 'capybara/dsl'
+    require 'capybara/poltergeist'
+
+    include Capybara::DSL
+    Capybara.default_driver = :poltergeist
+
+    visit "http://www.haute-garonne.gouv.fr/booking/create/7736/1"
+
+    checkboxe_values = Array.new
+
+    all("#FormBookingCreate input[type=radio]").each do |input|
+      checkboxe_values << input.value
+    end
+
+    checkboxe_values.each_with_index do |checkbox_value, i|
+      visit "http://www.haute-garonne.gouv.fr/booking/create/7736/1"
+
+      within("#FormBookingCreate") do
+        find(:xpath, "//input[@value=\#{checkbox_value}]").set(true)
+      end
+      click_button 'Etape suivante'
+
+      begin
+        text = find("#FormBookingCreate").text
+
+        if text != "Il n'existe plus de plage horaire libre pour votre demande de rendez-vous. Veuillez recommencer ultérieurement."
+          # Succés, le texte n'apparait pas, cela veut probablement dire qu'il reste des places
+        end
+      rescue Capybara::ElementNotFound => e
+        # Erreur, le formulaire n'apparait pas sur la page suivante.
+      end
+
+p Il faut peut-être que je précise à ce moment le fonctionnement du site web du gouvernement français pour la demande de rendez-vous. D'abord, le site est divisé en fonction du département (c'est pour cela que vous voyez <i>haute-garonne.gouv.fr</i> dans l'url). Ensuite, apparaît un formulaire qui demande à quel guichet vous voulez faire votre demande. Il faut sélectionner un guichet à l'aide des boutons radios puis valider le formulaire pour passer à l'étape suivante et savoir si il reste des places ou non.
+
+p Le code ci-dessus va donc visiter la page du formulaire où se trouve la liste des guichets (le nombre des guichets ouverts n'est pas toujours le même), puis va valider le formulaire pour chacun des guichets listés.
+
+h3 Hermès
+
+p Bien, désormais que mon code fonctionnait, il me fallait un moyen de signaler à mon cousin lorsque une place serait libre. Pour cela, je décidais d'envoyer à la fois un mail, et un SMS.
+
+p Le mail fut le plus simple à mettre en place. Il m'aura simplement fallu installer la gem <i>mail</i>, et de la configurer avec les identifiants de mon compte gmail ordinaire #{":"}
+
+= coderay do
+  | require 'mail'
+
+    options = { :address              => "smtp.gmail.com",
+                :port                 => 587,
+                :domain               => 'principia-informatica.fr',
+                :user_name            => 'tpetrachizago@gmail.com',
+                :password             => 'secret',
+                :authentication       => 'plain',
+                :enable_starttls_auto => true  }
+
+    Mail.defaults do
+      delivery_method :smtp, options
+    end
+
+p Ensuite, envoyer un mail n'était plus qu'un jeu d'enfant #{":"}
+
+= coderay do
+  | Mail.deliver do
+           to 'cousin_de_thomas@gmail.com'
+         from 'tpetrachizago@gmail.com'
+      subject 'Naturalisation - Planning'
+         body 'Le guichet X est ouvert'
+    end
+
+p Pour le SMS, ça n'a pas été bien plus compliqué. J'ai crée un compte sur la plateforme <i>Twilio</i>, qui, entre-autres, permet d'envoyer des SMS. Je n'ai eu qu'à installer la gem <i>twilio-ruby</i> et à mettre mes identifiants pour que cela fonctionne #{":"}
+
+= coderay do
+  | require 'twilio-ruby'
+
+    client = Twilio::REST::Client.new('twilio_id', 'twilio_token')
+    client.messages.create from: '+33 6 XX XX XX XX', to: '+33 6 XX XX XX XX', :body => 'Le guichet X est ouvert !'
+
+p Et voilà ! Mon code était prêt, il n'y avait plus qu'à le laisser tourner, et attendre.
+
+h3 Tout vient à point
+
+p Pendant deux jours, ce bout de code est allé vérifier les guichets, toutes les cinq minutes, il allait vérifier les guichets, et au bout de deux jours, mon cousin à reçu un mail ... un mail qui disait #{":"} "Error : undefined local variable or method `client' for main:Object".
+
+p Oops ! J'étais allé trop vite. J'avais renommé une variable et je n'avais pas re-vérifié mon code ensuite ! Quelle erreur de débutant ! Je m'en voulais ! Peut-être bien que mon cousin venait de rater sa chance à cause de ma négligence !
+
+p Heureusement, mon cousin lui, qui se disait que l'informatique c'est compliqué tout de même, à eu la bonne initiative d'aller voir sur le site web du gouvernement ce qu'il se passait. Il avait raison ! L'erreur que nous avions reçue, c'était simplement pour dire que le SMS n'était pas parti ! Cela voulait donc dire qu'il y avait des places libres !
+
+p Et avant même que je n'ai eu le temps de m'en rendre compte, c'est moi qui ait reçu un SMS, de sa part et qui disait #{":"} "La prochaine fois que tu descend à Toulouse, je te paie le resto ! Je t'aime Thomas !".
+
+p Oui, l'histoire se finit bien, et malgrès mon erreur, mon cousin à quand même pu avoir un rendez-vous pour déposer son dossier de naturalisation. Et moi, et bien, j'étais tout simplement content pour lui.
+
+h3 Conslusion
+
+p Cher lecteur, j'espère que cette histoire t'auras appris quelquechose, et que tu as passé un bon moment. Si toi aussi tu veux demander la nationnalité française, ou si tu as un ami ou de la famille dans ce cas, tu peux télécharger le code que j'ai utilisé en cliquyant sur le bouton ci-dessous (n'oublies pas cependant d'installer au préalable toutes les gems nécéssaires) #{":"}
+
+p class='align-center'
+  = link_to "Télécharger les fichiers", "/dl/fraternite.zip", class: :btn
+
+p On se retrouve très bientôt pour de nouvelles aventures ! Et comme ils disent au sud des pyrénées #{":"} ¡Adiós!
+
+h3 Sources
+
+p Je me suis principalement aidé de la documentation des différentes gems pour écrire cet article #{":"}
+
+p class='btn-group'
+  = link_to "Scraping the Web with Ruby", "http://ngauthier.com/2014/06/scraping-the-web-with-ruby.html", class: :btn, target: :_blank
+  = link_to "Doc: Capybara", "https://github.com/teamcapybara/capybara", class: :btn, target: :_blank
+  = link_to "Doc: Mail", "https://github.com/mikel/mail", class: :btn, target: :_blank
+  = link_to "Doc: Twilio", "https://www.twilio.com/blog/2016/04/send-an-sms-message-with-ruby-in-30-seconds.html", class: :btn, target: :_blank
+
+p Et bien entendu, du site web du gouvernement français #{":"}
+
+p class='btn-group'
+  = link_to "Les services d'états en Haute-Garonne", "http://www.haute-garonne.gouv.fr/booking/create/7736/1", class: :btn, target: :_blank
