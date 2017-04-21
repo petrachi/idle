@@ -72,8 +72,9 @@ Article.find_or_create_by(tag: :random_pi) do |a|
 end
 
 Article.find_or_create_by(tag: :sandpile) do |a|
-  a.title = "Dunes"
+  a.title = "Les pyramides de Dune"
   a.group = :bdd
   a.published = false
-  # a.published_at = "09-03-2017"
+  # a.published_at = "18-04-2017"
+end
 end

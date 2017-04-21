@@ -2,12 +2,12 @@ h4 Auteur
 p Aujourd'hui, ami lecteur, nous allons parler des <i>nombres tas de sable</i> (ou <i>sandpile numbers</i> en anglais).
 
 h4 Ami Lecteur
-p Pourquoi pas, je ne connais pas. alors ? C'est quoi les nombres tas de sable ?
+p Pourquoi pas, je ne connais pas. Alors ? C'est quoi les nombres tas de sable ?
 
 h3 Acte I - Définition
 
 h4 Auteur
-p Pour commencer, il faut que je te dise qu'un nombre tas de sable, c'est en fait une composition de plusieurs nombres classiques, arragés d'une manière particuliére. Ce qu'on va faire c'est qu'on va prendre une grille de 3x3 (trois cases en hauteur et trois cases en largeur) #{":"}
+p Pour commencer, il faut que je te dise qu'un nombre tas de sable, c'est en fait une composition de plusieurs nombres classiques, arrangés d'une manière particulière. Ce qu'on va faire c'est qu'on va prendre une grille de 3x3 (trois cases en hauteur et trois cases en largeur) #{":"}
 
 = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-flat', sandpile: Sandpile.flat(3){0}, print_numbers: false
 
@@ -48,7 +48,7 @@ h4 Ami Lecteur
 p Yep. Pour l'instant c'est très clair ! Par contre, je ne vois pas vraiment où ça nous mène tout ça ...
 
 h4 Auteur
-p Tu verras, mais je te demandes encore un peu de patience puisqu'il faut encore que je te parle d'une opération particulière aux nombres tas de sables #{":"} le renversement !
+p Tu verras, mais je te demande encore un peu de patience puisqu'il faut encore que je te parle d'une opération particulière aux nombres tas de sables #{":"} le renversement !
 
 h4 Ami Lecteur
 p Le renversement ?
@@ -56,7 +56,7 @@ p Le renversement ?
 h4 Auteur
 p Oui, le renversement.
 
-p Si on prends deux nombres tas de sable, une opération classique que l'on peut faire, c'est de les additionner entre eux. Dans ce cas, ça se passe exactement comme une addition de deux matrices, c'est-à-dire qu'on va additionner les deux nombres case par case. Prenons un exemple #{":"}
+p Si on prend deux nombres tas de sable, une opération classique que l'on peut faire, c'est de les additionner entre eux. Dans ce cas, ça se passe exactement comme une addition de deux matrices, c'est-à-dire qu'on va additionner les deux nombres case par case. Prenons un exemple #{":"}
 
 div class="fluid"
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-add-1', sandpile: Sandpile[[1,0,0], [0,2,0], [0,0,0]]
@@ -109,7 +109,7 @@ h4 Ami Lecteur
 p Hein ? Heu ... non. Je veux bien vérifier mais #{ coderay '1 + 0', inline: true} ça fait #{ coderay '1', inline: true}, et #{ coderay '2 + 2', inline: true} ça fait bien #{ coderay '4', inline: true}...
 
 h4 Auteur
-p Oui, mais si tu te souviens bien, tout à l'heure j'ai dit qu'on ne pouvais écrire que certains nombres dans les cases du nombre tas de sable.
+p Oui, mais si tu te souviens bien, tout à l'heure j'ai dit qu'on ne pouvait écrire que certains nombres dans les cases du nombre tas de sable.
 
 h4 Ami Lecteur
 p Oui je me souviens ! Tu as dit qu'on pouvait seulement inscrire #{ coderay '0', inline: true}, #{ coderay '1', inline: true}, #{ coderay '2', inline: true} ... ou #{ coderay '3', inline: true} ...
@@ -117,7 +117,7 @@ p Oui je me souviens ! Tu as dit qu'on pouvait seulement inscrire #{ coderay '0'
 p Je crois que je comprends le problème #{":"} le #{ coderay '4', inline: true} que j'ai écrit dans la case centrale, je n'ai pas le droit de l'écrire là. Du coup on fait comment ?
 
 h4 Auteur
-p Et bien, imagine que le nombre qui est écrit sur une case représente un nombre de grains de sable qui forment une petit pile. Quand une de ces piles de sable devient trop grande (à partir de quatre grains), la pile s'écroule, ou se renverse. En se renversant, la pile perds des grains de sable qui vont se retrouver sur les cases voisines #{":"}
+p Et bien, imagine que le nombre qui est écrit sur une case représente un nombre de grains de sable qui forment une petite pile. Quand une de ces piles de sable devient trop grande (à partir de quatre grains), la pile s'écroule, ou se renverse. En se renversant, la pile perds des grains de sable qui vont se retrouver sur les cases voisines #{":"}
 
 div id='demo-topple' class='triggered-animation'
   - complex_sandpile = Sandpile[[1,1,0], [1,4,1], [0,1,0]].to_complex(viewbox: 40)
@@ -205,7 +205,7 @@ javascript:
     });
   }).call(this)
 
-p En clair, à chaque opération de renversement, chaque case qui posséde quatre grains ou plus va <i>perdre</i> quatre grains de sable, et chacune des cases adjacentes va <i>gagner</i> un grain de sable.
+p En clair, à chaque opération de renversement, chaque case qui possède quatre grains ou plus va <i>perdre</i> quatre grains de sable, et chacune des cases adjacentes va <i>gagner</i> un grain de sable.
 
 h4 Ami Lecteur
 p D'accord. Donc si je me corrige en prenant en compte l'opération de renversement #{":"}
@@ -231,24 +231,24 @@ h4 Auteur
 p Et bien, pour continuer, il va falloir que je te parle un instant du #{ coderay '0', inline: true}.
 
 h4 Ami Lecteur
-p Du #{ coderay '0', inline: true} ? Qu'es-ce qu'il y a à dire sur le #{ coderay '0', inline: true} ?
+p Du #{ coderay '0', inline: true} ? Qu'est-ce qu'il y a à dire sur le #{ coderay '0', inline: true} ?
 
 h4 Auteur
-p Oui. La question qu'on peut se poser c'est, avec les nombres tas de sable, as t'on un nombre #{ coderay '0', inline: true} ?
+p Oui. La question qu'on peut se poser c'est, avec les nombres tas de sable, as-t'on un nombre #{ coderay '0', inline: true} ?
 
-p À première vue, la question parait simple. Il suffit de donner une grille vide, sur laquelle il n'y a aucun grains de sable, comme ceci #{":"}
+p À première vue, la question parait simple. Il suffit de donner une grille vide, sur laquelle il n'y a aucuns grains de sable, comme ceci #{":"}
 
 = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-zero', sandpile: Sandpile.flat(3){0}
 
-p Et enffet, ce nombre réponds bien à l'équation #{ coderay 'a + 0 = a', inline: true}, puisque si on additionne n'importe quel nombre tas de sable #{ coderay 'x', inline: true} à ce zéro là, aucune modification ne sera faite au nombre #{ coderay 'a', inline: true}.
+p Et effet, ce nombre réponds bien à l'équation #{ coderay 'a + 0 = a', inline: true}, puisque si on additionne n'importe quel nombre tas de sable #{ coderay 'x', inline: true} à ce zéro-là, aucune modification ne sera faite au nombre #{ coderay 'a', inline: true}.
 
-p Mais il s'agit là d'un #{ coderay '0', inline: true} un peu ennuyant, puisque avec ce zéro, l'équation #{ coderay 'a + b = 0', inline: true} n'à aucune solution ! Et ça parait évident quand on y réfléchit, puisqu'il n'y a aucune façon pour n'importe quel nombre de "perdre" tous ses grains de sables. La seule façon de perdre des grains serait d'effectuer une opération de renversement sur un des bords de la grille, mais même là, il n'y a aucune possibilité de perdre les quatres grains en une seule fois.
+p Mais il s'agit là d'un #{ coderay '0', inline: true} un peu ennuyant, puisqu'avec ce zéro, l'équation #{ coderay 'a + b = 0', inline: true} n'a aucune solution ! Et ça parait évident quand on y réfléchit, puisqu'il n'y a aucune façon pour n'importe quel nombre de "perdre" tous ses grains de sables. La seule façon de perdre des grains serait d'effectuer une opération de renversement sur un des bords de la grille, mais même là, il n'y a aucune possibilité de perdre les quatre grains en une seule fois.
 
 h4 Ami Lecteur
-p Je vois, alors qu'es-ce qu'on peut faire ?
+p Je vois, alors qu'est-ce qu'on peut faire ?
 
 h4 Auteur
-p Et bien il existe une alternative. Plutôt que de travailler sur l'ensemble de tous les nombres tas de sable possibles, on va travailler uniquement sur l'ensemble qu'on appelle le <i>all-3s</i>. C'est-à-dire qu'on va prendre une grille avec le maximum de grains, que l'on va additionner à toutes les configurations possibles de nombres tas de sable. Notre ensemble <i>all-3s</i>, ce sera les nombres tas de sables résultant de cette opérations.
+p Et bien il existe une alternative. Plutôt que de travailler sur l'ensemble de tous les nombres tas de sable possibles, on va travailler uniquement sur l'ensemble qu'on appelle le <i>all-3s</i>. C'est-à-dire qu'on va prendre une grille avec le maximum de grains, que l'on va additionner à toutes les configurations possibles de nombres tas de sable. Notre ensemble <i>all-3s</i>, ce sera les nombres tas de sables résultant de cette opération.
 
 p Par exemple #{":"}
 
@@ -276,7 +276,7 @@ p Et bien il y a une formule, tout simplement. On va prendre prendre une grille 
 = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-identity', sandpile: Sandpile.identity(3)
 
 h4 Ami Lecteur
-p Alors attends, laisse-moi vérifier. Si je prends n'importe quel nombre de l'ensemble des <i>all-3s</i> et que je l'additionne avec ce nombre là, le résultat devrait être identique ? Donc par exemple #{":"}
+p Alors attends, laisse-moi vérifier. Si je prends n'importe quel nombre de l'ensemble des <i>all-3s</i> et que je l'additionne avec ce nombre-là, le résultat devrait être identique ? Donc par exemple #{":"}
 
 div class="fluid"
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-add-1', sandpile: Sandpile[[3,1,3], [2,1,2], [3,1,2]], print_numbers: false
@@ -351,7 +351,7 @@ h4 Ami Lecteur
 p Heu attends, ça commence à devenir la pagaille là ! On n'y voit plus rien !
 
 h4 Auteur
-p Tu as raison. On va devoir changer de représentation. Ce que je te propose, c'est de faire une image de pixels blancs, et chaque pixels sera plus ou moins transparent en fonction du nombre de grains sur la case #{":"} zéros grains égale totalement transparent, et trois grains égale pas du tout transparent. Comme ça #{":"}
+p Tu as raison. On va devoir changer de représentation. Ce que je te propose, c'est de faire une image de pixels blancs, et chaque pixels sera plus ou moins transparent en fonction du nombre de grains sur la case #{":"} zéros grains ce sera totalement transparent, et trois grains, pas du tout transparent. Comme ça #{":"}
 
 div class="fluid"
   svg id='sandpile-to-png' viewBox='-20 -10 40 20'
@@ -414,7 +414,7 @@ h4 Ami Lecteur
 p Ha oui ! C'est à peu près ce que j'avais prédit.
 
 h4 Auteur
-p D'accord. Alors à ton avis, si on prends une grille vraiment grande, 1000x1000, ça va ressembler à quoi ?
+p D'accord. Alors à ton avis, si on prend une grille vraiment grande, 1000x1000, ça va ressembler à quoi ?
 
 h4 Ami Lecteur
 p Haha ! Je sens que c'est une question piège celle-là ! Je choisis de ne pas répondre, mais montre-moi quand même.
@@ -431,7 +431,7 @@ p Wow ! Impressionnant ... !
 h3 Acte III - Coulisses
 
 h4 Auteur
-p Bon, il est temps maintenant que je te montre le c ode qui se cache derrière tous ces calculs.
+p Bon, il est temps maintenant que je te montre le code qui se cache derrière tous ces calculs.
 
 h4 Ami Lecteur
 p Comment ça ? Je croyais que tu avais tout fait à la main, <i>à la plume et au jeton</i> comme aurait dit Pascal.
@@ -439,15 +439,15 @@ p Comment ça ? Je croyais que tu avais tout fait à la main, <i>à la plume et 
 h4 Auteur
 p Hé bien non, je n'ai pas cette patience. Alors laisse-moi t'expliquer.
 
-p D'abord, j'ai crée une classe #{ coderay 'Sandpile', inline: true}, qui à l'initialition prends un paramètre #{ coderay 'values', inline: true} (c'est un tableau de tableau d'entiers) qui représente la grille et le nombre de grains de sables sur chaque cases.
+p D'abord, j'ai créé une classe #{ coderay 'Sandpile', inline: true}, qui a l'initialition prends un paramètre #{ coderay 'values', inline: true} (c'est un tableau de tableau d'entiers) qui représente la grille et le nombre de grains de sables sur chaque cases.
 
 = coderay do
   | ?> Sandpile.new [[1,0,0], [0,2,0], [0,0,0]]
     => #<Sandpile:0x007ff29dbdaf78>
 
-p Ce paramètre, je ne vais pas le conserver tel-quel. D'abord, je vais en extraire les dimensions de la grille dans la variable #{ coderay '@width', inline: true}, et puis je vais l'applanir et le sauvegarder dans la variable #{ coderay '@list', inline: true}. Cette opération permettra de manipuler la liste plus facilement ensuite.
+p Ce paramètre, je ne vais pas le conserver tel-quel. D'abord, je vais en extraire les dimensions de la grille dans la variable #{ coderay '@width', inline: true}, et puis je vais l'aplanir et le sauvegarder dans la variable #{ coderay '@list', inline: true}. Cette opération permettra de manipuler la liste plus facilement ensuite.
 
-p Et finalement, je vais calculer un hash #{ coderay "@adjency_list", inline: true } qui va enrisgistrer pour chaque case de la grille (ou chaque index de #{ coderay '@list', inline: true}) la liste des cases adjacentes (les index correspondants au cases adjacentes), afin de ne pas avoir à faire ce calcul à chaque opération de renversement.
+p Et finalement, je vais calculer un hash #{ coderay "@adjency_list", inline: true } qui va enregistrer pour chaque case de la grille (ou chaque index de #{ coderay '@list', inline: true}) la liste des cases adjacentes (les index correspondants aux cases adjacentes), afin de ne pas avoir à faire ce calcul à chaque opération de renversement.
 
 = coderay do
   | class Sandpile
@@ -474,7 +474,7 @@ h4 Ami Lecteur
 p Jusque là ça me va.
 
 h4 Auteur
-p Bien. Ensuite j'ai ajouté les opérations d'addition et de soustraction #{":"}
+p Bien. Ensuite, j'ai ajouté les opérations d'addition et de soustraction #{":"}
 
 = coderay do
   | class Sandpile
@@ -535,16 +535,16 @@ p Exactement. Cette opération repose sur trois méthodes #{":"} #{ coderay "nee
     end
 
 h4 Ami Lecteur
-p Oui. J'ai juste une question, dans la méthodes #{ coderay "needs_toppling?", inline: true }, tu fais pas ta vérification sur l'ensemble des valeurs de la grille, qui serait la variable #{ coderay "@list", inline: true }, mais sur la variable #{ coderay "@to_check", inline: true }. C'est quoi exactement cette variable ?
+p Oui. J'ai juste une question, dans la méthode #{ coderay "needs_toppling?", inline: true }, tu ne fais pas ta vérification sur l'ensemble des valeurs de la grille, qui serait la variable #{ coderay "@list", inline: true }, mais sur la variable #{ coderay "@to_check", inline: true }. C'est quoi exactement cette variable ?
 
 h4 Auteur
-p Et bien ça, ça fait partie de mon travail d'optimisation. La variable #{ coderay "@to_check", inline: true } sert à référencer les cases qui ont reçu au moins un grain de sable lors de la précédente opération de renversement, et qui donc sont suceptibles de se renverser elles-mêmes. Il n'y a pas de raison de véfier l'état des autres cases dont le compte de grains de sable n'a pas changé, donc ça économise un peu de temps de calcul.
+p Et bien ça, ça fait partie de mon travail d'optimisation. La variable #{ coderay "@to_check", inline: true } sert à référencer les cases qui ont reçu au moins un grain de sable lors de la précédente opération de renversement, et qui sont donc susceptibles de se renverser elles-mêmes. Il n'y a pas de raison de vérifier l'état des autres cases dont le compte de grains de sable n'a pas changé, donc ça économise un peu de temps de calcul.
 
 h4 Ami Lecteur
 p Ha d'accord. Et tu as fait d'autres optimisations du même genre ?
 
 h4 Auteur
-p Oui. Tu peux remarquer par exemple dans la méthode #{ coderay "wobble", inline: true }, je ne fait pas se renverser seulement quatre grains de sable à la fois, mais n'importe quel multiple de quatre (par exemple, si la case posséde 29 grains, je vais en faire se renverser 28 en une fois). Du côté mathématique, cela ne change absolument rien, mais en terme de nombres de calculs à faire, l'impact est assez important.
+p Oui. Tu peux remarquer par exemple dans la méthode #{ coderay "wobble", inline: true }, je ne fais pas se renverser seulement quatre grains de sable à la fois, mais n'importe quel multiple de quatre (par exemple, si la case possède 29 grains, je vais en faire se renverser 28 en une fois). Du côté mathématique, cela ne change absolument rien, mais en termes de nombres de calculs à faire, l'impact est assez important.
 
 p L'optimisation de ce code à été assez important (et il pourrait d'ailleurs être poursuivi), parce que l'opération de renversement engendre un nombre exponentiellement grandissant de calculs par rapport à la taille de la grille. Pour te donner un exemple, j'ai mis pas moins de cinq jours à calculer le nombre #{ coderay "0", inline: true } que je t'ai montré tout à l'heure, pour une grille de 1000x1000.
 
@@ -552,7 +552,7 @@ h4 Ami Lecteur
 p Whaow ! C'est long !
 
 h4 Auteur
-p Oui ! Et c'est rien de le dire, puisque je n'avais aucune estimation du temps de calcul que ça prendrait. Ça à été cinq jours assez anxiogènes pendant lesquels je ne savait pas si le calcul allait se finir ou non.
+p Oui ! Et c'est rien de le dire, puisque je n'avais aucune estimation du temps de calcul que ça prendrait. Ça à été cinq jours assez anxiogènes pendant lesquels je ne savais pas si le calcul allait se finir ou non.
 
 p D'ailleurs, ça me donne l'idée d'un défi pour toi #{":"} je t'invite à optimiser encore mon code (ou bien, à écrire ta propre version, toujours en Ruby) afin d'accélérer drastiquement les temps de calculs, afin de pouvoir calculer le nombre #{ coderay "0", inline: true } pour une grille de 1000000x1000000 dans un temps raisonnable. Cela pourrait donner une image avec encore plus de détails !
 
@@ -570,13 +570,13 @@ p Et si tu manques d'idées pour l'optimisation, j'ai le sentiment qu'il y aurai
 h3 Acte IV - Conclusion
 
 h4 Auteur
-p Bon, et bien on arrive à la fin de cet article sur les nombres tas de sables. J'espére que ça t'as plu, ami lecteur.
+p Bon, et bien on arrive à la fin de cet article sur les nombres tas de sables. J'espère que ça t'as plu, ami lecteur.
 
 h4 Ami Lecteur
 p Oui, ça m'a bien plu. Surtout que je n'avais aucune idée de là où tu voulais m'emmener. Ça a été une bonne surprise !
 
 h4 Auteur
-p Ça me fait plaisir alors ! Et comme d'habitude, on se donne rendez-vous bientôt pour parler encore d'un autre sujet, mais d'ici là, je te laisse avec une toute dernière illustration, il s'agit d'une grille de 1000x1000 sur laquelle on à déposé un million et cinq cent milles grains de sables sur la case centrale, et puis on a juste regardé le résultat de l'opération de renversement #{":"}
+p Ça me fait plaisir alors ! Et comme d'habitude, on se donne rendez-vous bientôt pour parler encore d'un autre sujet, mais d'ici là, je te laisse avec une toute dernière illustration, il s'agit d'une grille de 1000x1000 sur laquelle on a déposé un million et cinq cents milles grains de sables sur la case centrale, et puis on a juste regardé le résultat de l'opération de renversement #{":"}
 
 p class='align-center'
   = image_tag "bdd/sandpile/drop_1500000.png"
@@ -594,10 +594,10 @@ div class='video computer-display'
   iframe src='https://www.youtube.com/embed/1MtEUErz7Gg' frameborder='0' allowfullscreen='1'
 
 h4 Ami Lecteur
-p Ça n'est pas la première fois que tu t'inspire d'une vidéo de numberphile. C'est une chaîne que tu aimes particulièrement ?
+p Ça n'est pas la première fois que tu t'inspires d'une vidéo de numberphile. C'est une chaîne que tu aimes particulièrement ?
 
 h4 Auteur
-p Oui, parcequ'ils arrivent à parler de mathématiques d'une manière compréhensible pour à peu près tout le monde, et parcequ'ils abordent aussi d'autres sujets de mathématiques que ceux qu'on apprends à l'école, et qui parfois sont vraiment surprenants (comme les nombres tas de sable) !
+p Oui, parce qu'ils arrivent à parler de mathématiques d'une manière compréhensible pour à peu près tout le monde, et parce qu'ils abordent aussi d'autres sujets de mathématiques que ceux que l'on apprends à l'école (comme par exemple #{":"} les nombres tas de sable) et qui souvent sont assez surprenants !
 
 p Mais je me suis aussi appuyé sur ces deux articles pour compléter mes informations #{":"}
 
@@ -609,4 +609,6 @@ h4 Ami Lecteur
 p Et ça vaut le coup d'oeil ?
 
 h4 Auteur
-p Le second peut-être, mais ce sera un spoiler si tu décide de participer au défi d'optimisation. D'ailleurs, si tu décide de participer, tu peux m'envoyer ton code par #{ link_to 'mail', "mailto:tpetrachizago@gmail.com?subject=Idle - Défi #{ @article.tag }" }.
+p Le second peut-être, mais ce sera un spoiler si tu décides de participer au défi d'optimisation. D'ailleurs, si tu décides de participer, tu peux m'envoyer ton code par #{ link_to 'mail', "mailto:tpetrachizago@gmail.com?subject=Idle - Défi #{ @article.tag }" }.
+
+h3 FIN
