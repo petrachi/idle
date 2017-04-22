@@ -65,16 +65,22 @@ Article.find_or_create_by(tag: :lambda) do |a|
 end
 
 Article.find_or_create_by(tag: :random_pi) do |a|
-  a.title = "Pas d'la Tarte"
+  a.title = "Le Jour Le Plus Rond"
   a.group = :bdd
   a.published = false
   a.published_at = "14-03-2017"
 end
 
 Article.find_or_create_by(tag: :sandpile) do |a|
-  a.title = "Les pyramides de Dune"
+  a.title = "Les Pyramides De Dune"
   a.group = :bdd
   a.published = false
   # a.published_at = "18-04-2017"
 end
+
+Article.find_or_create_by(tag: :fraternite) do |a|
+  a.title = "Liberté · Ègalité · Fraternité"
+  a.group = :bdd
+  a.published = false
+  # a.published_at = "18-04-2017"
 end
