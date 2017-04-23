@@ -87,7 +87,7 @@ div class="fluid"
 p Je te laisse faire le calcul ;)
 
 h4 Ami Lecteur
-p Heu ... Attends ! Un et un qui font cinq, j'ajoute deux et je retiens cinq ... et voilà !
+p Heu ... Attends ! deux et deux quatre, je retiens un ... et voilà !
 
 div class="fluid"
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-calc-1', sandpile: Sandpile[[1,0,0], [0,2,0], [0,0,0]], print_numbers: false
@@ -225,7 +225,7 @@ p C'est exactement ça !
 h3 Acte II - Fractales
 
 h4 Ami Lecteur
-p Bon, je crois que j'ai bien compris ce qu'étais les nombres tas de sables et comment ils fonctionnent, mais maintenant j'aimerais savoir à quoi ça nous mène tout ça ?
+p Bon, je crois que j'ai bien compris ce que sont les nombres tas de sables et comment ils fonctionnent, mais maintenant j'aimerais savoir à quoi ça nous mène tout ça ?
 
 h4 Auteur
 p Et bien, pour continuer, il va falloir que je te parle un instant du #{ coderay '0', inline: true}.
@@ -234,15 +234,15 @@ h4 Ami Lecteur
 p Du #{ coderay '0', inline: true} ? Qu'est-ce qu'il y a à dire sur le #{ coderay '0', inline: true} ?
 
 h4 Auteur
-p Oui. La question qu'on peut se poser c'est, avec les nombres tas de sable, as-t'on un nombre #{ coderay '0', inline: true} ?
+p Oui. La question qu'on peut se poser c'est, avec les nombres tas de sable, as-t-on un nombre #{ coderay '0', inline: true} ?
 
-p À première vue, la question parait simple. Il suffit de donner une grille vide, sur laquelle il n'y a aucuns grains de sable, comme ceci #{":"}
+p À première vue, la question parait simple. Il suffit de donner une grille vide, sur laquelle il n'y a aucun grains de sable, comme ceci #{":"}
 
 = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-zero', sandpile: Sandpile.flat(3){0}
 
-p Et effet, ce nombre réponds bien à l'équation #{ coderay 'a + 0 = a', inline: true}, puisque si on additionne n'importe quel nombre tas de sable #{ coderay 'x', inline: true} à ce zéro-là, aucune modification ne sera faite au nombre #{ coderay 'a', inline: true}.
+p Et effet, ce nombre répond bien à l'équation #{ coderay 'a + 0 = a', inline: true}, puisque si on additionne n'importe quel nombre tas de sable #{ coderay 'x', inline: true} à ce zéro-là, aucune modification ne sera faite au nombre #{ coderay 'a', inline: true}.
 
-p Mais il s'agit là d'un #{ coderay '0', inline: true} un peu ennuyant, puisqu'avec ce zéro, l'équation #{ coderay 'a + b = 0', inline: true} n'a aucune solution ! Et ça parait évident quand on y réfléchit, puisqu'il n'y a aucune façon pour n'importe quel nombre de "perdre" tous ses grains de sables. La seule façon de perdre des grains serait d'effectuer une opération de renversement sur un des bords de la grille, mais même là, il n'y a aucune possibilité de perdre les quatre grains en une seule fois.
+p Mais il s'agit là d'un #{ coderay '0', inline: true} un peu ennuyeux, puisqu'avec ce zéro, l'équation #{ coderay 'a + b = 0', inline: true} n'a aucune solution ! Et ça parait évident quand on y réfléchit, puisqu'il n'y a aucune façon pour n'importe quel nombre de "perdre" tous ses grains de sables. La seule façon de perdre des grains serait d'effectuer une opération de renversement sur un des bords de la grille, mais même là, il n'y a aucune possibilité de perdre les quatre grains en une seule fois.
 
 h4 Ami Lecteur
 p Je vois, alors qu'est-ce qu'on peut faire ?
@@ -265,13 +265,13 @@ p D'accord. Du coup ça réduit le nombre de nombres que l'on peut utiliser, c'e
 h4 Auteur
 p Oui. Pour une grille 3x3, il y a #{ coderay '4⁹ = 262_144', inline: true} nombres tas de sable différents qui existent, et si on réduit aux <i>all-3s</i>, il en reste environ #{ coderay '100_000', inline: true}.
 
-p Et l'avantage de travailler sur cet ensemble réduit, c'est qu'il existe, dans cet ensemble, un nombre #{ coderay 'x', inline: true} tel que #{ coderay 'a + x = a', inline: true}, et #{ coderay 'a + b = x', inline: true}, pour #{ coderay 'a', inline: true} et #{ coderay 'b', inline: true} faisant aussi partis de l'ensemble des <i>all-3s</i>. Donc on a en quelque sorte un nombre #{ coderay '0', inline: true} bien plus intéressant que tout à l'heure.
+p Et l'avantage de travailler sur cet ensemble réduit, c'est qu'il existe, dans cet ensemble, un nombre #{ coderay 'x', inline: true} tel que #{ coderay 'a + x = a', inline: true}, et #{ coderay 'a + b = x', inline: true}, pour #{ coderay 'a', inline: true} et #{ coderay 'b', inline: true} faisant aussi partie de l'ensemble des <i>all-3s</i>. Donc on a en quelque sorte un nombre #{ coderay '0', inline: true} bien plus intéressant que tout à l'heure.
 
 h4 Ami Lecteur
 p D'accord. Je vois. Et comment on le trouve ce nombre #{ coderay '0', inline: true} ?
 
 h4 Auteur
-p Et bien il y a une formule, tout simplement. On va prendre prendre une grille sur laquelle on va mettre six grains sur chaque cases, puis on fait l'opération de renversement, et on soustrait le résultat à une autre grille avec six grains sur chaque case, et on refait l'opération de renversement. Et voilà #{":"}
+p Et bien il y a une formule, tout simplement. On va prendre une grille sur laquelle on va mettre six grains sur chaque cases, puis on fait l'opération de renversement, et on soustrait le résultat à une autre grille avec six grains sur chaque case, et on refait l'opération de renversement. Et voilà #{":"}
 
 = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-identity', sandpile: Sandpile.identity(3)
 
@@ -322,7 +322,7 @@ p Oui ! Et dans ton cas, la solution c'est #{":"}
 = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-inv-2-res', sandpile: Sandpile[[3,1,3], [0,3,1], [3,2,0]]
 
 h4 Ami Lecteur
-p OK. Je vérifie tout de mêle, par précaution #{":"}
+p OK. Je vérifie tout de même, par précaution #{":"}
 
 div class="fluid"
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-ver-1', sandpile: Sandpile[[3,1,3], [2,1,2], [3,1,2]]
@@ -351,7 +351,7 @@ h4 Ami Lecteur
 p Heu attends, ça commence à devenir la pagaille là ! On n'y voit plus rien !
 
 h4 Auteur
-p Tu as raison. On va devoir changer de représentation. Ce que je te propose, c'est de faire une image de pixels blancs, et chaque pixels sera plus ou moins transparent en fonction du nombre de grains sur la case #{":"} zéros grains ce sera totalement transparent, et trois grains, pas du tout transparent. Comme ça #{":"}
+p Tu as raison. On va devoir changer de représentation. Ce que je te propose, c'est de faire une image de pixels blancs, et chaque pixels sera plus ou moins transparent en fonction du nombre de grains sur la case #{":"} zéro grain ce sera totalement transparent, et trois grains, pas du tout transparent. Comme ça #{":"}
 
 div class="fluid"
   svg id='sandpile-to-png' viewBox='-20 -10 40 20'
@@ -389,7 +389,7 @@ h4 Auteur
 p Oui ! Et c'est justement ça que je voulais te montrer. Là, la grille que tu vois, c'est une grille de 21x21. À ton avis, il va ressembler à quoi notre nombre zéro pour une grille encore plus grande ? Disons, 34x34 ?
 
 h4 Ami Lecteur
-p Et bien ... à peu près la même chose je dirais, mais avec des détails un peu plus fin peut-être ?
+p Et bien ... à peu près la même chose je dirais, mais avec des détails un peu plus fins peut-être ?
 
 h4 Auteur
 p Alors regarde #{":"}
@@ -439,13 +439,13 @@ p Comment ça ? Je croyais que tu avais tout fait à la main, <i>à la plume et 
 h4 Auteur
 p Hé bien non, je n'ai pas cette patience. Alors laisse-moi t'expliquer.
 
-p D'abord, j'ai créé une classe #{ coderay 'Sandpile', inline: true}, qui a l'initialition prends un paramètre #{ coderay 'values', inline: true} (c'est un tableau de tableau d'entiers) qui représente la grille et le nombre de grains de sables sur chaque cases.
+p D'abord, j'ai créé une classe #{ coderay 'Sandpile', inline: true}, qui a l'initialisation prends un paramètre #{ coderay 'values', inline: true} (c'est un tableau de tableau d'entiers) qui représente la grille et le nombre de grains de sable sur chaque case.
 
 = coderay do
   | ?> Sandpile.new [[1,0,0], [0,2,0], [0,0,0]]
     => #<Sandpile:0x007ff29dbdaf78>
 
-p Ce paramètre, je ne vais pas le conserver tel-quel. D'abord, je vais en extraire les dimensions de la grille dans la variable #{ coderay '@width', inline: true}, et puis je vais l'aplanir et le sauvegarder dans la variable #{ coderay '@list', inline: true}. Cette opération permettra de manipuler la liste plus facilement ensuite.
+p Ce paramètre, je ne vais pas le conserver tel quel. D'abord, je vais en extraire les dimensions de la grille dans la variable #{ coderay '@width', inline: true}, et puis je vais l'aplanir et le sauvegarder dans la variable #{ coderay '@list', inline: true}. Cette opération permettra de manipuler la liste plus facilement ensuite.
 
 p Et finalement, je vais calculer un hash #{ coderay "@adjency_list", inline: true } qui va enregistrer pour chaque case de la grille (ou chaque index de #{ coderay '@list', inline: true}) la liste des cases adjacentes (les index correspondants aux cases adjacentes), afin de ne pas avoir à faire ce calcul à chaque opération de renversement.
 
@@ -544,9 +544,9 @@ h4 Ami Lecteur
 p Ha d'accord. Et tu as fait d'autres optimisations du même genre ?
 
 h4 Auteur
-p Oui. Tu peux remarquer par exemple dans la méthode #{ coderay "wobble", inline: true }, je ne fais pas se renverser seulement quatre grains de sable à la fois, mais n'importe quel multiple de quatre (par exemple, si la case possède 29 grains, je vais en faire se renverser 28 en une fois). Du côté mathématique, cela ne change absolument rien, mais en termes de nombres de calculs à faire, l'impact est assez important.
+p Oui. Tu peux remarquer par exemple dans la méthode #{ coderay "wobble", inline: true }, je ne fais pas se renverser seulement quatre grains de sable à la fois, mais n'importe quel multiple de quatre (par exemple, si la case possède 29 grains, je vais en faire se renverser 28, 4 * 7, en une fois). Du côté mathématique, cela ne change absolument rien, mais en termes de nombres de calculs à faire, l'impact est assez important.
 
-p L'optimisation de ce code à été assez important (et il pourrait d'ailleurs être poursuivi), parce que l'opération de renversement engendre un nombre exponentiellement grandissant de calculs par rapport à la taille de la grille. Pour te donner un exemple, j'ai mis pas moins de cinq jours à calculer le nombre #{ coderay "0", inline: true } que je t'ai montré tout à l'heure, pour une grille de 1000x1000.
+p L'optimisation de ce code à été assez important (et il pourrait d'ailleurs être poursuivi), parce que l'opération de renversement engendre un nombre exponentiellement grandissant de calculs par rapport à la taille de la grille. Pour te donner un exemple, l'ordinateur a mis pas moins de cinq jours à calculer le nombre #{ coderay "0", inline: true } que je t'ai montré tout à l'heure, pour une grille de 1000x1000.
 
 h4 Ami Lecteur
 p Whaow ! C'est long !
@@ -570,7 +570,7 @@ p Et si tu manques d'idées pour l'optimisation, j'ai le sentiment qu'il y aurai
 h3 Acte IV - Conclusion
 
 h4 Auteur
-p Bon, et bien on arrive à la fin de cet article sur les nombres tas de sables. J'espère que ça t'as plu, ami lecteur.
+p Bon, et bien on arrive à la fin de cet article sur les nombres tas de sables. J'espère que ça t'aura plu, ami lecteur.
 
 h4 Ami Lecteur
 p Oui, ça m'a bien plu. Surtout que je n'avais aucune idée de là où tu voulais m'emmener. Ça a été une bonne surprise !
@@ -597,7 +597,7 @@ h4 Ami Lecteur
 p Ça n'est pas la première fois que tu t'inspires d'une vidéo de numberphile. C'est une chaîne que tu aimes particulièrement ?
 
 h4 Auteur
-p Oui, parce qu'ils arrivent à parler de mathématiques d'une manière compréhensible pour à peu près tout le monde, et parce qu'ils abordent aussi d'autres sujets de mathématiques que ceux que l'on apprends à l'école (comme par exemple #{":"} les nombres tas de sable) et qui souvent sont assez surprenants !
+p Oui, parce qu'ils arrivent à parler de mathématiques d'une manière compréhensible pour à peu près tout le monde, et parce qu'ils abordent aussi d'autres sujets de mathématiques que ceux que l'on apprend à l'école (comme par exemple #{":"} les nombres tas de sable) et qui souvent sont assez surprenants !
 
 p Mais je me suis aussi appuyé sur ces deux articles pour compléter mes informations #{":"}
 

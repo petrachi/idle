@@ -79,7 +79,7 @@ Article.find_or_create_by(tag: :sandpile) do |a|
 end
 
 Article.find_or_create_by(tag: :fraternite) do |a|
-  a.title = "Liberté · Ègalité · Fraternité"
+  a.title = "Liberté · Égalité · Fraternité"
   a.group = :bdd
   a.published = false
   # a.published_at = "18-04-2017"
