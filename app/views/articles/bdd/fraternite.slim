@@ -1,10 +1,10 @@
-p Ami lecteur, aujourd'hui je vais te raconter l'histoire de mon cousin. Tu vois, mon cousin n'est pas français, il est d'origine marocaine, mais récemment, il s'est mis en tête de le devenir (français), et de se faire naturaliser.
+p Ami lecteur, aujourd'hui je vais te raconter l'histoire de mon cousin. Tu vois, mon cousin n'est pas français, il est d'origine marocaine, mais depuis presque un an et demi, il s'est mis en tête de le devenir (français), et de se faire naturaliser.
 
 p La première étape dans le processus de naturalisation française, c'est de décrocher un rendez-vous afin de déposer son dossier. Seulement il y a peu de places libres, et à chaque fois qu'il essayait de s'inscrire sur le site web du gouvernement, le site annonçait #{":"} "Il n'existe plus de plage horaire libre pour votre demande de rendez-vous. Veuillez recommencer ultérieurement".
 
 p Quasi submergé par le désespoir, il ne lui restait qu'une seule lueur brillante à l'horizon, cette lueur, c'était moi #{":"} le geek de la famille. Il me dit #{":"} - <i>Thomas, tu ne saurais pas faire un truc pour que je reçoive un mail dès qu'il y a des plages horaires de libres sur le site, pour que je puisse m'inscrire ?</i>
 
-p Et je lui ai répondu, armé de ma plus grande modestie #{":"} - <i>Je vais voir ce que je peux faire, je ne te promes rien...</i>
+p Et je lui ai répondu, armé de ma plus grande modestie #{":"} - <i>Je vais voir ce que je peux faire, je ne te promeTs rien...</i>
 
 h3 Capybara
 
@@ -48,7 +48,7 @@ p Avec tout ça, j'allais pouvoir écrire un petit programme, assez simple, qui 
 
 p Il faut peut-être que je précise à ce moment le fonctionnement du site web du gouvernement français pour la demande de rendez-vous.
 
-p D'abord, le site est divisé par département (c'est pour cela que l'url indique <i>haute-garonne.gouv.fr</i>). Ensuite, il apparaît un formulaire qui nous demande à quel guichet nous voulons faire notre demande. Il faut donc sélectionner un guichet à l'aide des boutons radios puis valider le formulaire pour passer à l'étape suivante et enfin savoir si on peut s'inscrire, ou si toutes les rendez-vous disponibles sont déjà pris.
+p D'abord, le site est divisé par département (c'est pour cela que l'url indique <i>haute-garonne.gouv.fr</i>). Ensuite, il apparaît un formulaire qui nous demande à quel guichet nous voulons faire notre demande. Il faut donc sélectionner un guichet à l'aide des boutons radios puis valider le formulaire pour passer à l'étape suivante et enfin savoir si on peut s'inscrire, ou si toutes les places sont déjà prises.
 
 p Ce bout de code va donc visiter la page du formulaire où se trouve la liste des guichets (il faut savoir que la liste des guichets n'est pas toujours la même), et va valider le formulaire pour chaque guichet disponible.
 
@@ -95,21 +95,21 @@ p Et voilà ! Mon code était prêt, il n'y avait plus qu'à laisser l'ordinateu
 
 h3 Tout vient à point
 
-p Pendant deux jours, le code est allé vérifier le site du gouvernement, les guichets, toutes les cinq minutes, tous les guichets ... et au bout de deux jours, mon cousin a reçu un mail ! Il disait #{":"} <i>Error - undefined local variable or method `client' for main:Object</i>.
+p Pendant deux jours, le code est allé vérifier le site du gouvernement, les guichets, toutes les cinq minutes, tous les guichets ... et au bout de deux jours, mon cousin a reçu un mail ! Il disait #{":"} <i>Error - undefined local variable or method `client' for main:Object</i>.
 
-p Mince ! J'étais allé trop vite ! À la dernière minute, j'avais décidé de renommer une variable et je n'avais pas testé mon code a nouveau ! Quelle erreur ! Une erreur que je n'avais pas comise depuis mes premiers jours en tant que programmeur ! Je m'en voulais ! Peut-être bien que mon cousin venait de rater sa chance a cause de ma négligence !
+p Mince ! J'étais allé trop vite ! À la dernière minute, j'avais décidé de renommer une variable et je n'avais pas testé mon code a nouveau ! Quelle erreur ! Une erreur que je n'avais pas commise depuis mes premiers jours en tant que programmeur ! Je m'en voulais ! Peut-être bien que mon cousin venait de rater sa chance a cause de ma négligence !
 
 p Heureusement, lui, qui se disait bien que l'informatique c'est tout de même très compliqué, a eu la bonne idée d'aller voir quand même sur le site web des services de l'État en Haute-Garonne pour voir ce qu'il s'y passait. Et il avait bien raison ! L'erreur que le mail affichait était simplement pour dire que le SMS n'était pas parti ! Cela voulait donc dire qu'il y avait des places libres !
 
-p Avant même que je n'ai eu le temps de réagir, mon téléphonne sonnait. Je venais de recevoir un SMS, de sa part, et qui disait #{":"} "La prochaine fois que tu descends à Toulouse, je te paie le resto ! Je t'aime Thomas !".
+p Avant même que je n'ai eu le temps de réagir, mon téléphone sonnait. Je venais de recevoir un SMS, de sa part, et qui disait #{":"} "La prochaine fois que tu descends à Toulouse, je te paie le resto ! Je t'aime Thomas !".
 
-p Oui, l'histoire se finit bien, et malgrè mon erreur, mon cousin a quand même pu avoir un rendez-vous pour déposer son dossier de naturalisation. Et moi, et bien, j'étais tout simplement content d'avoir pu aider.
+p Oui, l'histoire se finit bien, et malgré mon erreur, mon cousin a quand même pu avoir un rendez-vous pour déposer son dossier de naturalisation. Et moi, et bien, j'étais tout simplement content d'avoir pu aider.
 
-h3 Conslusion
+h3 Conclusion
 
 p Cher lecteur, j'espère que cette histoire t'aura amusé, et peut-être même que tu auras pu en tirer une morale profonde et signifiante.
 
-p Si toi aussi tu veux demander la nationalité française, ou si tu as un ami ou de la famille dans ce cas, tu peux télécharger le code que j'ai utilisé en cliquant sur le bouton prévu à cet effet, mais n'oublies pas cependant d'installer au préalable toutes les gems nécéssaires, et de faire les quelques modifications qui s'imposent (identifiants et url de ton département) #{":"}
+p Si toi aussi tu veux demander la nationalité française, ou si tu as un ami ou de la famille dans ce cas, tu peux télécharger le code que j'ai utilisé en cliquant sur le bouton prévu à cet effet, mais n'oublie pas cependant d'installer au préalable toutes les gems nécessaires, et de faire les quelques modifications qui s'imposent (identifiants et url de ton département) #{":"}
 
 p class='align-center'
   = link_to "Télécharger les fichiers", "/dl/fraternite.zip", class: :btn
