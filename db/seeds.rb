@@ -67,20 +67,20 @@ end
 Article.find_or_create_by(tag: :random_pi) do |a|
   a.title = "Le Jour Le Plus Rond"
   a.group = :bdd
-  a.published = false
+  a.published = true
   a.published_at = "14-03-2017"
 end
 
 Article.find_or_create_by(tag: :sandpile) do |a|
   a.title = "Les Pyramides De Dune"
   a.group = :bdd
-  a.published = false
-  # a.published_at = "18-04-2017"
+  a.published = true
+  a.published_at = "24-04-2017"
 end
 
 Article.find_or_create_by(tag: :fraternite) do |a|
   a.title = "Liberté · Égalité · Fraternité"
   a.group = :bdd
-  a.published = false
-  # a.published_at = "18-04-2017"
+  a.published = true
+  a.published_at = "24-04-2017"
 end
