@@ -1,146 +1,983 @@
-p yop !
 
-/ svg id='map' viewBox='48.7 2.15 0.3 0.4'
+p Hey, ami lecteur, tu es là ! Ça tombe bien puisque je voulais justement te parler d'un truc #{":"} ce que j'appelle les <i>algorimthmes GPS</i>, des algorithmes qui servent à trouver le plus court chemin entre deux points.
 
+p Alors prépare-toi, car aujourd'hui nous allons parler de deux de ces algorithmes, l'algorithme <i>Djikstra</i> et son évolution <i>A*</i> !
+
+h3 La Carte
+
+p Bien entendu, avant de pouvoir calculer le plus court chemin entre un point <i>A</i> et un point <i>B</i>, il faut déjà commencer par avoir une carte avec toutes les routes et tous les points qui peuvent potentiellement servir de point de départ ou d'arrivée. Cette carte, nous allons la représenter sous la forme d'un graphe, afin qu'elle soit facilement manipulable par l'ordinateur.
+
+p Un graphe, c'est très simple. On définit d'abord une série de points que l'on va ensuite relier entre eux #{":"}
+
+svg id='graph-simple' viewBox='0 50 400 140'
+  line x1='100' x2='80' y1='160' y2='80'
+  line x1='100' x2='160' y1='160' y2='100'
+  line x1='160' x2='80' y1='100' y2='80'
+  line x1='160' x2='250' y1='100' y2='80'
+
+  circle r='10' cx='100' cy='160'
+  circle r='10' cx='80' cy='80'
+  circle r='10' cx='160' cy='100'
+  circle r='10' cx='250' cy='80'
+
+  text x='95.5' y='165.5' A
+  text x='75.5' y='85.5' B
+  text x='154' y='105.5' C
+  text x='245.5' y='85.5' D
+
+p On peut faire des graphes pour toute sortes de choses, qui est ami avec qui sur tel réseau social, quelle entreprise travaille avec quelle autre, etc. Dans notre cas, le graphe nous servira à représenter le réseau des métros de la ville de Paris, sur lequel nous irons essayer nos algorithmes de recherche du plus court chemin.
+
+p Mais pour que notre graphe fonctionne, il va nous falloir donner quelques informations supplémentaires. D'abord la position de chaque point, qui nous sera indispensable pour calculer la distance entre deux points. Nous indiquerons aussi la direction de chacun des liens entre les points, afin de représenter correctement le fait que certaines lignes de métro sont à sens unique, comme la ligne 7bis qui fait une boucle.
+
+p Comme ceci #{":"}
+
+svg id='graph-w/data' viewBox='0 50 400 140'
+  marker id='markerArrow' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'
+    path d='M 0 0 L 6 4 L 0 8 Z' fill='#111'
+
+  line x1='100' x2='83' y1='160' y2='92' marker-end='url(#markerArrow)'
+  line x1='100' x2='151' y1='160' y2='108' marker-end='url(#markerArrow)'
+  line x1='160' x2='92' y1='100' y2='82' marker-end='url(#markerArrow)'
+  line x1='160' x2='238' y1='95' y2='78' marker-end='url(#markerArrow)'
+  line x1='250' x2='172' y1='85' y2='102' marker-end='url(#markerArrow)'
+
+  circle r='10' cx='100' cy='160'
+  circle r='10' cx='80' cy='80'
+  circle r='10' cx='160' cy='100'
+  circle r='10' cx='250' cy='80'
+
+  text x='95.5' y='165.5' A
+  text x='75.5' y='85.5' B
+  text x='154' y='105.5' C
+  text x='245.5' y='85.5' D
+
+  g id='coordinates'
+    text x='115.5' y='157' x: 100
+    text x='115.5' y='165.5' y: 160
+    text x='93.5' y='68.5' x: 80
+    text x='93.5' y='77' y: 80
+    text x='165.5' y='117' x: 160
+    text x='165.5' y='125.5' y: 100
+    text x='265.5' y='77' x: 250
+    text x='265.5' y='85.5' y: 80
+
+p Côté code, ça n'est pas bien compliqué non plus. On utilisera trois classes, #{ coderay "Graph", inline: true }, #{ coderay "GraphNode", inline: true } et #{ coderay "GraphLink", inline: true }
+
+= coderay do
+  | class Graph
+      attr_accessor :links, :nodes
+
+      def initialize
+        @links = []
+        @nodes = []
+      end
+
+      def link node_a, node_b, **options
+        links << RATP::GraphLink.new(node_a, node_b, **options)
+      end
+    end
+
+= coderay do
+  | class GraphNode
+      attr_accessor :attributes, :links
+
+      def initialize attrs: {}
+        @attributes = attrs
+        @links = []
+      end
+    end
+
+= coderay do
+  | class RATP::GraphLink
+      attr_accessor :attributes, :dist, :node_a, :node_b
+
+      def initialize node_a, node_b, dist:, attrs: {}
+        @attributes = attrs
+        @dist = dist
+        @node_a = node_a
+        @node_b = node_b
+
+        node_a.links << self
+      end
+    end
+
+
+
+h3 Open Data
+
+p Tu l'auras compris cher lecteur, notre premier objectif sera de réaliser le graphe correspondant à la carte des métros parisiens. Et avec les 302 stations que comporte le réseau, cela risque d'être un travail fastidieux, long et pénible ... Mais ne t'inquiètes pas, j'ai une solution !
+
+p Fort heureusement pour nous, la RAPT, le gestionnaire du métro parisien, met à disposition sur son site internet tout un tas d'informations intéressantes sur le résau #{":"} liste des stations, nombre de passagers, liste des correspondances, lattitude et longitude, etc.
+
+p Seulement, les informations qui nous intéressent principalement, la lattitude et la longitude, ne sont pas liées aux stations de métro elles-mêmes, mais aux points d'accès aux stations, c'est-à-dire les sorties de chaque stations. Bien entendu, une station peut posséder plusieurs sorties, mais il nous suffira dans ce cas de faire la moyenne des valeurs, et même si certaines sorties sont parfois assez éloignées de la station, cela ne devrait pas avoir trop d'impact au final.
+
+p Non, le véritable problème, c'est qu'il n'y a aucune information qui nous permette de savoir quelle sortie correspond à quelle station. Notre meilleure chance est de nous baser sur une correspondance entre le nom de la station et le nom du point d'accès. Bien sûr, cette méthode n'est pas parfaite, mais ça vaut le coup d'essayer !
+
+p Pour commencer, limitons-nous au tracé de la ligne 1 #{":"}
+
+svg id='ratp-l1' viewBox='0 0 1000 1000'
+  defs
+    g id='ratp-background'
+      path d='M 334.6354166666667, 182.40620957309184 L 739.5833333333334, 184.99353169469597 L 897.1354166666666, 342.82018111254854 L 897.1354166666666, 485.12289780077623 L 880.2083333333334, 503.2341526520052 L 881.5104166666666, 673.9974126778784 L 723.9583333333334, 829.2367399741267 L 178.38541666666666, 833.117723156533 L 79.42708333333333, 737.3868046571798 L 82.03125, 450.1940491591203 Z' fill='#ffffff'
+
+      path d='M 411.4583333333333, 5.17464424320828 L 427.0833333333333, 3.8809831824062098 L 468.75, 43.98447606727038 L 471.3541666666667, 82.79430789133248 L 450.5208333333333, 104.78654592496765 L 332.03125, 108.66752910737387 L 29.947916666666668, 406.20957309184996 L 29.947916666666668, 815.006468305304 L 82.03125, 864.1655886157827 L 118.48958333333333, 862.8719275549805 L 162.76041666666666, 824.0620957309185 L 164.0625, 598.9650711513583 L 230.46875, 534.2820181112548 L 544.2708333333334, 535.575679172057 L 610.6770833333334, 596.3777490297541 L 609.375, 618.3699870633894 L 792.96875, 795.601552393273 L 997.3958333333334, 798.188874514877 L 998.6979166666666, 813.7128072445018 L 802.0833333333334, 812.4191461836999 L 802.0833333333334, 990.9443725743855 L 785.15625, 990.9443725743855 L 783.8541666666666, 813.7128072445018 L 555.9895833333334, 586.0284605433377 L 467.4479166666667, 580.8538163001293 L 429.6875, 544.6313065976715 L 236.97916666666666, 547.2186287192756 L 179.6875, 602.8460543337646 L 175.78125, 831.8240620957309 L 123.69791666666667, 882.2768434670116 L 79.42708333333333, 883.5705045278137 L 16.927083333333332, 824.0620957309185 L 15.625, 402.3285899094437 L 328.125, 93.14359637774903 L 441.40625, 91.84993531694697 L 457.03125, 76.32600258732212 L 455.7291666666667, 51.746442432082794 Z' fill='#aae1fa'
+
+      path d='M 561.1979166666666, 562.7425614489003 L 597.65625, 595.0840879689522 L 597.65625, 610.608020698577 L 559.8958333333334, 578.2664941785252 Z' fill='#ffffff'
+
+      path d='M 447.9166666666667, 545.9249676584734 L 550.78125, 548.5122897800776 L 549.4791666666666, 569.2108667529108 L 472.65625, 571.7981888745148 Z' fill='#ffffff'
+
+  use xlink:href='#ratp-background'
+
+  = RATP.graph_to_svg(RATP::OpenDataPreprocessor::L1_GRAPH).html_safe
+
+
+p Mince ! Il y a comme un problème ... il semble que cette méthode ne fonctionnera pas. il nous faut une autre solution.
+
+h3 SVG Interactif
+
+p Nous avons déjà perdu assez de temps, et après cet echec, je ne veux plus prendre de risques. Retour à la solution de base, fastidieuse, longue et pénible.
+
+p L'idée est tellement bête qu'un enfant de huit ans aurait pu l'avoir #{":"} on va mettre la carte officielle du métro parisien en image de fond d'un élément SVG et noter à la main la position de chacune des stations. Cela me prendra presque une journée de travail et si toi aussi, ami lecteur, tu veux t'essayer à cette tâche, je t'ai mis une carte interactive juste pour ton plaisir #{":"}
+
+div class='fluid'
+  div id='click-container'
+    svg id='click-map' viewBox='0 0 1000 1000'
+
+  svg id='click-result' viewBox='0 0 1000 1000'
+    use xlink:href='#ratp-background'
+
+  javascript:
+    (function() {
+      scroll = document.querySelector('.content')
+      elt = document.querySelector('div#click-container')
+      svg = elt.querySelector('svg#click-map')
+      target = document.querySelector('svg#click-result')
+
+      elt.addEventListener('click', function(e){
+        var pos = {
+          x: e.pageX - e.currentTarget.offsetLeft,
+          y: e.pageY - e.currentTarget.offsetTop + scroll.scrollTop
+        }
+
+        var size = {
+          x: parseInt(window.getComputedStyle(elt).width, 10),
+          y: parseInt(window.getComputedStyle(elt).height, 10),
+        }
+
+        var c = {
+          x: pos.x / size.x * 1000,
+          y: pos.y / size.y * 1000
+        }
+
+        last = target.querySelector('circle:last-of-type')
+        if(last){
+          var line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+          line.setAttribute('x1', last.getAttribute("cx"))
+          line.setAttribute('x2', c.x)
+          line.setAttribute('y1', last.getAttribute("cy"))
+          line.setAttribute('y2', c.y)
+          target.appendChild(line)
+        }
+
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle')
+        circle.setAttribute('cx', c.x)
+        circle.setAttribute('cy', c.y)
+        circle.setAttribute('r', 5)
+        target.appendChild(circle)
+
+        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        text.setAttribute('x', c.x + 10)
+        text.setAttribute('y', c.y)
+        text.innerHTML = "x: " + Math.round(c.x, -1)
+        target.appendChild(text)
+
+        var text = document.createElementNS('http://www.w3.org/2000/svg', 'text')
+        text.setAttribute('x', c.x + 10)
+        text.setAttribute('y', c.y + 15)
+        text.innerHTML = "y: " + Math.round(c.y, -1)
+        target.appendChild(text)
+      });
+    }).call(this)
+
+p class="align-center" <i><small>(essaye de relier toutes les stations de la ligne 1 en cliquant dessus sur la carte à gauche,<br/> et vois le résultat sur le dessin à gauche)</small></i>
 
 h3 Djikstra
 
-p de Mairie de clichy à Villejuif leo lagrange
+p Bien, maintenant que notre graphe est fait, on peut enfin attaquer le vif du sujet #{":"} les algorithmes de recherche du plus court chemin, et pour commencer, je vais te parler de l'algorithme de Djikstra.
 
-= RATP.djikstra_example.map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
-p reverse
-= RATP.djikstra_example("VILLEJUIF-LEO LAGRANGE", "MAIRIE DE CLICHY").map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
+p Le principe de l'algorithme de Djikstra est de parcourir petit à petit tous les noeuds du graphe en enregistrant à chaque étape la distance parcourue pour atteindre chaque noeud intermédiaire. Quand on tombe finalement sur l'arrivée, l'algorithme peut remonter la trace de tous les noeuds intermédiaires jusqu'au point de départ, en choississant toujours les noeuds les plus rapides.
 
-p loop
-= RATP.djikstra_example("BOTZARIS", "DANUBE").map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
-p -
-= RATP.djikstra_example("DANUBE", "BOTZARIS").map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
+p Prenons un exemple #{":"}
 
-svg id='map-djikstra' viewBox='0 0 1000 1000'
-  path d='M 334.6354166666667, 182.40620957309184 L 739.5833333333334, 184.99353169469597 L 897.1354166666666, 342.82018111254854 L 897.1354166666666, 485.12289780077623 L 880.2083333333334, 503.2341526520052 L 881.5104166666666, 673.9974126778784 L 723.9583333333334, 829.2367399741267 L 178.38541666666666, 833.117723156533 L 79.42708333333333, 737.3868046571798 L 82.03125, 450.1940491591203 Z' fill='#ffffff'
+svg id='graph-example' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80'
+  line x1='100' x2='160' y1='160' y2='100'
+  line x1='160' x2='80' y1='100' y2='80'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='160' y1='80' y2='40'
+  line x1='250' x2='160' y1='80' y2='40'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
 
-  path d='M 411.4583333333333, 5.17464424320828 L 427.0833333333333, 3.8809831824062098 L 468.75, 43.98447606727038 L 471.3541666666667, 82.79430789133248 L 450.5208333333333, 104.78654592496765 L 332.03125, 108.66752910737387 L 29.947916666666668, 406.20957309184996 L 29.947916666666668, 815.006468305304 L 82.03125, 864.1655886157827 L 118.48958333333333, 862.8719275549805 L 162.76041666666666, 824.0620957309185 L 164.0625, 598.9650711513583 L 230.46875, 534.2820181112548 L 544.2708333333334, 535.575679172057 L 610.6770833333334, 596.3777490297541 L 609.375, 618.3699870633894 L 792.96875, 795.601552393273 L 997.3958333333334, 798.188874514877 L 998.6979166666666, 813.7128072445018 L 802.0833333333334, 812.4191461836999 L 802.0833333333334, 990.9443725743855 L 785.15625, 990.9443725743855 L 783.8541666666666, 813.7128072445018 L 555.9895833333334, 586.0284605433377 L 467.4479166666667, 580.8538163001293 L 429.6875, 544.6313065976715 L 236.97916666666666, 547.2186287192756 L 179.6875, 602.8460543337646 L 175.78125, 831.8240620957309 L 123.69791666666667, 882.2768434670116 L 79.42708333333333, 883.5705045278137 L 16.927083333333332, 824.0620957309185 L 15.625, 402.3285899094437 L 328.125, 93.14359637774903 L 441.40625, 91.84993531694697 L 457.03125, 76.32600258732212 L 455.7291666666667, 51.746442432082794 Z' fill='#aae1fa'
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80'
+  circle r='10' cx='160' cy='100'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='160' cy='40'
+  circle r='10' cx='210' cy='130'
 
-  path d='M 561.1979166666666, 562.7425614489003 L 597.65625, 595.0840879689522 L 597.65625, 610.608020698577 L 559.8958333333334, 578.2664941785252 Z' fill='#ffffff'
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' B
+  text x='154' y='105.5' C
+  text x='245.5' y='85.5' class='red' D
+  text x='155.5' y='45.5' E
+  text x='205.5' y='135.5' F
 
-  path d='M 447.9166666666667, 545.9249676584734 L 550.78125, 548.5122897800776 L 549.4791666666666, 569.2108667529108 L 472.65625, 571.7981888745148 Z' fill='#ffffff'
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='120' y='55' 1
+    text x='205' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
 
-  / = RATP.djikstra_to_svg("MAIRIE DE CLICHY", "CITE").html_safe
-  = RATP.djikstra_to_svg("VILLEJUIF-LEO LAGRANGE", "MAIRIE DE CLICHY").html_safe
-  = RATP.djikstra_to_svg().html_safe
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
 
-hr
+p Tu l'auras compris cher lecteur, le but est de trouver le plus court chemin entre le point #{ coderay 'A', inline: true } et le point #{ coderay 'D', inline: true }. Tu peux voir aussi que j'ai ajouté les distances directement sur les arcs du graphe. Ces distances ne représentent pas réalité géographique du graphe, mais on peut imaginer, dans le contexte d'une carte routière par exemple, certaines routes plus rapides que d'autres, comme une autoroute comparée à une route de ville.
 
-h3 A*
+p Maintenant, voyons ce que va faire l'algorithme. Pour commencer, on va ajouter sur chaque noeud du graphe une information de distance, ça sera la distance minimale qu'il faut parcourir pour arriver à ce noeud du graphe. Pour l'instant, comme nous n'avons encore rien calculé, nous allons mettre toutes les distances à une valeur infinie, sauf pour le noeud de départ, que nous mettrons à zéro.
 
-p de Mairie de clichy à Villejuif leo lagrange
+svg id='graph-example-dist' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80'
+  line x1='100' x2='160' y1='160' y2='100'
+  line x1='160' x2='80' y1='100' y2='80'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='160' y1='80' y2='40'
+  line x1='250' x2='160' y1='80' y2='40'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
 
-= RATP.a_star_example.map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
-p reverse
-= RATP.a_star_example("VILLEJUIF-LEO LAGRANGE", "MAIRIE DE CLICHY").map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80'
+  circle r='10' cx='160' cy='100'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='160' cy='40'
+  circle r='10' cx='210' cy='130'
 
-p loop
-= RATP.a_star_example("BOTZARIS", "DANUBE").map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
-p -
-= RATP.a_star_example("DANUBE", "BOTZARIS").map{|e| "M(#{e[:link].line rescue nil}) #{e[:node].name} for #{e[:dist]} units in #{e[:time]} sec" }.join("<br>").html_safe
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' B
+  text x='154' y='105.5' C
+  text x='245.5' y='85.5' class='red' D
+  text x='155.5' y='45.5' E
+  text x='205.5' y='135.5' F
 
-svg id='map-a_star' viewBox='0 0 1000 1000'
-  path d='M 334.6354166666667, 182.40620957309184 L 739.5833333333334, 184.99353169469597 L 897.1354166666666, 342.82018111254854 L 897.1354166666666, 485.12289780077623 L 880.2083333333334, 503.2341526520052 L 881.5104166666666, 673.9974126778784 L 723.9583333333334, 829.2367399741267 L 178.38541666666666, 833.117723156533 L 79.42708333333333, 737.3868046571798 L 82.03125, 450.1940491591203 Z' fill='#ffffff'
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='120' y='55' 1
+    text x='205' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
 
-  path d='M 411.4583333333333, 5.17464424320828 L 427.0833333333333, 3.8809831824062098 L 468.75, 43.98447606727038 L 471.3541666666667, 82.79430789133248 L 450.5208333333333, 104.78654592496765 L 332.03125, 108.66752910737387 L 29.947916666666668, 406.20957309184996 L 29.947916666666668, 815.006468305304 L 82.03125, 864.1655886157827 L 118.48958333333333, 862.8719275549805 L 162.76041666666666, 824.0620957309185 L 164.0625, 598.9650711513583 L 230.46875, 534.2820181112548 L 544.2708333333334, 535.575679172057 L 610.6770833333334, 596.3777490297541 L 609.375, 618.3699870633894 L 792.96875, 795.601552393273 L 997.3958333333334, 798.188874514877 L 998.6979166666666, 813.7128072445018 L 802.0833333333334, 812.4191461836999 L 802.0833333333334, 990.9443725743855 L 785.15625, 990.9443725743855 L 783.8541666666666, 813.7128072445018 L 555.9895833333334, 586.0284605433377 L 467.4479166666667, 580.8538163001293 L 429.6875, 544.6313065976715 L 236.97916666666666, 547.2186287192756 L 179.6875, 602.8460543337646 L 175.78125, 831.8240620957309 L 123.69791666666667, 882.2768434670116 L 79.42708333333333, 883.5705045278137 L 16.927083333333332, 824.0620957309185 L 15.625, 402.3285899094437 L 328.125, 93.14359637774903 L 441.40625, 91.84993531694697 L 457.03125, 76.32600258732212 L 455.7291666666667, 51.746442432082794 Z' fill='#aae1fa'
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
 
-  path d='M 561.1979166666666, 562.7425614489003 L 597.65625, 595.0840879689522 L 597.65625, 610.608020698577 L 559.8958333333334, 578.2664941785252 Z' fill='#ffffff'
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='82' y='68' ∞
+    text x='162' y='88' ∞
+    text x='252' y='68' ∞
+    text x='162' y='28' ∞
+    text x='212' y='118' ∞
 
-  path d='M 447.9166666666667, 545.9249676584734 L 550.78125, 548.5122897800776 L 549.4791666666666, 569.2108667529108 L 472.65625, 571.7981888745148 Z' fill='#ffffff'
+p Ensuite, nous allons explorer tous les noeuds directement liés au noeud #{ coderay 'A', inline: true }, et mettre à jour leurs distances #{":"}
 
-  / = RATP.a_star_to_svg("MAIRIE DE CLICHY", "CITE").html_safe
-  = RATP.a_star_to_svg("VILLEJUIF-LEO LAGRANGE", "MAIRIE DE CLICHY").html_safe
-  = RATP.a_star_to_svg().html_safe
+svg id='graph-example-node-a' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80' class='blue'
+  line x1='100' x2='160' y1='160' y2='100' class='blue'
+  line x1='160' x2='80' y1='100' y2='80'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='160' y1='80' y2='40'
+  line x1='250' x2='160' y1='80' y2='40'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
 
-hr
+  circle r='10' cx='100' cy='160' class='green'
+  circle r='10' cx='80' cy='80' class='blue'
+  circle r='10' cx='160' cy='100' class='blue'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='160' cy='40'
+  circle r='10' cx='210' cy='130'
 
-h3 trafic l1
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' class='blue' B
+  text x='154' y='105.5' class='blue' C
+  text x='245.5' y='85.5' class='red' D
+  text x='155.5' y='45.5' E
+  text x='205.5' y='135.5' F
 
-svg id='map' viewBox='0 0 40 30'
-  = RATP.trafic_to_svg.html_safe
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='120' y='55' 1
+    text x='205' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
 
-h3 click-container
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
 
-div id='click-container'
-  svg id='click-map' viewBox='0 0 1000 1000'
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='55' y='64' class='blue' 0 + 1 #{"="} 1 via A
+    text x='135' y='88' class='blue' 0 + 4 #{"="} 4 via A
+    text x='252' y='68' ∞
+    text x='162' y='28' ∞
+    text x='212' y='118' ∞
 
-div id='click-list'
+p Pour continuer, nous allons ajouter les noeuds #{ coderay 'B', inline: true } et #{ coderay 'C', inline: true },  que nous venons d'explorer, dans une pile "à explorer". Dans cette pile, les noeuds sont ordonnés en fonction de leur information de distance. Pour continuer, il suffit de prendre le premier noeud de la pile (celui qui possède la plus petite distance, ici le noeud #{ coderay 'B', inline: true }), et de recommencer l'opération d'exploration à partir de ce noeud.
+
+svg id='graph-example-node-b' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80' class='blue'
+  line x1='100' x2='160' y1='160' y2='100' class='blue'
+  line x1='160' x2='80' y1='100' y2='80' class='blue'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='160' y1='80' y2='40' class='blue'
+  line x1='250' x2='160' y1='80' y2='40'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
+
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80' class='green'
+  circle r='10' cx='160' cy='100' class='blue'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='160' cy='40' class='blue'
+  circle r='10' cx='210' cy='130'
+
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' class='blue' B
+  text x='154' y='105.5' class='blue' C
+  text x='245.5' y='85.5' class='red' D
+  text x='155.5' y='45.5' class='blue' E
+  text x='205.5' y='135.5' F
+
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='120' y='55' 1
+    text x='205' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
+
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
+
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='68' y='64' class='blue' 1 via A
+    text x='148' y='78' class='blue stroke' 4 via A
+    text x='135' y='88' class='blue' 1 + 2 #{"="} 3 via B
+    text x='252' y='68' ∞
+    text x='135' y='26' class='blue' 1 + 1 #{"="} 2 via B
+    text x='212' y='118' ∞
+
+p Comme tu peux le voir, ami lecteur, la valeur de distance du noeud #{ coderay 'C', inline: true } est passée de <i>4</i> à <i>3</i>. Cela pour refléter le fait qu'il est plus court de rejoindre #{ coderay 'C', inline: true } en faisant un détour par #{ coderay 'B', inline: true } que d'y aller directement.
+
+p Le noeud #{ coderay 'E', inline: true } est ajouté à la pile des noeuds "à explorer", et c'est d'ailleurs lui que nous allons explorer ensuite.
+
+svg id='graph-example-node-e' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80' class='blue'
+  line x1='100' x2='160' y1='160' y2='100' class='blue'
+  line x1='160' x2='80' y1='100' y2='80' class='blue'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='160' y1='80' y2='40' class='blue'
+  line x1='250' x2='160' y1='80' y2='40' class='blue'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
+
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80' class='blue'
+  circle r='10' cx='160' cy='100' class='blue'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='160' cy='40' class='green'
+  circle r='10' cx='210' cy='130'
+
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' class='blue' B
+  text x='154' y='105.5' class='blue' C
+  text x='245.5' y='85.5' class='red' D
+  text x='155.5' y='45.5' class='blue' E
+  text x='205.5' y='135.5' F
+
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='120' y='55' 1
+    text x='205' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
+
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
+
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='68' y='64' class='blue' 1 via A
+    text x='148' y='88' class='blue' 3 via B
+    text x='260' y='68' class='red' 2 + 4 #{"="} 6 via E
+    text x='148' y='28' class='blue' 2 via B
+    text x='212' y='118' ∞
+
+p Bien, nous avons un premier score pour le noeud #{ coderay 'D', inline: true }, notre arrivée ! Mais l'algorithme n'est pas encore terminé, car il n'est pas impossible que l'on trouve un chemin encore plus court grâce à un détour, comme c'est arrivé tout à l'heure pour le noeud #{ coderay 'C', inline: true }. On va donc continuer comme précédemment et ajouter le noeud #{ coderay 'D', inline: true } à la liste des noeuds "à explorer".
+
+p Le prochain noeud à explorer est le noeud #{ coderay 'C', inline: true } #{":"}
+
+svg id='graph-example-node-c' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80' class='blue'
+  line x1='100' x2='160' y1='160' y2='100' class='blue'
+  line x1='160' x2='80' y1='100' y2='80' class='blue'
+  line x1='160' x2='250' y1='100' y2='80' class='blue'
+  line x1='80' x2='160' y1='80' y2='40' class='blue'
+  line x1='250' x2='160' y1='80' y2='40' class='blue'
+  line x1='160' x2='210' y1='100' y2='130' class='blue'
+  line x1='250' x2='210' y1='80' y2='130'
+
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80' class='blue'
+  circle r='10' cx='160' cy='100' class='green'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='160' cy='40' class='blue'
+  circle r='10' cx='210' cy='130' class='blue'
+
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' class='blue' B
+  text x='154' y='105.5' class='blue' C
+  text x='245.5' y='85.5' class='red' D
+  text x='155.5' y='45.5' class='blue' E
+  text x='205.5' y='135.5' class='blue' F
+
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='120' y='55' 1
+    text x='205' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
+
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
+
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='68' y='64' class='blue' 1 via A
+    text x='148' y='88' class='blue' 3 via B
+    text x='260' y='58' class='red stroke' 6 via E
+    text x='260' y='68' class='red' 3 + 2 #{"="} 5 via C
+    text x='148' y='28' class='blue' 2 via B
+    text x='225' y='132.5' class='blue' 3 + 4 #{"="} 7 via C
+
+p Et effectivement, c'est plus court de passer par le noeud #{ coderay 'C', inline: true } que par le noeud #{ coderay 'E', inline: true }. Et si on regarde maintenant la pile "à explorer", le prochain noeud est le noeud #{ coderay 'D', inline: true }, notre arrivée. Cela signifie que nous ne trouverons plus de chemins plus courts que celui que nous avons déjà trouvé #{":"} l'algorithme est terminé !
+
+p Pour récupérer le plus court chemin, il nous suffit de suivre la chaine des noeuds que nous avons parcourus #{":"} #{ coderay 'A -> B -> C -> D', inline: true }. C'est simple comme l'alaphabet !
+
+h3 Pathfinder
+
+p Maintenant que tu as compris comment fonctionne l'algorithme de Djikstra, il est temps de traduire tout ça dans une forme que l'ordinateur pourra comprendre #{":"} oui, on va écrire du code !
+
+= coderay do
+  | to_expand = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, via: nil}}
+    to_expand[from] = {dist: 0, via: nil}
+
+    expanded = {}
+
+p D'abord, on va créer le hash #{ coderay 'to_expand', inline: true }, qui nous servira à conserver la liste de tous les noeuds que nous n'avons pas encore explorés, dans lequel nous allons pour l'instant n'insérer qu'une seule valeur #{":"} le noeud de départ.
+
+p Nous créons aussi un hash  #{ coderay 'expanded', inline: true }, dans lequel on mettra tous les noeuds qui ont été explorés, et dont nous n'avons plus à nous préoccupper.
+
+p La prochaine étape sera de coder la boucle d'exploration d'un noeud #{":"}
+
+= coderay do
+  | loop do
+      node, values = to_expand.min{ |(_,a), (_,b)| a[:dist] <=> b[:dist] }
+
+      if node == to
+        expanded[node] = to_expand.delete(node)
+        break
+      end
+
+      node.links(exclude_nodes: expanded.keys).each do |link|
+        dist = values[:dist] + link.dist
+
+        if dist < to_expand[link.node_b][:dist]
+          to_expand[link.node_b][:dist] = dist
+          to_expand[link.node_b][:via] = node
+        end
+      end
+
+      expanded[node] = to_expand.delete(node)
+    end
+
+p D'abord, on sélectionne le noeud à explorer en priorité dans le hash #{ coderay 'to_expand', inline: true }. Puis, pour chacuns des arc partant de ce noeud (à l'exception des arc qui ménent à des noeuds déjà explorés), nous mettons à jour les noeuds correspondant (seulement si nécéssaire). Tu peux remarquer, cher lecteur, que cette dernière action va en même temps ajouter le noeud au hash #{ coderay 'to_expand', inline: true }, comme nous avions défini une valeur par défaut sur celui-ci.
+
+p Finalement, nous allons transférer le noeud exploré du hash #{ coderay 'to_expand', inline: true } au hash #{ coderay 'expanded', inline: true }. La boucle se termine lorsque le noeud à explorer correspond au noeud d'arrivée.
+
+p Il faut maintenant remonter la liste des noeuds explorés pour retrouver le chemin parcouru #{":"}
+
+= coderay do
+  | path = [to]
+
+    loop do
+      break unless expanded[path.first][:via]
+      path.insert(0, expanded[path.first][:via])
+    end
+
+    path.map{ |e| {node: e}.merge(expanded[e]) }
+
+p Dans un tableau #{ coderay 'path', inline: true }, nous insérons petit à petit tous les noeuds en fonction de l'information #{ coderay ':via', inline: true }, jusqu'à ce que celle-ci soit vide, ce qui signifie que nous somme remontés au noeud de départ.
+
+p Et si on teste cet algorithme sur la carte des métros parisiens que nous avons fait plus tôt, et pour un trajet que je connais bien, de l'arrêt <i>Mairie de Clichy</i> dans le nord jusqu'à l'arrêt <i>Villejuif - Léo Lagrange</i> dans le sud. Et voilà le résultat #{":"}
+
+svg id='ratp-djikstra-dist' viewBox='0 0 1000 1000'
+  use xlink:href='#ratp-background'
+  = RATP.path_to_svg('djikstra_dist', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE').html_safe
+
+h3 Amélioration
+
+p C'est un bon début ... mais avant d'aller plus loin, il faut d'abord que l'on s'occupe d'un important problème d'optimisation.
+
+p En tant qu'être-humain, si je cherchais la route à prendre pour faire un Paris-Toulouse, je ne vais pas regarder du côté de Lille, du moins, pas dans un premier temps, car je me doutes bien que ça ferait faire un gros détour à priori pas très efficace. Par contre, je vais plutôt commencer à regarder les routes qui se dirigent dans la direction générale de Toulouse, là où j'ai le plus de chance de trouver le meilleur chemin.
+
+p Et c'est le problème de l'algorithme de Djikstra, dont on peut se rendre compte clairement en affichant étape par étape chaque noeud exploré par l'algorithme #{":"}
+
+div id='demo-djikstra-step-by-step' class='triggered-animation'
+  svg id='ratp-djikstra-step-by-step' viewBox='0 0 1000 1000'
+    use xlink:href='#ratp-background'
+    g class='start-end'
+      circle cx='304.28769017980636' cy='169.871822818295' r='10'
+      circle cx='614.9659863945578' cy='869.3693418760557' r='10'
+      text x='317' y='162' Départ
+      text x='628' y='888' Arrivée
+
+    = RATP.path_to_svg('djikstra_step_by_step', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE', text: ->(e){ e[:dist].round }).html_safe
+
+    p class='align-center'
+      span class='btn active' animation-trigger='ratp-djikstra-step-by-step' Jouer l'animation
+
+    javascript:
+      (function() {
+        var elt = document.querySelector("[animation-trigger=ratp-djikstra-step-by-step]");
+        var svg_elt = document.querySelector("#ratp-djikstra-step-by-step");
+        var active = false;
+
+        svg_elt.addEventListener('play-animation', async function(){
+          if(!active){
+            active = true;
+            svg_elt.classList.remove('play');
+            await sleep(100);
+            svg_elt.classList.add('play');
+
+            console.log('hum')
+            await sleep(285 * 100);
+            await sleep(1500);
+            console.log('yop')
+            elt.classList.add('active');
+          }
+        });
+
+        elt.addEventListener('click', function(){
+          active = false;
+          elt.classList.remove('active');
+          svg_elt.dispatchEvent(new CustomEvent('play-animation'));
+        });
+      }).call(this)
+
+p Pour cet exemple, l'algotithme de Djikstra va explorer 285 noeuds (sur 306) avant de tomber sur l'arrivée. Mais il est possible de faire mieux #{":"} je te présente, cher lecteur, l'algorithme A* !
+
+= coderay do
+  | def a_star from:, to:
+      to_expand = Hash.new{ |hash, key| hash[key] = {time: Float::INFINITY, dist_to: key.dist(to), via: nil, link: nil}}
+      to_expand[from] = {time: 0, via: nil, link: nil}
+
+      expanded = {}
+
+      loop do
+        node, values = to_expand.min{ |(_,a), (_,b)| a[:time] + a[:dist_to] <=> b[:time] + b[:dist_to] }
+
+        if node == to
+          expanded[node] = to_expand.delete(node)
+          break
+        end
+
+        node.links(exclude_nodes: expanded.keys).each do |link|
+          time = values[:time] + link.time(corres: values[:link])
+
+          if time < to_expand[link.node_b][:time]
+            to_expand[link.node_b][:time] = time
+            to_expand[link.node_b][:via] = node
+            to_expand[link.node_b][:link] = link
+          end
+        end
+
+        expanded[node] = to_expand.delete(node)
+      end
+
+      path = [to]
+
+      loop do
+        break unless expanded[path.first][:via]
+        path.insert(0, expanded[path.first][:via])
+      end
+
+      path.map{ |e| {node: e}.merge(expanded[e]) }
+    end
+
+p L'algorithme A* ressemble beaucoup à celui de Djikstra. La seule différence réside dans la liste de priorité des noeuds "à explorer". Plutôt que de simplement prendre le noeud le plus proche (celui avec le plus petit score), on calcule pour chaque noeud du graphe sa distance géographique avec le point d'arrivée, et cette valeur est prise en compte lors du choix du prochain noeud à explorer.
+
+svg id='graph-djikstra-node-b' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80' class='blue'
+  line x1='100' x2='160' y1='160' y2='100' class='blue'
+  line x1='160' x2='80' y1='100' y2='80' class='blue'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='130' y1='80' y2='40' class='blue'
+  line x1='250' x2='130' y1='80' y2='40'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
+
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80' class='green'
+  circle r='10' cx='160' cy='100' class='blue'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='130' cy='40' class='blue'
+  circle r='10' cx='210' cy='130'
+
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' class='blue' B
+  text x='154' y='105.5' class='blue' C
+  text x='245.5' y='85.5' class='red' D
+  text x='125.5' y='45.5' class='blue' E
+  text x='205.5' y='135.5' F
+
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='110' y='65' 1
+    text x='195' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
+
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
+
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='68' y='64' class='blue' 1 via A
+    text x='148' y='88' class='blue' 3 via B
+    text x='252' y='68' ∞
+    text x='118' y='26' class='blue' 2 via B
+    text x='212' y='118' ∞
+
+p Sur cet exemple, nous venons d'explorer le noeud #{ coderay 'B', inline: true }. Dans la liste des noeuds à explorer, nous avons le choix entre les noeuds #{ coderay 'C', inline: true } et #{ coderay 'E', inline: true }. Si on se base uniquement sur les scores des noeuds, comme le fait l'algorithme de Djikstra, on devrait choisir le noeud #{ coderay 'E', inline: true }, mais si l'on ajoute en plus la distance géographique des noeuds par rapport au noed d'arrivée, alors, le prochain noeud à explorer sera le noeud #{ coderay 'C', inline: true }. C'est ce que fait l'algorithme A*.
+
+svg id='graph-astar-node-b' viewBox='0 0 400 200'
+  line x1='100' x2='80' y1='160' y2='80' class='blue'
+  line x1='100' x2='160' y1='160' y2='100' class='blue'
+  line x1='160' x2='80' y1='100' y2='80' class='blue'
+  line x1='160' x2='250' y1='100' y2='80'
+  line x1='80' x2='130' y1='80' y2='40' class='blue'
+  line x1='250' x2='130' y1='80' y2='40'
+  line x1='160' x2='210' y1='100' y2='130'
+  line x1='250' x2='210' y1='80' y2='130'
+
+  circle r='10' cx='100' cy='160' class='blue'
+  circle r='10' cx='80' cy='80' class='green'
+  circle r='10' cx='160' cy='100' class='blue'
+  circle r='10' cx='250' cy='80' class='red'
+  circle r='10' cx='130' cy='40' class='blue'
+  circle r='10' cx='210' cy='130'
+
+  text x='95.5' y='165.5' class='blue' A
+  text x='75.5' y='85.5' class='blue' B
+  text x='154' y='105.5' class='blue' C
+  text x='245.5' y='85.5' class='red' D
+  text x='125.5' y='45.5' class='blue' E
+  text x='205.5' y='135.5' F
+
+  g class='dist'
+    text x='80' y='120' 1
+    text x='135' y='135' 4
+    text x='120' y='85' 2
+    text x='200' y='85' 2
+    text x='110' y='65' 1
+    text x='195' y='55' 4
+    text x='175' y='125' 4
+    text x='230' y='115' 3
+
+  text x='75.5' y='185.5' class='blue' Départ
+  text x='265.5' y='85.5' class='red' Arrivée
+
+  g class='node-dist'
+    text x='102' y='148' class='blue' 0
+    text x='68' y='44' class='blue' dist: 5
+    text x='68' y='54' class='blue' score: 1 via A
+    text x='68' y='64' class='blue' total: 6
+    text x='148' y='68' class='blue' dist: 3
+    text x='148' y='78' class='blue' score: 3 via B
+    text x='148' y='88' class='blue' total: 6
+    text x='252' y='48' dist: 0
+    text x='252' y='58' score: ∞
+    text x='252' y='68' total: ∞
+    text x='118' y='6' class='blue' dist: 4,5
+    text x='118' y='16' class='blue' score: 2 via B
+    text x='118' y='26' class='blue' total: 6,5
+    text x='212' y='98' dist: 2
+    text x='212' y='108' score: ∞
+    text x='212' y='118' total: ∞
+
+p Cette optimisation permet de réduire énormément le nombre de noeuds explorés, et elle sera d'autant plus important plus le graphe posséde de noeuds. Déjà sur notre graphe des métros de la ville de Paris, le changement est directement visible #{":"}
+
+div id='demo-astar-step-by-step' class='triggered-animation'
+  svg id='ratp-astar-step-by-step' viewBox='0 0 1000 1000'
+    use xlink:href='#ratp-background'
+    g class='start-end'
+      circle cx='304.28769017980636' cy='169.871822818295' r='10'
+      circle cx='614.9659863945578' cy='869.3693418760557' r='10'
+      text x='317' y='162' Départ
+      text x='628' y='888' Arrivée
+
+    = RATP.path_to_svg('astar_step_by_step', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE', text: ->(e){ (e[:dist_to] + e[:dist]).round }).html_safe
+
+    p class='align-center'
+      span class='btn active' animation-trigger='ratp-astar-step-by-step' Jouer l'animation
+
+    javascript:
+      (function() {
+        var elt = document.querySelector("[animation-trigger=ratp-astar-step-by-step]");
+        var svg_elt = document.querySelector("#ratp-astar-step-by-step");
+        var active = false;
+
+        svg_elt.addEventListener('play-animation', async function(){
+          if(!active){
+            active = true;
+            svg_elt.classList.remove('play');
+            await sleep(100);
+            svg_elt.classList.add('play');
+
+            console.log('hum')
+            await sleep(75 * 100);
+            await sleep(1500);
+            console.log('yop')
+            elt.classList.add('active');
+          }
+        });
+
+        elt.addEventListener('click', function(){
+          active = false;
+          elt.classList.remove('active');
+          svg_elt.dispatchEvent(new CustomEvent('play-animation'));
+        });
+      }).call(this)
+
+h3 Simulation
+
+p Bien, maintenant que nous avons optimisé notre algorithme, il est temps de corriger quelques problèmes spécifiques à notre cas. Le chemin qui est calculé par l'algorithme nous propose de prendre la ligne <span class='l13'>13</span>, changer pour la <span class='l3'>3</span>, prendre la ligne <span class='l7'>7</span> pour une station seulement, prendre la <span class='l14'>14</span> et revenir sur la ligne <span class='l7'>7</span>.
+
+p Le problème ici c'est que les temps de changements entre les différentes lignes de métro ne sont pas pris en compte, ni d'ailleurs les temps de trajet entre les stations (certaines lignes sont plus rapides que d'autres), et ces facteurs vont grandement influencer le choix de notre trajet !
+
+p Nous allons donc modifier le calcul du <i>score</i> de chaque chemin, en utilisant une nouvelle méthode #{ coderay 'time', inline: true } dans la classe #{ coderay 'GraphLink', inline: true }, plutôt que l'ancienne méthode #{ coderay 'dist', inline: true } dont on se servait jusqu'à présent.
+
+= coderay do
+  | class GraphLink
+      def dist
+        Math.sqrt((node_a.x - node_b.x)**2 + (node_a.y - node_b.y)**2)
+      end
+
+      def time corres: nil
+        time = 0
+        if corres && corres.line != line # changement de ligne
+          time += 30 * node_a.attributes[:correspondances].size # temps de marche dans la station
+          time += 240 # temps d'attente sur le quai
+        end
+        time += [dist, 20].min * 1.5 # accélération / décélération
+        time += [dist - 20, 0].max * 1 # vitesse max 36km/h
+        time *= 0.75 if line == '14' # bonus de vitesse pour la ligne 14
+        time
+      end
+    end
+
+p Et voilà le résultat #{":"}
+
+svg id='ratp-astar-time' viewBox='0 0 1000 1000'
+  use xlink:href='#ratp-background'
+  = RATP.path_to_svg('astar_time', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE').html_safe
+
+p Il n'y a plus de changements intempestif ! Désormais, l'algorithme favorise le fait de rester le plus longtemps possible sur la même ligne. Cependant, ce changement à produit des effets de bords inatendus ...
+
+p Voici le tracé pour le trajet retour. Logiquement, les deux trajets devrait être identiques, mais le temps supplémentaire au moment des changements de lignes avantage ou pénalise différemment certains trajets en fonction du point de départ.
+
+svg id='ratp-astar-time-reverse' viewBox='0 0 1000 1000'
+  use xlink:href='#ratp-background'
+  = RATP.path_to_svg('astar_time', from: 'VILLEJUIF-LEO LAGRANGE', to: 'MAIRIE DE CLICHY').html_safe
+
+p Si on prends par exemple le trajet aller, de <i>Mairie de Clichy</i> à <i>Villejuif - Léo Lagrange</i>, on peut se rendre compte qu'à partir de l'arrêt <i>Place d'Italie</i>, il n'y a plus qu'un seul chemin possible. Donc c'est le chemin le plus rapide jusqu'à <i>Place d'Italie</i> qui sera choisi par l'algorithme.
+
+p Maintenant, pour arriver à <i>Place d'Italie</i>, on dispose de deux options quasiment identiques en termes de durée #{":"} soit passer par la <span class='l13'>13</span>, la <span class='l14'>14</span> puis la <span class='l7'>7</span>, soit de passer par la <span class='l13'>13</span> puis la <span class='l6'>6</span>.
+
+p La différence entre ces deux chemins va se jouer sur le nombre de changements. Avec la première option, il y aura deux changements à effectuer, tandis qu'avec la seconde options, nous n'avons qu'un seul changement à faire. La seconde option sera donc avantagée par l'algorithme, qui ne prends pas en compte le fait que passer par la ligne <span class='l6'>6</span> entrainera un changement de ligne plus tard.
+
+p Idéalement, il faudrait corriger ce problème, surtout que l'effet devient carrément ridicule pour certains trajets, malheureusement nous n'avons plus le temps de nous en occupper puisque c'est déjà le moment de conclure !
+
+h3 Conclusion
+
+p Alors voilà, ami lecteur, pour cette présentation des algorithmes de recherche du plus court chemin. Comme d'habitude, j'espère que tu t'es bien amusé, et peut-être même as-tu appris des choses au passage ?
+
+p Tu peux télécharger tous les fichiers de code en cliquant sur le bouton de téléchargement ci-dessous #{":"}
+
+p class='align-center'
+  = link_to "Télécharger les fichiers", "/dl/ratp.zip", class: :btn
+
+p Quant à nous, on se retrouve bientôt parce qu'il y a encore plein de choses dont j'ai envie de te parler, mais avant de te quitter, je tenais à te proposer une toute dernière animation #{":"} il s'agit d'une carte interactive du métro parisien. D'ailleurs, tu pourras tester par toi-même les trajets ridicules que l'on peut obtenir à cause de notre dernière modification ... Essaie par exemple le trajet de <i>Blanche</i> vers <i>Rennes</i>, ou <i>Anvers</i> à <i>Mairie de Montrouge</i>. Enfin, ça c'est si tu arrives à situer ces stations sur la carte, hé hé.
+
+svg id='ratp-interactive' viewBox='0 0 1000 1000'
+  use xlink:href='#ratp-background'
+  = RATP.graph_to_svg(RATP::OpenDataPreprocessor::GRAPH).html_safe
+  g class='start-end'
+    circle cx='-100' cy='-100' r='10'
+    circle cx='-100' cy='-100' r='10'
+    text x='-100' y='-100' Départ
+    text x='-100' y='-100' Arrivée
 
 javascript:
   (function() {
-    scroll = document.querySelector(".content")
-    elt = document.querySelector("div#click-container")
-    svg = elt.querySelector("svg#click-map")
-    list = document.querySelector("div#click-list")
+    var svg_elt = document.querySelector("#ratp-interactive");
 
-    elt.addEventListener('click', function(e){
-      var pos = {
-        x: e.pageX - e.currentTarget.offsetLeft,
-        y: e.pageY - e.currentTarget.offsetTop + scroll.scrollTop
+    var start_circle = svg_elt.querySelector("g.start-end circle:first-of-type");
+    var start_text = svg_elt.querySelector("g.start-end text:first-of-type");
+    var end_circle = svg_elt.querySelector("g.start-end circle:last-of-type");
+    var end_text = svg_elt.querySelector("g.start-end text:last-of-type");
+
+    var circles = svg_elt.querySelectorAll(':scope > circle');
+
+    start_circle.addEventListener('click', function(){
+      var from_circle = svg_elt.querySelector("circle.from");
+
+      if(from_circle){
+        svg_elt.classList.remove('active');
+        from_circle.classList.remove('from');
+        start_circle.setAttribute('cx', -100);
+        start_circle.setAttribute('cy', -100);
+        start_text.setAttribute('x', -100);
+        start_text.setAttribute('y', -100);
       }
 
-      console.log(pos)
-
-      console.log(window.getComputedStyle(elt).width)
-      console.log(window.getComputedStyle(elt).height)
-
-      var size = {
-        x: parseInt(window.getComputedStyle(elt).width, 10),
-        y: parseInt(window.getComputedStyle(elt).height, 10),
-      }
-
-      var c = {
-        x: pos.x / size.x * 1000,
-        y: pos.y / size.y * 1000
-      }
-
-
-      var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle")
-      circle.setAttribute('cx', c.x)
-      circle.setAttribute('cy', c.y)
-      circle.setAttribute('r', 5)
-      svg.appendChild(circle)
-
-      list.innerHTML = list.innerHTML + '[' + c.x + ', ' + c.y + '], ';
+      var path = svg_elt.querySelectorAll('.path');
+      if(path) Array.prototype.forEach.call(path, function(e){ e.classList.remove('path') });
     });
 
+    end_circle.addEventListener('click', function(){
+      var to_circle = svg_elt.querySelector("circle.to");
 
+      if(to_circle){
+        svg_elt.classList.remove('active');
+        to_circle.classList.remove('to');
+        end_circle.setAttribute('cx', -100);
+        end_circle.setAttribute('cy', -100);
+        end_text.setAttribute('x', -100);
+        end_text.setAttribute('y', -100);
+      }
+
+      var path = svg_elt.querySelectorAll('.path');
+      if(path) Array.prototype.forEach.call(path, function(e){ e.classList.remove('path') });
+    });
+
+    Array.prototype.forEach.call(circles, function(circle){
+      circle.addEventListener('click', function(){
+        var from_circle = svg_elt.querySelector("circle.from");
+        var to_circle = svg_elt.querySelector("circle.to");
+
+        if(!from_circle){
+          circle.classList.add('from');
+          start_circle.setAttribute('cx', circle.getAttribute('cx'));
+          start_circle.setAttribute('cy', circle.getAttribute('cy'));
+          start_text.setAttribute('x', circle.getAttribute('cx') - 25);
+          start_text.setAttribute('y', circle.getAttribute('cy') - 15);
+        }else{
+          if(to_circle) to_circle.classList.remove('to');
+
+          circle.classList.add('to');
+          end_circle.setAttribute('cx', circle.getAttribute('cx'));
+          end_circle.setAttribute('cy', circle.getAttribute('cy'));
+          end_text.setAttribute('x', circle.getAttribute('cx') - 25);
+          end_text.setAttribute('y', circle.getAttribute('cy') - -25);
+        }
+
+        var from_circle = svg_elt.querySelector("circle.from");
+        var to_circle = svg_elt.querySelector("circle.to");
+
+        if(from_circle && to_circle){
+          var path = svg_elt.querySelectorAll('.path');
+          if(path) Array.prototype.forEach.call(path, function(e){ e.classList.remove('path') });
+
+          from_txt = from_circle.nextSibling.innerHTML
+          to_txt = to_circle.nextSibling.innerHTML
+
+          xhr = new XMLHttpRequest()
+          xhr.open('POST', Routes.demo_ratp_path(), true);
+          xhr.setRequestHeader('X-CSRF-Token', document.querySelector('meta[name="csrf-token"]').getAttribute('content'));
+          xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+          xhr.send("from=" + from_txt + "&to=" + to_txt);
+
+          xhr.onreadystatechange = function(){
+            DONE = 4;
+            OK = 200;
+            if(xhr.readyState == DONE){
+              if(xhr.status == OK){
+                svg_elt.classList.add('active');
+                data = JSON.parse(xhr.responseText);
+
+                Array.prototype.forEach.call(data, function(path){
+                  svg_elt.querySelector('circle[data-hash="' + path.node_hash + '"]').classList.add('path');
+                  svg_elt.querySelector('text[data-hash="' + path.node_hash + '"]').classList.add('path');
+                  if(path.link_hash) svg_elt.querySelector('line[data-hash="' + path.link_hash + '"]').classList.add('path');
+                })
+              }else{
+                svg_elt.classList.remove('active');
+                console.log('Error: ' + xhr.status)
+              }
+            }
+          }
+        }
+      });
+    });
   }).call(this)
 
-h3 stations
+p class="align-center" <i><small>(clique sur une station de métro pour définir ton point de départ, puis clique sur une autre pour définir l'arrivée)</small></i>
 
-svg id='map-alt' viewBox='0 0 1000 1000'
-  = RATP.stations_to_svg.html_safe
+h3 Sources
 
-h3 hashgraph
+p Ma première source d'inspiration pour cet article est une paire de vidéos de la chaîne "Computerphile" sur youtube #{":"}
 
-svg id='map-graph' viewBox='0 0 1000 1000'
-  = RATP.hashgraph_to_svg.html_safe
+p class='btn-group'
+  = link_to "Dijkstra's Algorithm", "https://www.youtube.com/watch?v=GazC3A4OQTE", class: :btn, target: :_blank
+  = link_to "A* Search Algorithm", "https://www.youtube.com/watch?v=ySN5Wnu88nE", class: :btn, target: :_blank
 
-svg id='map-graph-bis' viewBox='0 0 1000 1000'
-  = RATP.hashgraph_to_svg.html_safe
+p Et bien entendu, le site d'open data de la RATP #{":"}
 
-h3 graph
-
-svg id='map-supergraph' viewBox='0 0 1000 1000'
-  path d='M 334.6354166666667, 182.40620957309184 L 739.5833333333334, 184.99353169469597 L 897.1354166666666, 342.82018111254854 L 897.1354166666666, 485.12289780077623 L 880.2083333333334, 503.2341526520052 L 881.5104166666666, 673.9974126778784 L 723.9583333333334, 829.2367399741267 L 178.38541666666666, 833.117723156533 L 79.42708333333333, 737.3868046571798 L 82.03125, 450.1940491591203 Z' fill='#ffffff'
-
-  path d='M 411.4583333333333, 5.17464424320828 L 427.0833333333333, 3.8809831824062098 L 468.75, 43.98447606727038 L 471.3541666666667, 82.79430789133248 L 450.5208333333333, 104.78654592496765 L 332.03125, 108.66752910737387 L 29.947916666666668, 406.20957309184996 L 29.947916666666668, 815.006468305304 L 82.03125, 864.1655886157827 L 118.48958333333333, 862.8719275549805 L 162.76041666666666, 824.0620957309185 L 164.0625, 598.9650711513583 L 230.46875, 534.2820181112548 L 544.2708333333334, 535.575679172057 L 610.6770833333334, 596.3777490297541 L 609.375, 618.3699870633894 L 792.96875, 795.601552393273 L 997.3958333333334, 798.188874514877 L 998.6979166666666, 813.7128072445018 L 802.0833333333334, 812.4191461836999 L 802.0833333333334, 990.9443725743855 L 785.15625, 990.9443725743855 L 783.8541666666666, 813.7128072445018 L 555.9895833333334, 586.0284605433377 L 467.4479166666667, 580.8538163001293 L 429.6875, 544.6313065976715 L 236.97916666666666, 547.2186287192756 L 179.6875, 602.8460543337646 L 175.78125, 831.8240620957309 L 123.69791666666667, 882.2768434670116 L 79.42708333333333, 883.5705045278137 L 16.927083333333332, 824.0620957309185 L 15.625, 402.3285899094437 L 328.125, 93.14359637774903 L 441.40625, 91.84993531694697 L 457.03125, 76.32600258732212 L 455.7291666666667, 51.746442432082794 Z' fill='#aae1fa'
-
-  path d='M 561.1979166666666, 562.7425614489003 L 597.65625, 595.0840879689522 L 597.65625, 610.608020698577 L 559.8958333333334, 578.2664941785252 Z' fill='#ffffff'
-
-  path d='M 447.9166666666667, 545.9249676584734 L 550.78125, 548.5122897800776 L 549.4791666666666, 569.2108667529108 L 472.65625, 571.7981888745148 Z' fill='#ffffff'
-
-  = RATP.graph_to_svg.html_safe
-
-div class='fluid'
-  svg id='map-supergraph-bis' viewBox='0 0 1000 1000'
-    / = RATP.graph_to_svg.html_safe
-
-  svg id='map-supergraph-ter' viewBox='0 0 1000 1000'
-    = RATP.graph_to_svg.html_safe
+p class='btn-group'
+  = link_to "Trafic annuel", "https://data.ratp.fr/explore/dataset/trafic-annuel-entrant-par-station-du-reseau-ferre-2015/table/?disjunctive.reseau&disjunctive.ville&disjunctive.arrondissement_pour_paris&sort=trafic&refine.reseau=M%C3%A9tro", class: :btn, target: :_blank
+  = link_to "Positions géographiques", "https://data.ratp.fr/explore/dataset/positions-geographiques-des-stations-du-reseau-ratp/table/?disjunctive.stop_name&disjunctive.code_postal&disjunctive.departement", class: :btn, target: :_blank
+  = link_to "Couleurs de lignes", "https://data.ratp.fr/explore/dataset/indices-et-couleurs-de-lignes-du-reseau-ferre-ratp/", class: :btn, target: :_blank

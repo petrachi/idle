@@ -1,5 +1,4 @@
 class RATP::GraphLink
-
   attr_accessor :attributes, :dist, :node_a, :node_b
 
   def initialize node_a, node_b, dist:, attrs: {}
@@ -8,11 +7,11 @@ class RATP::GraphLink
     @node_a = node_a
     @node_b = node_b
 
-    node_a.links << self
+    node_a.links += [self]
   end
 
   def hash
-    [node_a.name, node_b.name].sort.join.hash
+    [node_a.name, node_b.name, line].sort.join.hash
   end
 
   def eql? other
@@ -27,27 +26,20 @@ class RATP::GraphLink
   def line() attributes[:line] end
 
   def to_svg
-    "<line x1=#{x1} x2=#{x2} y1=#{y1} y2=#{y2} style='#{style}'/>"
+    "<line x1=#{x1} x2=#{x2} y1=#{y1} y2=#{y2} style='#{style}' data-hash='#{hash}'/>"
   end
 
-  def time
-    ease, max = if dist < 20
-      [dist, 0]
-    else
-      [20, dist - 20]
+  def time corres: nil
+    time = 0
+    if corres && corres.line != line
+      time += 30 * node_a.attributes[:correspondances].size
+      time += 240
     end
-
-    # fix = 20
-    # trafic = (node_a.attributes[:trafic] + node_b.attributes[:trafic]) * 0.00000005
-
-
-    time = ease * 1.5 + max * 1.0
-    # time = ease * 1.5 + max * 1.0 + fix + trafic
+    time += [dist, 20].min * 1.5
+    time += [dist - 20, 0].max * 1
     time *= 0.75 if line == '14'
-
-    # p "time between #{node_a.name} & #{node_b.name} : #{ease * 1.5} + #{max * 1.0} + #{fix} + #{trafic}"
-
     time
-  end
 
+    time * 2.25
+  end
 end

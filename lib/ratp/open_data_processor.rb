@@ -457,123 +457,6 @@ module RATP::OpenDataProcessor
     ['OLYMPIADES', 697.0954356846472, 802.6556497091776]
   ]
 
-  using (Module.new do
-    refine Array do
-      def sum
-        inject(0.0) { |result, el| result + el }
-      end
-
-      def mean
-        sum / size
-      end
-    end
-  end)
-
-  def trafic
-    list = RATP::OpenData::TRAFIC[:records].map{|e| e[:fields]}
-    geo = [
-      RATP::OpenData::GEO_75,
-      RATP::OpenData::GEO_92,
-      RATP::OpenData::GEO_93,
-      RATP::OpenData::GEO_94,
-      RATP::OpenData::GEO_95,
-      RATP::OpenData::GEO_91,
-      RATP::OpenData::GEO_77,
-      RATP::OpenData::GEO_78,
-    ].map{|e| e[:records]}.reduce([], &:+).map{|e| e[:fields]}
-
-
-    list.map{|e|
-      matches = geo.select{|x|
-        x[:stop_name].downcase == e[:station].downcase or
-          /\b#{x[:stop_name].downcase}\b/ =~ e[:station].downcase or
-          /\b#{e[:station].downcase}\b/ =~ x[:stop_name].downcase
-      }
-
-      lat = matches.map{|e| e[:stop_lat]}.mean unless matches.empty?
-      lon = matches.map{|e| e[:stop_lon]}.mean unless matches.empty?
-
-      {
-        station: e[:station],
-        trafic: e[:trafic],
-        correspondances: [e[:correspondance_1], e[:correspondance_2], e[:correspondance_3], e[:correspondance_4]].compact,
-        lat: lat,
-        lon: lon,
-        x: lon.to_f - 2.15,
-        y: lat.to_f - 48.7,
-      }
-    }
-  end
-
-  def stations
-    (
-      L1 +
-      L2 +
-      L3 +
-      L3_BIS +
-      L4 +
-      L5 +
-      L6 +
-      L7 +
-      L7_IVRY +
-      L7_VILLEJUIF +
-      L7_BIS +
-      L7_BIS_LOOP +
-      L8 +
-      L9 +
-      L10 +
-      L10_LOOP +
-      L11 +
-      L12 +
-      L13 +
-      L13_SAINTDENIS +
-      L13_ASNIERE +
-      L14
-    )
-      .uniq{ |e| e[0] }
-      .map{ |e|
-        RATP::OpenDataPreprocessor::TRAFIC
-          .find{ |x| x[:station] == e[0]}
-          .select{ |k,v| [:station, :trafic, :ville, :correspondances].include? k }
-          .merge(pos: e[1,2])
-      }
-  end
-
-  def hashgraph
-    links = Hash.new{ |hash, key| hash[key] = [] }
-
-    [
-      L1,
-      L2,
-      L3,
-      L3_BIS,
-      L4,
-      L5,
-      L6,
-      L7,
-      L7_IVRY,
-      L7_VILLEJUIF,
-      L7_BIS,
-      L7_BIS_LOOP,
-      L8,
-      L9,
-      L10,
-      L10_LOOP,
-      L11,
-      L12,
-      L13,
-      L13_SAINTDENIS,
-      L13_ASNIERE,
-      L14
-    ].each do |line|
-      line.each_with_index do |e, i|
-        line[i+1] and links[e] << line[i+1]
-      end
-    end
-
-    links
-  end
-
   def graph
     graph = RATP::Graph.new
 
@@ -634,6 +517,29 @@ module RATP::OpenDataProcessor
     graph
   end
 
+  def l1_graph
+    graph = RATP::Graph.new
+
+    RATP::OpenDataPreprocessor::TRAFIC
+      .select{ |e| e[:lat] && e[:lon] }
+      .select{ |e| e[:correspondances].include? "1" }
+      .each do |e|
+        graph.nodes << RATP::GraphNode.new(attrs: e.slice(:station, :correspondances).merge({pos: [e[:x]*2_500, e[:y]*3_333]}))
+      end
+
+      L1.each_with_index do |e, i|
+        if L1[i+1]
+          node_a = graph.nodes.find{|n| n.name == e[0]}
+          node_b = graph.nodes.find{|n| n.name == L1[i+1][0]}
+          dist = node_a.dist node_b
+
+          graph.link node_a, node_b, dist: dist, attrs: {line: '1'}
+          graph.link node_b, node_a, dist: dist, attrs: {line: '1'}
+        end
+      end
+
+    graph
+  end
 
   extend self
 end

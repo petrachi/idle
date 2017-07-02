@@ -14,3 +14,7 @@
 //= require_tree .
 
 TAU = Math.PI * 2.0
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

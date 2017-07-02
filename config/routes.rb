@@ -7,6 +7,8 @@ Rails.application.routes.draw do
 
     get 'd/:tag' => :index, as: :direct_to
     get 'p/:tag' => :index, as: :preview, preview: :true
+
+    post 'demo/ratp' => :demo_ratp, as: :demo_ratp
   end
 
   controller :ratings do

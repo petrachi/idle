@@ -1,93 +1,172 @@
 module RATP::Pathfinder
 
-  def djikstra from:, to:
+  def djikstra_dist from:, to:
+    to_expand = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, via: nil, link: nil}}
+    to_expand[from][:dist] = 0
 
-    priority_queue = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, time: Float::INFINITY, via: nil, link: nil}}
-    priority_queue[from] = {dist: 0, time: 0, via: nil, link: nil}
-
-    expanded = []
+    expanded = {}
 
     loop do
+      node, values = to_expand.min{ |(_,a), (_,b)| a[:dist] <=> b[:dist] }
 
-      # to_expand = priority_queue.min{ |(_,a), (_,b)| a[:dist] <=> b[:dist] }
-      to_expand = priority_queue.min{ |(_,a), (_,b)| a[:time] <=> b[:time] }
-
-
-      to_expand[0].links.select{|e| expanded.map{|e| e[0]}.exclude? e.node_b }.each do |link|
-      # to_expand[0].links.each do |link|
-
-        dist = to_expand[1][:dist] + link.dist
-
-        time = to_expand[1][:time] + link.time
-        time += 240 + 30 * to_expand[0].attributes[:correspondances].size if link.line != to_expand[1][:link].try(:line)
-
-        # p "analysing #{to_expand[0].name} to #{link.node_b.name} - dist is #{dist} - actual is #{priority_queue[link.node_b][:dist]}"
-
-        # if dist < priority_queue[link.node_b][:dist]
-        if time < priority_queue[link.node_b][:time]
-          priority_queue[link.node_b] = {dist: dist, time: time, via: to_expand[0], link: link}
-        end
-
+      if node == to
+        expanded[node] = to_expand.delete(node)
+        break
       end
 
-      expanded << to_expand
-      priority_queue.delete(to_expand[0])
+      node.links(exclude_nodes: expanded.keys).each do |link|
+        dist = values[:dist] + link.dist
 
-      break if to_expand[0] == to
-    end
-
-    path = [expanded.pop]
-
-    loop do
-      popped = expanded.pop
-      path << popped if popped[0] == path.last[1][:via]
-
-      break if expanded.empty?
-    end
-
-    path.reverse.map{|e| {node: e[0]}.merge(e[1]) }
-  end
-
-
-
-  def a_star from:, to:
-
-    priority_queue = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, e_dist: key.dist(to), time: Float::INFINITY, via: nil, link: nil}}
-    priority_queue[from].merge!(dist: 0, time: 0, via: nil, link: nil)
-
-    expanded = []
-
-    loop do
-      to_expand = priority_queue.min{ |(_,a), (_,b)| a[:time] + a[:e_dist] <=> b[:time] + b[:e_dist] }
-      to_expand[0].links.select{|e| expanded.map{|e| e[0]}.exclude? e.node_b }.each do |link|
-
-        dist = to_expand[1][:dist] + link.dist
-        time = to_expand[1][:time] + link.time
-        time += 240 + 30 * to_expand[0].attributes[:correspondances].size if link.line != to_expand[1][:link].try(:line)
-
-        if time < priority_queue[link.node_b][:time]
-          priority_queue[link.node_b].merge!(dist: dist, time: time, via: to_expand[0], link: link)
+        if dist < to_expand[link.node_b][:dist]
+          to_expand[link.node_b][:dist] = dist
+          to_expand[link.node_b][:via] = node
+          to_expand[link.node_b][:link] = link
         end
       end
 
-      expanded << to_expand
-      priority_queue.delete(to_expand[0])
-
-      break if to_expand[0] == to
+      expanded[node] = to_expand.delete(node)
     end
 
-    path = [expanded.pop]
+    path = [to]
 
     loop do
-      popped = expanded.pop
-      path << popped if popped[0] == path.last[1][:via]
-
-      break if expanded.empty?
+      break unless expanded[path.first][:via]
+      path.insert(0, expanded[path.first][:via])
     end
 
-    path.reverse.map{|e| {node: e[0]}.merge(e[1]) }
+    path.map{ |e| {node: e}.merge(expanded[e]) }
   end
 
+  def djikstra_step_by_step from:, to:
+    to_expand = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, via: nil, link: nil}}
+    to_expand[from][:dist] = 0
+
+    expanded = {}
+    expanded_list = []
+
+    loop do
+      node, values = to_expand.min{ |(_,a), (_,b)| a[:dist] <=> b[:dist] }
+
+      expanded[node] = to_expand.delete(node)
+      expanded_list << {node: node}.merge(expanded[node])
+      break if node == to
+
+      node.links(exclude_nodes: expanded.keys).each do |link|
+        dist = values[:dist] + link.dist
+
+        if dist < to_expand[link.node_b][:dist]
+          to_expand[link.node_b][:dist] = dist
+          to_expand[link.node_b][:via] = node
+          to_expand[link.node_b][:link] = link
+        end
+      end
+    end
+
+    expanded_list
+  end
+
+  def astar_dist from:, to:
+    to_expand = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, dist_to: key.dist(to), via: nil, link: nil}}
+    to_expand[from][:dist] = 0
+
+    expanded = {}
+
+    loop do
+      node, values = to_expand.min{ |(_,a), (_,b)| a[:dist] + a[:dist_to] <=> b[:dist] + b[:dist_to] }
+
+      if node == to
+        expanded[node] = to_expand.delete(node)
+        break
+      end
+
+      node.links(exclude_nodes: expanded.keys).each do |link|
+        dist = values[:dist] + link.dist
+
+        if dist < to_expand[link.node_b][:dist]
+          to_expand[link.node_b][:dist] = dist
+          to_expand[link.node_b][:via] = node
+          to_expand[link.node_b][:link] = link
+        end
+      end
+
+      expanded[node] = to_expand.delete(node)
+    end
+
+    path = [to]
+
+    loop do
+      break unless expanded[path.first][:via]
+      path.insert(0, expanded[path.first][:via])
+    end
+
+    path.map{ |e| {node: e}.merge(expanded[e]) }
+  end
+
+
+  def astar_step_by_step from:, to:
+    to_expand = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, dist_to: key.dist(to), via: nil, link: nil}}
+    to_expand[from][:dist] = 0
+
+    expanded = {}
+    expanded_list = []
+
+    loop do
+      node, values = to_expand.min{ |(_,a), (_,b)| a[:dist] + a[:dist_to] <=> b[:dist] + b[:dist_to] }
+
+      expanded[node] = to_expand.delete(node)
+      expanded_list << {node: node}.merge(expanded[node])
+      break if node == to
+
+      node.links(exclude_nodes: expanded.keys).each do |link|
+        dist = values[:dist] + link.dist
+
+        if dist < to_expand[link.node_b][:dist]
+          to_expand[link.node_b][:dist] = dist
+          to_expand[link.node_b][:via] = node
+          to_expand[link.node_b][:link] = link
+        end
+      end
+    end
+
+    expanded_list
+  end
+
+  def astar_time from:, to:
+    to_expand = Hash.new{ |hash, key| hash[key] = {time: Float::INFINITY, dist_to: key.dist(to), via: nil, link: nil}}
+    to_expand[from][:time] = 0
+
+    expanded = {}
+
+    loop do
+      node, values = to_expand.min{ |(_,a), (_,b)| a[:time] + a[:dist_to] <=> b[:time] + b[:dist_to] }
+
+      if node == to
+        expanded[node] = to_expand.delete(node)
+        break
+      end
+
+      node.links(exclude_nodes: expanded.keys).each do |link|
+        time = values[:time] + link.time(corres: values[:link])
+
+        if time < to_expand[link.node_b][:time]
+          to_expand[link.node_b][:time] = time
+          to_expand[link.node_b][:via] = node
+          to_expand[link.node_b][:link] = link
+        end
+      end
+
+      expanded[node] = to_expand.delete(node)
+    end
+
+    path = [to]
+
+    loop do
+      break unless expanded[path.first][:via]
+      path.insert(0, expanded[path.first][:via])
+    end
+
+    path.map{ |e| {node: e}.merge(expanded[e]) }
+  end
 
   extend self
 end
