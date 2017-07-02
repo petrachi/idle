@@ -1,9 +1,9 @@
-require 'quaternion'
+require_relative 'quaternion'
 
 module ComplexEngine
-  require 'complex_engine/point'
-  require 'complex_engine/polygon'
-  require 'complex_engine/polyhedron'
+  require_relative 'complex_engine/point'
+  require_relative 'complex_engine/polygon'
+  require_relative 'complex_engine/polyhedron'
 
   # Demos
   def ruby_2d

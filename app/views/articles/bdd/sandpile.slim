@@ -58,7 +58,7 @@ p Oui, le renversement.
 
 p Si on prend deux nombres tas de sable, une opération classique que l'on peut faire, c'est de les additionner entre eux. Dans ce cas, ça se passe exactement comme une addition de deux matrices, c'est-à-dire qu'on va additionner les deux nombres case par case. Prenons un exemple #{":"}
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-add-1', sandpile: Sandpile[[1,0,0], [0,2,0], [0,0,0]]
   p +
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-add-2', sandpile: Sandpile[[0,0,0], [0,2,0], [0,0,0]]
@@ -89,7 +89,7 @@ p Je te laisse faire le calcul ;)
 h4 Ami Lecteur
 p Heu ... Attends ! deux et deux quatre, je retiens un ... et voilà !
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-calc-1', sandpile: Sandpile[[1,0,0], [0,2,0], [0,0,0]], print_numbers: false
   p +
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-calc-2', sandpile: Sandpile[[0,0,0], [0,2,0], [0,0,0]], print_numbers: false
@@ -210,7 +210,7 @@ p En clair, à chaque opération de renversement, chaque case qui possède quatr
 h4 Ami Lecteur
 p D'accord. Donc si je me corrige en prenant en compte l'opération de renversement #{":"}
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-corr-1', sandpile: Sandpile[[1,0,0], [0,2,0], [0,0,0]], print_numbers: false
   p +
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-corr-2', sandpile: Sandpile[[0,0,0], [0,2,0], [0,0,0]], print_numbers: false
@@ -252,7 +252,7 @@ p Et bien il existe une alternative. Plutôt que de travailler sur l'ensemble de
 
 p Par exemple #{":"}
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-1', sandpile: Sandpile.flat(3){3}
   p +
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-2', sandpile: Sandpile[[0,1,0], [2,2,1], [0,0,3]]
@@ -278,7 +278,7 @@ p Et bien il y a une formule, tout simplement. On va prendre une grille sur laqu
 h4 Ami Lecteur
 p Alors attends, laisse-moi vérifier. Si je prends n'importe quel nombre de l'ensemble des <i>all-3s</i> et que je l'additionne avec ce nombre-là, le résultat devrait être identique ? Donc par exemple #{":"}
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-add-1', sandpile: Sandpile[[3,1,3], [2,1,2], [3,1,2]], print_numbers: false
   p +
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-add-2', sandpile: Sandpile.identity(3), print_numbers: false
@@ -287,7 +287,7 @@ div class="fluid"
 
 p OK. Ça à l'air de marcher. Donc ensuite je peux faire #{":"}
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-inv-1', sandpile: Sandpile[[3,1,3], [2,1,2], [3,1,2]], print_numbers: false
   p +
 
@@ -324,7 +324,7 @@ p Oui ! Et dans ton cas, la solution c'est #{":"}
 h4 Ami Lecteur
 p OK. Je vérifie tout de même, par précaution #{":"}
 
-div class="fluid"
+div class='fluid'
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-ver-1', sandpile: Sandpile[[3,1,3], [2,1,2], [3,1,2]]
   p +
   = render 'articles/bdd/sandpile/svg_sandpile', svg_id: '3x3-all3s-ver-2', sandpile: Sandpile[[3,1,3], [0,3,1], [3,2,0]]
@@ -353,7 +353,7 @@ p Heu attends, ça commence à devenir la pagaille là ! On n'y voit plus rien !
 h4 Auteur
 p Tu as raison. On va devoir changer de représentation. Ce que je te propose, c'est de faire une image de pixels blancs, et chaque pixels sera plus ou moins transparent en fonction du nombre de grains sur la case #{":"} zéro grain ce sera totalement transparent, et trois grains, pas du tout transparent. Comme ça #{":"}
 
-div class="fluid"
+div class='fluid'
   svg id='sandpile-to-png' viewBox='-20 -10 40 20'
     - complex_sandpile = Sandpile.identity(21).to_complex(viewbox: 40)
 

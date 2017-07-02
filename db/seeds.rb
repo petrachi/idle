@@ -84,3 +84,10 @@ Article.find_or_create_by(tag: :fraternite) do |a|
   a.published = true
   a.published_at = "24-04-2017"
 end
+
+Article.find_or_create_by(tag: :ratp) do |a|
+  a.title = "RATP"
+  a.group = :bdd
+  a.published = false
+  # a.published_at = "29-04-2017"
+end

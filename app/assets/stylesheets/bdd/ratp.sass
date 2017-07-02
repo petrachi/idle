@@ -1,0 +1,190 @@
+#ratp
+  svg
+    &[id^=graph]
+      circle
+        fill: yellowgreen
+        stroke: #111
+
+        &.green
+          stroke: dodgerblue
+          fill: #fbfbfb
+
+        &.blue
+          stroke: dodgerblue
+
+        &.red
+          stroke: firebrick
+
+      line
+        stroke: #111
+
+        &.blue
+          stroke: dodgerblue
+
+        &.red
+          stroke: firebrick
+
+      text
+        &.blue
+          fill: dodgerblue
+
+        &.red
+          fill: firebrick
+
+        &.stroke
+          text-decoration: line-through
+
+      #coordinates,
+      g.dist
+        text
+          font-size: 0.5em
+
+      g.node-dist
+        @extend g.dist
+
+        text
+          font-weight: 900
+
+
+    &[id^=ratp]
+      text
+        font-size: .5em
+        font-weight: 900
+
+      line
+        stroke-width: .15em
+
+      .start-end
+        circle
+          fill: transparent
+          stroke-width: 2px
+
+          &:first-of-type
+            stroke: dodgerblue
+
+          &:last-of-type
+            stroke: firebrick
+
+        text
+          font-size: 1em
+
+          &:first-of-type
+            fill: dodgerblue
+
+          &:last-of-type
+            fill: firebrick
+
+
+    &#ratp-djikstra-step-by-step,
+    &#ratp-astar-step-by-step
+      > circle,
+      > line,
+      > text
+        opacity: 0
+        transform: scale(2.5)
+        transform-origin: center
+
+        transition: all 0s ease
+        transition-delay: 0s
+
+
+      &.play
+        > circle,
+        > line,
+        > text
+          opacity: 1
+          transform: scale(1)
+          transition: opacity .1s ease, transform .2s ease
+
+          @for $i from 1 through 285
+            &:nth-of-type(#{$i})
+              transition-delay: #{$i * 0.1}s
+
+    &#ratp-interactive
+      cursor: default
+
+      .start-end
+        circle
+          cursor: pointer
+
+      > text
+        visibility: hidden
+        opacity: 0
+        transition: opacity .5s ease
+
+
+      > circle
+        cursor: pointer
+        //opacity: .25
+
+        transform: scale(1)
+        transform-origin: center
+
+        transition: opacity .5s ease, transform .5s ease
+
+        &:hover
+          opacity: 1
+          transform: scale(1.25)
+
+          & + text
+            font-size: 1em
+            visibility: visible
+            opacity: 1
+
+        &.from,
+        &.to
+          opacity: 1
+
+      > line
+        //opacity: .125
+
+        transform: scale(1)
+        transform-origin: center
+
+        transition: opacity .5s ease, transform .5s ease
+
+      &.active
+        > circle
+          opacity: .25
+
+        > line
+          opacity: .125
+
+        > text,
+        > circle,
+        > line
+          &.path
+            opacity: 1
+            visibility: visible
+
+
+    &#click-map
+      background-image: url(http://www.plandeparis.info/metro-paris/metro-paris.gif)
+      background-size: 100%
+
+    &#click-result
+      text
+        font-weight: 900
+
+      circle
+        fill: #FFCD00
+
+      line
+        stroke: #FFCD00
+        stroke-width: .15em
+
+
+
+  $lines_colors: ('1': #FFCD00, '2': #003CA6, '3': #837902, '3bis': #6EC4E8, '4': #CF009E, '5': #FF7E2E, '6': #6ECA97, '7': #FA9ABA, '7bis': #6ECA97, '8': #E19BDF, '9': #B6BD00, '10': #C9910D, '11': #704B1C, '12': #007852, '13': #6EC4E8, '14': #62259D)
+
+  @each $line, $color in $lines_colors
+    .l#{$line}
+      display: inline-block
+      padding: 0 .25em
+      border-radius: 50%
+
+      font-size: .9em
+      font-weight: bold
+
+      color: #fbfbfb
+      background-color: $color
