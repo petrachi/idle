@@ -53,7 +53,7 @@ class Sandpile
 
   def wobble
     to_topple.each do |index|
-      toppling_factor = list[index] / 4
+      toppling_factor = (list[index] / 4.0).floor
 
       adjency_list[index].each do |neighbour_index|
         list[neighbour_index] += toppling_factor
