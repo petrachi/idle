@@ -37,7 +37,7 @@
       #coordinates,
       g.dist
         text
-          font-size: 0.5em
+          font-size: .5em
 
       g.node-dist
         @extend g.dist
@@ -45,6 +45,18 @@
         text
           font-weight: 900
 
+      g.to-expand
+        text:first-child
+          font-size: .5em
+
+        text
+          @extend .blue
+
+        circle
+          &.green
+            @extend .green
+
+          @extend .blue
 
     &[id^=ratp]
       text

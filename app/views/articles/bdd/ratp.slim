@@ -1,13 +1,10 @@
-
-p Hey, ami lecteur, tu es là ! Ça tombe bien puisque je voulais justement te parler d'un truc #{":"} ce que j'appelle les <i>algorimthmes GPS</i>, des algorithmes qui servent à trouver le plus court chemin entre deux points.
-
-p Alors prépare-toi, car aujourd'hui nous allons parler de deux de ces algorithmes, l'algorithme <i>Djikstra</i> et son évolution <i>A*</i> !
+p Bonjour ami lecteur. Dis-moi, l'algorithme de <i>Djikstra</i> ça te parle ? Non ? Tant mieux ! Bah oui, puisque c'est de ça qu'on va parler aujourd'hui !
 
 h3 La Carte
 
-p Bien entendu, avant de pouvoir calculer le plus court chemin entre un point <i>A</i> et un point <i>B</i>, il faut déjà commencer par avoir une carte avec toutes les routes et tous les points qui peuvent potentiellement servir de point de départ ou d'arrivée. Cette carte, nous allons la représenter sous la forme d'un graphe, afin qu'elle soit facilement manipulable par l'ordinateur.
+p Forcément, on te dit "algorithme", et toi tu te demandes à quoi il sert cet algorithme. Tout simplement à trouver le plus court chemin entre deux points sur une carte. Comme l'itinéraire sur un GPS quoi !
 
-p Un graphe, c'est très simple. On définit d'abord une série de points que l'on va ensuite relier entre eux #{":"}
+p Mais avant de se lancer dans des calculs compliqués, il va d'abord falloir établir la base #{":"} la carte. Pour ça, on va utiliser un graphe, une collection de points reliés (ou pas) entre eux, par exemple #{":"}
 
 svg id='graph-simple' viewBox='0 50 400 140'
   line x1='100' x2='80' y1='160' y2='80'
@@ -25,11 +22,11 @@ svg id='graph-simple' viewBox='0 50 400 140'
   text x='154' y='105.5' C
   text x='245.5' y='85.5' D
 
-p On peut faire des graphes pour toute sortes de choses, qui est ami avec qui sur tel réseau social, quelle entreprise travaille avec quelle autre, etc. Dans notre cas, le graphe nous servira à représenter le réseau des métros de la ville de Paris, sur lequel nous irons essayer nos algorithmes de recherche du plus court chemin.
+p En mathématiques, en informatique, et même en général, les graphes ont tout un tas d'usages. Par exemple la liste de nos amis facebook est représentée sous forme de graphe, ou la liste des entrerpises et de leurs filliales impliquées dans le fameux scandale des <i>Panama Papers</i>, ça aussi c'est un graphe.
 
-p Mais pour que notre graphe fonctionne, il va nous falloir donner quelques informations supplémentaires. D'abord la position de chaque point, qui nous sera indispensable pour calculer la distance entre deux points. Nous indiquerons aussi la direction de chacun des liens entre les points, afin de représenter correctement le fait que certaines lignes de métro sont à sens unique, comme la ligne 7bis qui fait une boucle.
+p Nous, comme exemple, on va choisir quelque chose de plus "lisse", le réseau du métro parisien. Chaque point du graphe représentera une station de métro, et les liens entre les points représenterons les différentes lignes.
 
-p Comme ceci #{":"}
+p À partir de cette base, on va pouvoir ajouter plus d'informations sur les éléments de notre graphe #{":"} la position géographique de chaque point (pour calculer la distance entre deux points), et la direction des liens entre les points (parce qu'il y a quelques lignes bizzaroïdes à sens uniques, hé oui).
 
 svg id='graph-w/data' viewBox='0 50 400 140'
   marker id='markerArrow' markerWidth='8' markerHeight='8' refX='4' refY='4' orient='auto'
@@ -61,7 +58,7 @@ svg id='graph-w/data' viewBox='0 50 400 140'
     text x='265.5' y='77' x: 250
     text x='265.5' y='85.5' y: 80
 
-p Côté code, ça n'est pas bien compliqué non plus. On utilisera trois classes, #{ coderay "Graph", inline: true }, #{ coderay "GraphNode", inline: true } et #{ coderay "GraphLink", inline: true }
+p Bon, et tout ça converti en code, et bien c'est finalement assez simple #{":"} ça tiens en trois #{ coderay "class", inline: true }es !
 
 = coderay do
   | class Graph
@@ -101,19 +98,15 @@ p Côté code, ça n'est pas bien compliqué non plus. On utilisera trois classe
       end
     end
 
-
-
 h3 Open Data
 
-p Tu l'auras compris cher lecteur, notre premier objectif sera de réaliser le graphe correspondant à la carte des métros parisiens. Et avec les 302 stations que comporte le réseau, cela risque d'être un travail fastidieux, long et pénible ... Mais ne t'inquiètes pas, j'ai une solution !
+p Bon, maintenant il ne reste plus qu'à mettre en place notre graphe du métro parisien. 302 stations, 16 lignes (en comptant les <i>bis</i>). Ça risque d'être long et pénible ! Mais heureusement, tu m'as ! Et j'ai la solution !
 
-p Fort heureusement pour nous, la RAPT, le gestionnaire du métro parisien, met à disposition sur son site internet tout un tas d'informations intéressantes sur le résau #{":"} liste des stations, nombre de passagers, liste des correspondances, lattitude et longitude, etc.
+p Il se trouve que la RAPT (le gestionnaire du métro parisien) met à disposition sur son site internet tout un tas d'informations que nous allons pouvoir utiliser pour créer notre graphe #{":"} la liste des stations, leurs fréquentation, correspondances, etc.
 
-p Seulement, les informations qui nous intéressent principalement, la lattitude et la longitude, ne sont pas liées aux stations de métro elles-mêmes, mais aux points d'accès aux stations, c'est-à-dire les sorties de chaque stations. Bien entendu, une station peut posséder plusieurs sorties, mais il nous suffira dans ce cas de faire la moyenne des valeurs, et même si certaines sorties sont parfois assez éloignées de la station, cela ne devrait pas avoir trop d'impact au final.
+p Le seul hic (parce qu'il y a un hic), c'est que l'information principale qui nous intéresse, à savoir la position géographique des station (lattitude et longitude) n'est pas lié directement aux stations de métro , mais aux différents points d'accès aux stations. Et ce qui rends le tout encore plus compliqué, c'est qu'il n'y a pas de lien entre les points d'accès et les stations en elles-mêmes.
 
-p Non, le véritable problème, c'est qu'il n'y a aucune information qui nous permette de savoir quelle sortie correspond à quelle station. Notre meilleure chance est de nous baser sur une correspondance entre le nom de la station et le nom du point d'accès. Bien sûr, cette méthode n'est pas parfaite, mais ça vaut le coup d'essayer !
-
-p Pour commencer, limitons-nous au tracé de la ligne 1 #{":"}
+p Alors il va falloir y mettre un tout petit peu d'huile de coude tout de même, et en faisant avec une comparaison entre les noms des stations et ceux des points d'accès, on devrait arriver à quelque chose de pas trop mal. Allez, on y croit à mort, et on fait le test pour toutes les stations de la ligne <span class='l1'>1</span> #{":"}
 
 svg id='ratp-l1' viewBox='0 0 1000 1000'
   defs
@@ -130,14 +123,11 @@ svg id='ratp-l1' viewBox='0 0 1000 1000'
 
   = RATP.graph_to_svg(RATP::OpenDataPreprocessor::L1_GRAPH).html_safe
 
-
-p Mince ! Il y a comme un problème ... il semble que cette méthode ne fonctionnera pas. il nous faut une autre solution.
+p Aïe ... Je crois qu'on y a un peu trop cru. (Pour tous ceux qui ne connaissent pas par coeur les lignes de métro parisiennes, la ligne <span class='l1'>1</span> traverse la ville sur un axe presque droit est - ouest.) Peu importe, l'erreur est le meilleur maître !
 
 h3 SVG Interactif
 
-p Nous avons déjà perdu assez de temps, et après cet echec, je ne veux plus prendre de risques. Retour à la solution de base, fastidieuse, longue et pénible.
-
-p L'idée est tellement bête qu'un enfant de huit ans aurait pu l'avoir #{":"} on va mettre la carte officielle du métro parisien en image de fond d'un élément SVG et noter à la main la position de chacune des stations. Cela me prendra presque une journée de travail et si toi aussi, ami lecteur, tu veux t'essayer à cette tâche, je t'ai mis une carte interactive juste pour ton plaisir #{":"}
+p Retour à la case départ et à la solution bête et méchante #{":"} on pose une carte officielle du métro parisien, et à l'aide d'un petit bout de javascript, on note à la main la position de chaque station. D'ailleurs si tu veux m'aider pour ce fastidieux travail, je t'ai fait une petite carte interactive pour que tu puisse participer (lis la notice avec attention avant utilisation) #{":"}
 
 div class='fluid'
   div id='click-container'
@@ -199,13 +189,13 @@ div class='fluid'
       });
     }).call(this)
 
-p class="align-center" <i><small>(essaye de relier toutes les stations de la ligne 1 en cliquant dessus sur la carte à gauche,<br/> et vois le résultat sur le dessin à gauche)</small></i>
+p class="align-center" <i><small>(essaye de relier toutes les stations de la ligne 1 (en jaune) en cliquant sur chaque station<br/> de la ligne sur la carte officielle à gauche, et vois le résultat apparaitre au fur et à mesure sur<br/> le dessin à droite)</small></i>
 
 h3 Djikstra
 
-p Bien, maintenant que notre graphe est fait, on peut enfin attaquer le vif du sujet #{":"} les algorithmes de recherche du plus court chemin, et pour commencer, je vais te parler de l'algorithme de Djikstra.
+p Bien, le temps que tu finisse notre graphe du métro parisien, je vais en profiter pour t'expliquer (enfin) le fonctionnement de l'algorithme de Djikstra.
 
-p Le principe de l'algorithme de Djikstra est de parcourir petit à petit tous les noeuds du graphe en enregistrant à chaque étape la distance parcourue pour atteindre chaque noeud intermédiaire. Quand on tombe finalement sur l'arrivée, l'algorithme peut remonter la trace de tous les noeuds intermédiaires jusqu'au point de départ, en choississant toujours les noeuds les plus rapides.
+p Le principe est de parcourir petit à petit tous les points (les noeuds), du graphe en enregistrant à chaque étape la distance parcourue (qu'on appellera le <i>score</i> d'un noeud). Quand arrive finalement au noeud d'arrivée, l'algorithme peut remonter la trace de tous les noeuds intermédiaires parcourus jusqu'au point de départ, en choississant à chaque fois les noeuds avec le score le plus faible.
 
 p Prenons un exemple #{":"}
 
@@ -246,9 +236,9 @@ svg id='graph-example' viewBox='0 0 400 200'
   text x='75.5' y='185.5' class='blue' Départ
   text x='265.5' y='85.5' class='red' Arrivée
 
-p Tu l'auras compris cher lecteur, le but est de trouver le plus court chemin entre le point #{ coderay 'A', inline: true } et le point #{ coderay 'D', inline: true }. Tu peux voir aussi que j'ai ajouté les distances directement sur les arcs du graphe. Ces distances ne représentent pas réalité géographique du graphe, mais on peut imaginer, dans le contexte d'une carte routière par exemple, certaines routes plus rapides que d'autres, comme une autoroute comparée à une route de ville.
+p Tu l'auras compris cher lecteur, le but ici est de trouver chemin le plus court entre le point #{ coderay 'A', inline: true } et le point #{ coderay 'D', inline: true }. Tu peux voir aussi que j'ai ajouté les distances directement sur les liens, les arcs du graphe (et qui ici ne représentent pas les distances géographiques entre les noeuds).
 
-p Maintenant, voyons ce que va faire l'algorithme. Pour commencer, on va ajouter sur chaque noeud du graphe une information de distance, ça sera la distance minimale qu'il faut parcourir pour arriver à ce noeud du graphe. Pour l'instant, comme nous n'avons encore rien calculé, nous allons mettre toutes les distances à une valeur infinie, sauf pour le noeud de départ, que nous mettrons à zéro.
+p Au début, chaque noeud à un score infini, à l'exception du noeud de départ qui lui à un score nul.
 
 svg id='graph-example-dist' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80'
@@ -295,7 +285,7 @@ svg id='graph-example-dist' viewBox='0 0 400 200'
     text x='162' y='28' ∞
     text x='212' y='118' ∞
 
-p Ensuite, nous allons explorer tous les noeuds directement liés au noeud #{ coderay 'A', inline: true }, et mettre à jour leurs distances #{":"}
+p La première étape est de calculer le score de tous les noeuds directement liés au noeud #{ coderay 'A', inline: true } #{":"}
 
 svg id='graph-example-node-a' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80' class='blue'
@@ -342,7 +332,7 @@ svg id='graph-example-node-a' viewBox='0 0 400 200'
     text x='162' y='28' ∞
     text x='212' y='118' ∞
 
-p Pour continuer, nous allons ajouter les noeuds #{ coderay 'B', inline: true } et #{ coderay 'C', inline: true },  que nous venons d'explorer, dans une pile "à explorer". Dans cette pile, les noeuds sont ordonnés en fonction de leur information de distance. Pour continuer, il suffit de prendre le premier noeud de la pile (celui qui possède la plus petite distance, ici le noeud #{ coderay 'B', inline: true }), et de recommencer l'opération d'exploration à partir de ce noeud.
+p Ensuite, nous allons ajouter les deux noeuds pour lesquels nous venons de calculer le score dans une liste "à explorer". Puis il ne reste qu'à recommencer la première étape avec le noeud dans la liste qui possède le plus petit score, ici, le noeud #{ coderay 'B', inline: true } #{":"}
 
 svg id='graph-example-node-b' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80' class='blue'
@@ -390,9 +380,16 @@ svg id='graph-example-node-b' viewBox='0 0 400 200'
     text x='135' y='26' class='blue' 1 + 1 #{"="} 2 via B
     text x='212' y='118' ∞
 
-p Comme tu peux le voir, ami lecteur, la valeur de distance du noeud #{ coderay 'C', inline: true } est passée de <i>4</i> à <i>3</i>. Cela pour refléter le fait qu'il est plus court de rejoindre #{ coderay 'C', inline: true } en faisant un détour par #{ coderay 'B', inline: true } que d'y aller directement.
+  g class='to-expand'
+    text x='335' y='26' À explorer
+    circle r='10' cx='355' cy='40' class='green'
+    text x='350.5' y='45.5' B
+    circle r='10' cx='355' cy='65'
+    text x='349' y='70.5' C
 
-p Le noeud #{ coderay 'E', inline: true } est ajouté à la pile des noeuds "à explorer", et c'est d'ailleurs lui que nous allons explorer ensuite.
+p Tu as vu ami lecteur ? Le score du noeud #{ coderay 'C', inline: true } est passé de <i>4</i> à <i>3</i>. C'est parce qu'il est en fait plus court de passer par le noeud #{ coderay 'B', inline: true } pour rejoindre le noeud #{ coderay 'C', inline: true }, que d'y aller directement à partir de #{ coderay 'A', inline: true }.
+
+p Maintenant, c'est le noeud #{ coderay 'E', inline: true }, qui à été ajouté à la liste "à explorer" lors de l'étape précédente et qui possède le plus petit score dans cette liste, que nous allons explorer.
 
 svg id='graph-example-node-e' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80' class='blue'
@@ -439,9 +436,16 @@ svg id='graph-example-node-e' viewBox='0 0 400 200'
     text x='148' y='28' class='blue' 2 via B
     text x='212' y='118' ∞
 
-p Bien, nous avons un premier score pour le noeud #{ coderay 'D', inline: true }, notre arrivée ! Mais l'algorithme n'est pas encore terminé, car il n'est pas impossible que l'on trouve un chemin encore plus court grâce à un détour, comme c'est arrivé tout à l'heure pour le noeud #{ coderay 'C', inline: true }. On va donc continuer comme précédemment et ajouter le noeud #{ coderay 'D', inline: true } à la liste des noeuds "à explorer".
+  g class='to-expand'
+    text x='335' y='26' À explorer
+    circle r='10' cx='355' cy='40' class='green'
+    text x='350.5' y='45.5' E
+    circle r='10' cx='355' cy='65'
+    text x='349' y='70.5' C
 
-p Le prochain noeud à explorer est le noeud #{ coderay 'C', inline: true } #{":"}
+p Bien, nous avons maintenant le score du noeud #{ coderay 'D', inline: true }, notre arrivée ! Mais attention, ça n'est pas encore terminé. Et bien oui, il n'est pas impossible que l'on trouve un chemin encore plus court pour arriver au noeud #{ coderay 'D', inline: true }, comme c'est arrivé tout à l'heure pour le noeud #{ coderay 'C', inline: true }. L'algorithme sera terminé lorsque ça sera au tour du noeud #{ coderay 'D', inline: true } d'être exploré.
+
+p Pour l'instant, on va continuer comme avant à dépiler notre liste des noeuds à explorer, et maintenant, c'est au tour du noeud #{ coderay 'C', inline: true } #{":"}
 
 svg id='graph-example-node-c' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80' class='blue'
@@ -489,13 +493,22 @@ svg id='graph-example-node-c' viewBox='0 0 400 200'
     text x='148' y='28' class='blue' 2 via B
     text x='225' y='132.5' class='blue' 3 + 4 #{"="} 7 via C
 
-p Et effectivement, c'est plus court de passer par le noeud #{ coderay 'C', inline: true } que par le noeud #{ coderay 'E', inline: true }. Et si on regarde maintenant la pile "à explorer", le prochain noeud est le noeud #{ coderay 'D', inline: true }, notre arrivée. Cela signifie que nous ne trouverons plus de chemins plus courts que celui que nous avons déjà trouvé #{":"} l'algorithme est terminé !
+  g class='to-expand'
+    text x='335' y='26' À explorer
+    circle r='10' cx='355' cy='40' class='green'
+    text x='349' y='45.5' C
+    circle r='10' cx='355' cy='65'
+    text x='350.5' y='70.5' D
 
-p Pour récupérer le plus court chemin, il nous suffit de suivre la chaine des noeuds que nous avons parcourus #{":"} #{ coderay 'A -> B -> C -> D', inline: true }. C'est simple comme l'alaphabet !
+p Et regarde ami lecteur, nous avons bien fait d'attendre puisque le score du noeud #{ coderay 'D', inline: true } vient de diminuer (comme cet exemple est bien fait) !
+
+p Il y a maintenant dans la liste des noeuds à explorer les noeuds #{ coderay 'D', inline: true } et #{ coderay 'F', inline: true }, et comme c'est le noeud #{ coderay 'D', inline: true } qui a le plus petit score, c'est donc la fin de la phase d'exploration algorithme !
+
+p La dernière étape de l'algorithme est de parcourir à l'inverse la liste des noeuds que nous avons parcourus afin de récupérer le chemin le plus court #{":"} #{ coderay 'A -> B -> C -> D', inline: true }. C'est simple comme réciter l'alaphabet !
 
 h3 Pathfinder
 
-p Maintenant que tu as compris comment fonctionne l'algorithme de Djikstra, il est temps de traduire tout ça dans une forme que l'ordinateur pourra comprendre #{":"} oui, on va écrire du code !
+p Maintenant que tout est clair, on va pouvoir écrire le code correspondant et laisser l'ordinateur faire tous les calculs à notre place. Et zahou !
 
 = coderay do
   | to_expand = Hash.new{ |hash, key| hash[key] = {dist: Float::INFINITY, via: nil}}
@@ -503,11 +516,11 @@ p Maintenant que tu as compris comment fonctionne l'algorithme de Djikstra, il e
 
     expanded = {}
 
-p D'abord, on va créer le hash #{ coderay 'to_expand', inline: true }, qui nous servira à conserver la liste de tous les noeuds que nous n'avons pas encore explorés, dans lequel nous allons pour l'instant n'insérer qu'une seule valeur #{":"} le noeud de départ.
+p Pour commencer, on va créer un hash #{ coderay 'to_expand', inline: true } qui nous servira à sauvegarder la liste de tous les noeuds à explorer. Pour l'instant il n'y a qu'une seule valeur dans le hash, le noeud de départ.
 
-p Nous créons aussi un hash  #{ coderay 'expanded', inline: true }, dans lequel on mettra tous les noeuds qui ont été explorés, et dont nous n'avons plus à nous préoccupper.
+p Nous allons aussi créer aussi un hash #{ coderay 'expanded', inline: true } dans lequel on mettra les noeuds explorés.
 
-p La prochaine étape sera de coder la boucle d'exploration d'un noeud #{":"}
+p Ensuite, nous allons créer une boucle qui servira à explorer les diférents noeuds #{":"}
 
 = coderay do
   | loop do
@@ -530,11 +543,39 @@ p La prochaine étape sera de coder la boucle d'exploration d'un noeud #{":"}
       expanded[node] = to_expand.delete(node)
     end
 
-p D'abord, on sélectionne le noeud à explorer en priorité dans le hash #{ coderay 'to_expand', inline: true }. Puis, pour chacuns des arc partant de ce noeud (à l'exception des arc qui ménent à des noeuds déjà explorés), nous mettons à jour les noeuds correspondant (seulement si nécéssaire). Tu peux remarquer, cher lecteur, que cette dernière action va en même temps ajouter le noeud au hash #{ coderay 'to_expand', inline: true }, comme nous avions défini une valeur par défaut sur celui-ci.
+p On commence par sélectionner le noeud à explorer dans le hash #{ coderay 'to_expand', inline: true }.
 
-p Finalement, nous allons transférer le noeud exploré du hash #{ coderay 'to_expand', inline: true } au hash #{ coderay 'expanded', inline: true }. La boucle se termine lorsque le noeud à explorer correspond au noeud d'arrivée.
+= coderay do
+  | node, values = to_expand.min{ |(_,a), (_,b)| a[:dist] <=> b[:dist] }
 
-p Il faut maintenant remonter la liste des noeuds explorés pour retrouver le chemin parcouru #{":"}
+p Puis nous allons mettre à jour les scores des noeuds directements liés au noeud en cours d'exploration (à l'exception des noeuds déjà explorés).
+
+= coderay do
+  | node.links(exclude_nodes: expanded.keys).each do |link|
+      dist = values[:dist] + link.dist
+
+      if dist < to_expand[link.node_b][:dist]
+        to_expand[link.node_b][:dist] = dist
+        to_expand[link.node_b][:via] = node
+      end
+    end
+
+p Tu peux remarquer, cher lecteur, que grâce à la veleur par défault que nous avons mise sur le hash #{ coderay 'to_expand', inline: true }, le noeud comparé est ajouté au hash lors de l'évaluation de #{ coderay 'dist < to_expand[link.node_b][:dist]', inline: true }.
+
+p Finalement, nous pouvons transférer le noeud exploré vers le hash #{ coderay 'expanded', inline: true }.
+
+= coderay do
+  | expanded[node] = to_expand.delete(node)
+
+p La boucle se termine lorsque le noeud à explorer correspond au noeud d'arrivée.
+
+= coderay do
+  | if node == to
+      expanded[node] = to_expand.delete(node)
+      break
+    end
+
+p Enfin, il reste à remonter la liste des noeuds explorés pour retrouver le chemin le plus court #{":"}
 
 = coderay do
   | path = [to]
@@ -546,21 +587,19 @@ p Il faut maintenant remonter la liste des noeuds explorés pour retrouver le ch
 
     path.map{ |e| {node: e}.merge(expanded[e]) }
 
-p Dans un tableau #{ coderay 'path', inline: true }, nous insérons petit à petit tous les noeuds en fonction de l'information #{ coderay ':via', inline: true }, jusqu'à ce que celle-ci soit vide, ce qui signifie que nous somme remontés au noeud de départ.
+p Petit à petit, nous insérons dans le tableau #{ coderay 'path', inline: true } les différents noeuds en fonctions de l'information #{ coderay ':via', inline: true } calculée lors de la phase d'exploration. Quand cette information est vide, cela veut dire que nous sommes remontés au point de départ.
 
-p Et si on teste cet algorithme sur la carte des métros parisiens que nous avons fait plus tôt, et pour un trajet que je connais bien, de l'arrêt <i>Mairie de Clichy</i> dans le nord jusqu'à l'arrêt <i>Villejuif - Léo Lagrange</i> dans le sud. Et voilà le résultat #{":"}
+p Il est temps de faire un test en conditions réelles. Si on prends la carte du métro que tu as enfin terminée et qu'on y teste un trajet que je connais bien (de <i>Mairie de Clichy</i> dans le nord jusqu'à <i>Villejuif - Léo Lagrange</i> au sud), le résultat est saisissant #{":"}
 
 svg id='ratp-djikstra-dist' viewBox='0 0 1000 1000'
   use xlink:href='#ratp-background'
   = RATP.path_to_svg('djikstra_dist', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE').html_safe
 
-h3 Amélioration
+p C'est un bon début ! Cela dit, il y a au moins une chose ce que ne montre pas cette illustration #{":"} un problème dont il va falloir s'occuper avant d'aller plus loin.
 
-p C'est un bon début ... mais avant d'aller plus loin, il faut d'abord que l'on s'occupe d'un important problème d'optimisation.
+h3 Level UP
 
-p En tant qu'être-humain, si je cherchais la route à prendre pour faire un Paris-Toulouse, je ne vais pas regarder du côté de Lille, du moins, pas dans un premier temps, car je me doutes bien que ça ferait faire un gros détour à priori pas très efficace. Par contre, je vais plutôt commencer à regarder les routes qui se dirigent dans la direction générale de Toulouse, là où j'ai le plus de chance de trouver le meilleur chemin.
-
-p Et c'est le problème de l'algorithme de Djikstra, dont on peut se rendre compte clairement en affichant étape par étape chaque noeud exploré par l'algorithme #{":"}
+p Si on affiche étape par étape les noeuds explorés par l'algorithme, le problème devient évident #{":"}
 
 div id='demo-djikstra-step-by-step' class='triggered-animation'
   svg id='ratp-djikstra-step-by-step' viewBox='0 0 1000 1000'
@@ -604,7 +643,9 @@ div id='demo-djikstra-step-by-step' class='triggered-animation'
         });
       }).call(this)
 
-p Pour cet exemple, l'algotithme de Djikstra va explorer 285 noeuds (sur 306) avant de tomber sur l'arrivée. Mais il est possible de faire mieux #{":"} je te présente, cher lecteur, l'algorithme A* !
+p L'algorithme à exploré presque tous les noeuds du graphe (285 sur 306 noeuds) ! Il n'a aucune notion de direction ! Pour faire une analogie limite osée, c'est comme si toi, tu regardais une carte routière de la Normandie pour chercher ta route vers Montpellier ! Ça serait plutôt ridicule, tu ne trouves pas ?
+
+p Heureusement, j'ai une solution pour toi #{":"} A* (prononcer 'a-star', ou 'a-étoile', au choix) !
 
 = coderay do
   | def a_star from:, to:
@@ -644,7 +685,9 @@ p Pour cet exemple, l'algotithme de Djikstra va explorer 285 noeuds (sur 306) av
       path.map{ |e| {node: e}.merge(expanded[e]) }
     end
 
-p L'algorithme A* ressemble beaucoup à celui de Djikstra. La seule différence réside dans la liste de priorité des noeuds "à explorer". Plutôt que de simplement prendre le noeud le plus proche (celui avec le plus petit score), on calcule pour chaque noeud du graphe sa distance géographique avec le point d'arrivée, et cette valeur est prise en compte lors du choix du prochain noeud à explorer.
+p L'algorithme A* ressemble beaucoup à celui de Djikstra, à une différence près #{":"} dans la liste des noeuds "à explorer", plutôt que de choisir simplement le noeud avec le plus petit score, A* va également calculer pour chaque noeud sa distance géographique avec le noeud d'arrivée, et va intégrer cette distance pour la sélection du prochain noeud à explorer.
+
+p Si nous reprenons l'exemple du début #{":"}
 
 svg id='graph-djikstra-node-b' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80' class='blue'
@@ -670,16 +713,6 @@ svg id='graph-djikstra-node-b' viewBox='0 0 400 200'
   text x='125.5' y='45.5' class='blue' E
   text x='205.5' y='135.5' F
 
-  g class='dist'
-    text x='80' y='120' 1
-    text x='135' y='135' 4
-    text x='120' y='85' 2
-    text x='200' y='85' 2
-    text x='110' y='65' 1
-    text x='195' y='55' 4
-    text x='175' y='125' 4
-    text x='230' y='115' 3
-
   text x='75.5' y='185.5' class='blue' Départ
   text x='265.5' y='85.5' class='red' Arrivée
 
@@ -691,7 +724,14 @@ svg id='graph-djikstra-node-b' viewBox='0 0 400 200'
     text x='118' y='26' class='blue' 2 via B
     text x='212' y='118' ∞
 
-p Sur cet exemple, nous venons d'explorer le noeud #{ coderay 'B', inline: true }. Dans la liste des noeuds à explorer, nous avons le choix entre les noeuds #{ coderay 'C', inline: true } et #{ coderay 'E', inline: true }. Si on se base uniquement sur les scores des noeuds, comme le fait l'algorithme de Djikstra, on devrait choisir le noeud #{ coderay 'E', inline: true }, mais si l'on ajoute en plus la distance géographique des noeuds par rapport au noed d'arrivée, alors, le prochain noeud à explorer sera le noeud #{ coderay 'C', inline: true }. C'est ce que fait l'algorithme A*.
+  g class='to-expand'
+    text x='335' y='26' À explorer
+    circle r='10' cx='355' cy='40'
+    text x='350.5' y='45.5' E
+    circle r='10' cx='355' cy='65'
+    text x='349' y='70.5' C
+
+p Nous venons d'explorer le noeud #{ coderay 'B', inline: true } et dans la liste des noeuds à explorer, nous avons le choix entre les noeuds #{ coderay 'C', inline: true } et #{ coderay 'E', inline: true }. L'algorithme de Djikstra aurait sélectionné le noeud #{ coderay 'E', inline: true }, mais en ajoutant la distance par rapport au noeud l'arrivée, alors le prochain noeud à explorer est le noeud #{ coderay 'C', inline: true }. C'est ce que fait l'algorithme A*.
 
 svg id='graph-astar-node-b' viewBox='0 0 400 200'
   line x1='100' x2='80' y1='160' y2='80' class='blue'
@@ -717,16 +757,6 @@ svg id='graph-astar-node-b' viewBox='0 0 400 200'
   text x='125.5' y='45.5' class='blue' E
   text x='205.5' y='135.5' F
 
-  g class='dist'
-    text x='80' y='120' 1
-    text x='135' y='135' 4
-    text x='120' y='85' 2
-    text x='200' y='85' 2
-    text x='110' y='65' 1
-    text x='195' y='55' 4
-    text x='175' y='125' 4
-    text x='230' y='115' 3
-
   text x='75.5' y='185.5' class='blue' Départ
   text x='265.5' y='85.5' class='red' Arrivée
 
@@ -748,7 +778,14 @@ svg id='graph-astar-node-b' viewBox='0 0 400 200'
     text x='212' y='108' score: ∞
     text x='212' y='118' total: ∞
 
-p Cette optimisation permet de réduire énormément le nombre de noeuds explorés, et elle sera d'autant plus important plus le graphe posséde de noeuds. Déjà sur notre graphe des métros de la ville de Paris, le changement est directement visible #{":"}
+  g class='to-expand'
+    text x='335' y='26' À explorer
+    circle r='10' cx='355' cy='40'
+    text x='349' y='45.5' C
+    circle r='10' cx='355' cy='65'
+    text x='350.5' y='70.5' E
+
+p Cette optimisation permet de réduire de beaucoup le nombre de noeuds explorés. En reprenant le même trajet que tout à l'heure, la différence est clairement visible #{":"}
 
 div id='demo-astar-step-by-step' class='triggered-animation'
   svg id='ratp-astar-step-by-step' viewBox='0 0 1000 1000'
@@ -794,11 +831,16 @@ div id='demo-astar-step-by-step' class='triggered-animation'
 
 h3 Simulation
 
-p Bien, maintenant que nous avons optimisé notre algorithme, il est temps de corriger quelques problèmes spécifiques à notre cas. Le chemin qui est calculé par l'algorithme nous propose de prendre la ligne <span class='l13'>13</span>, changer pour la <span class='l3'>3</span>, prendre la ligne <span class='l7'>7</span> pour une station seulement, prendre la <span class='l14'>14</span> et revenir sur la ligne <span class='l7'>7</span>.
+p Tu auras peut-être remarqué comme moi, ami lecteur, que si notre algorithme A* fonctionne correctement, il n'est pas tout à fait adapter au calcul du meilleur trajet de métro #{":"} le chemin calculé nous propose de prendre la ligne <span class='l13'>13</span>, changer pour la <span class='l3'>3</span>, puis prendre la ligne <span class='l7'>7</span>, pour une station seulement, monter dans la <span class='l14'>14</span> encore pour une seule station, et finalement revenir sur la ligne <span class='l7'>7</span> !
 
-p Le problème ici c'est que les temps de changements entre les différentes lignes de métro ne sont pas pris en compte, ni d'ailleurs les temps de trajet entre les stations (certaines lignes sont plus rapides que d'autres), et ces facteurs vont grandement influencer le choix de notre trajet !
 
-p Nous allons donc modifier le calcul du <i>score</i> de chaque chemin, en utilisant une nouvelle méthode #{ coderay 'time', inline: true } dans la classe #{ coderay 'GraphLink', inline: true }, plutôt que l'ancienne méthode #{ coderay 'dist', inline: true } dont on se servait jusqu'à présent.
+svg id='ratp-astar-dist' viewBox='0 0 1000 1000'
+  use xlink:href='#ratp-background'
+  = RATP.path_to_svg('astar_dist', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE').html_safe
+
+p Le truc, c'est que les temps de changements entre les lignes ne sont pas pris en compte. Ni d'ailleurs les temps de trajet entre chaque station (certaines lignes sont plus rapides que d'autres).
+
+p Nous allons essayer de prendre ces éléments en compte en modifiant le calcul du <i>score</i> de chaque noeud. Pour cela, on va créer une nouvelle méthode #{ coderay 'time', inline: true } dans la classe #{ coderay 'GraphLink', inline: true } qui va remplacer la méthode #{ coderay 'dist', inline: true } que l'on utilisait jusqu'à présent.
 
 = coderay do
   | class GraphLink
@@ -825,32 +867,34 @@ svg id='ratp-astar-time' viewBox='0 0 1000 1000'
   use xlink:href='#ratp-background'
   = RATP.path_to_svg('astar_time', from: 'MAIRIE DE CLICHY', to: 'VILLEJUIF-LEO LAGRANGE').html_safe
 
-p Il n'y a plus de changements intempestif ! Désormais, l'algorithme favorise le fait de rester le plus longtemps possible sur la même ligne. Cependant, ce changement à produit des effets de bords inatendus ...
+p Désormais, l'algorithme favorise le fait de rester le plus longtemps possible sur la même ligne. Cependant, ce changement à produit des effets de bords inatendus...
 
-p Voici le tracé pour le trajet retour. Logiquement, les deux trajets devrait être identiques, mais le temps supplémentaire au moment des changements de lignes avantage ou pénalise différemment certains trajets en fonction du point de départ.
+p Voici le trajet retour #{":"}
 
 svg id='ratp-astar-time-reverse' viewBox='0 0 1000 1000'
   use xlink:href='#ratp-background'
   = RATP.path_to_svg('astar_time', from: 'VILLEJUIF-LEO LAGRANGE', to: 'MAIRIE DE CLICHY').html_safe
 
-p Si on prends par exemple le trajet aller, de <i>Mairie de Clichy</i> à <i>Villejuif - Léo Lagrange</i>, on peut se rendre compte qu'à partir de l'arrêt <i>Place d'Italie</i>, il n'y a plus qu'un seul chemin possible. Donc c'est le chemin le plus rapide jusqu'à <i>Place d'Italie</i> qui sera choisi par l'algorithme.
+p En toute logique, les deux trajets devrait être identiques, seulement le temps supplémentaire au moment des changements de lignes avantage ou pénalise différemment certains trajets en fonction du point de départ.
 
-p Maintenant, pour arriver à <i>Place d'Italie</i>, on dispose de deux options quasiment identiques en termes de durée #{":"} soit passer par la <span class='l13'>13</span>, la <span class='l14'>14</span> puis la <span class='l7'>7</span>, soit de passer par la <span class='l13'>13</span> puis la <span class='l6'>6</span>.
+p Si on prends le trajet aller (à partir de <i>Mairie de Clichy</i>) #{":"} à partir de l'arrêt <i>Place d'Italie</i>, il n'y a plus qu'un seul chemin possible pour arriver à <i>Villejuif - Léo Lagrange</i>. Donc c'est le chemin le plus rapide jusqu'à <i>Place d'Italie</i> qui sera choisi par l'algorithme.
 
-p La différence entre ces deux chemins va se jouer sur le nombre de changements. Avec la première option, il y aura deux changements à effectuer, tandis qu'avec la seconde options, nous n'avons qu'un seul changement à faire. La seconde option sera donc avantagée par l'algorithme, qui ne prends pas en compte le fait que passer par la ligne <span class='l6'>6</span> entrainera un changement de ligne plus tard.
+p Pour arriver à <i>Place d'Italie</i>, il y a deux options au score presques identiques #{":"} passer par la <span class='l13'>13</span>, puis par la <span class='l14'>14</span> et prendre la <span class='l7'>7</span> à l'arrêt <i>Pyramides</i>; soit de passer par la <span class='l13'>13</span> puis la <span class='l6'>6</span>.
 
-p Idéalement, il faudrait corriger ce problème, surtout que l'effet devient carrément ridicule pour certains trajets, malheureusement nous n'avons plus le temps de nous en occupper puisque c'est déjà le moment de conclure !
+p Seulement, la première option posséde deux changements, alors que la seconde n'en a qu'un, elle est avantagée par l'algorithme qui n'a pas encore pris en compte le changement de ligne de la <span class='l6'>6</span> vers la <span class='l7'>7</span> à la station <i>Place d'Italie</i>.
+
+p C'est un problème qu'il faudrai corriger, malheureusement le temps nous manque car il est déjà l'heure de la conclusion ! Mince.
 
 h3 Conclusion
 
-p Alors voilà, ami lecteur, pour cette présentation des algorithmes de recherche du plus court chemin. Comme d'habitude, j'espère que tu t'es bien amusé, et peut-être même as-tu appris des choses au passage ?
+p Alors voilà, ami lecteur, pour cette présentation illustrée des algorithmes <i>Djikstra</i> et <i>A*</i>. J'espère que, comme d'habitude, tu t'es bien amusé, et peut-être même que tu auras appris quelque chose.
 
 p Tu peux télécharger tous les fichiers de code en cliquant sur le bouton de téléchargement ci-dessous #{":"}
 
 p class='align-center'
   = link_to "Télécharger les fichiers", "/dl/ratp.zip", class: :btn
 
-p Quant à nous, on se retrouve bientôt parce qu'il y a encore plein de choses dont j'ai envie de te parler, mais avant de te quitter, je tenais à te proposer une toute dernière animation #{":"} il s'agit d'une carte interactive du métro parisien. D'ailleurs, tu pourras tester par toi-même les trajets ridicules que l'on peut obtenir à cause de notre dernière modification ... Essaie par exemple le trajet de <i>Blanche</i> vers <i>Rennes</i>, ou <i>Anvers</i> à <i>Mairie de Montrouge</i>. Enfin, ça c'est si tu arrives à situer ces stations sur la carte, hé hé.
+p Pour le reste, on se retrouve bientôt parce qu'on a encore plein de choses à se dire ! Et avant de se quitter, je te propose une toute dernière animation #{":"} il s'agit une carte interactive pour calculer ton prochain trajet de métro dans la capitale ! Super sympa !
 
 svg id='ratp-interactive' viewBox='0 0 1000 1000'
   use xlink:href='#ratp-background'
@@ -965,15 +1009,20 @@ javascript:
     });
   }).call(this)
 
-p class="align-center" <i><small>(clique sur une station de métro pour définir ton point de départ, puis clique sur une autre pour définir l'arrivée)</small></i>
+p class="align-center" <i><small>(clique sur une station de métro pour définir ton point de départ,<br/> puis clique sur une autre pour définir l'arrivée)</small></i>
 
 h3 Sources
 
-p Ma première source d'inspiration pour cet article est une paire de vidéos de la chaîne "Computerphile" sur youtube #{":"}
+p La principale source d'inspiration et d'information pour cet article est un duo de vidéos de la chaîne Youtube "Computerphile" #{":"}
 
-p class='btn-group'
-  = link_to "Dijkstra's Algorithm", "https://www.youtube.com/watch?v=GazC3A4OQTE", class: :btn, target: :_blank
-  = link_to "A* Search Algorithm", "https://www.youtube.com/watch?v=ySN5Wnu88nE", class: :btn, target: :_blank
+div class='fluid'
+  div class='video computer-display'
+    iframe src='https://www.youtube.com/embed/GazC3A4OQTE' frameborder='0' allowfullscreen='1'
+  p &nbsp;
+  div class='video computer-display'
+    iframe src='https://www.youtube.com/embed/ySN5Wnu88nE' frameborder='0' allowfullscreen='1'
+
+
 
 p Et bien entendu, le site d'open data de la RATP #{":"}
 
