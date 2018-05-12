@@ -91,3 +91,10 @@ Article.find_or_create_by(tag: :ratp) do |a|
   a.published = false
   # a.published_at = "29-04-2017"
 end
+
+Article.find_or_create_by(tag: :hex) do |a|
+  a.title = "hex"
+  a.group = :bdd
+  a.published = false
+  # a.published_at = "29-04-2017"
+end

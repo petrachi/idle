@@ -1,0 +1,98 @@
+- q = Quaternion(0, -1, 0, -1)
+- phi = TAU/24
+- vp = Hex.vector(r:30).rotate!(q, phi)
+- v = vp.points[0].proj(Quaternion(0, 0, 0, -Float::INFINITY))
+
+h2 Isocahedrons
+
+svg id='demo-isocahedron1' class='demo' viewBox='-35 -35 70 70'
+  circle cx='0' cy='0' r='1' class='rad'
+  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
+
+javascript:
+  (function() {    
+    var polyhedron = #{ Hex.isocahedron_divide_x_time_then_unify(r: 20).rotate!(q, phi).to_js }
+    var svg_elt = document.querySelector('svg#demo-isocahedron1')
+
+    var q = #{ vp.to_js }.points[0].q
+    
+    var phi = -TAU/480
+
+    var rotatePolyhedron = function(){
+      polyhedron.rotate(q, phi).toSvg(svg_elt)
+      requestAnimationFrame(rotatePolyhedron)
+    }
+
+    polyhedron.toSvg(svg_elt)
+    // requestAnimationFrame(rotatePolyhedron)
+  }).call(this)
+
+
+svg id='demo-isocahedron2' class='demo' viewBox='-35 -35 70 70'
+  circle cx='0' cy='0' r='1' class='rad'
+  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
+
+javascript:
+  (function() {    
+    var polyhedron = #{ Hex.isocahedron_divide_and_unify_x_time(r: 20).rotate!(q, phi).to_js }
+    var svg_elt = document.querySelector('svg#demo-isocahedron2')
+
+    var q = #{ vp.to_js }.points[0].q
+    
+    var phi = -TAU/480
+
+    var rotatePolyhedron = function(){
+      polyhedron.rotate(q, phi).toSvg(svg_elt)
+      requestAnimationFrame(rotatePolyhedron)
+    }
+
+    polyhedron.toSvg(svg_elt)
+    // requestAnimationFrame(rotatePolyhedron)
+  }).call(this)
+
+
+h2 Cubes
+
+svg id='demo-cube1' class='demo' viewBox='-35 -35 70 70'
+  circle cx='0' cy='0' r='1' class='rad'
+  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
+
+javascript:
+  (function() {    
+    var polyhedron = #{ Hex.cube_divide_x_time_then_unify(r: 20).rotate!(q, phi).to_js }
+    var svg_elt = document.querySelector('svg#demo-cube1')
+
+    var q = #{ vp.to_js }.points[0].q
+    
+    var phi = -TAU/480
+
+    var rotatePolyhedron = function(){
+      polyhedron.rotate(q, phi).toSvg(svg_elt)
+      requestAnimationFrame(rotatePolyhedron)
+    }
+
+    polyhedron.toSvg(svg_elt)
+    // requestAnimationFrame(rotatePolyhedron)
+  }).call(this)
+
+svg id='demo-cube2' class='demo' viewBox='-35 -35 70 70'
+  circle cx='0' cy='0' r='1' class='rad'
+  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
+
+javascript:
+  (function() {    
+    var polyhedron = #{ Hex.cube_divide_and_unify_x_time(r: 20).rotate!(q, phi).to_js }
+    var svg_elt = document.querySelector('svg#demo-cube2')
+
+    var q = #{ vp.to_js }.points[0].q
+    
+    var phi = -TAU/480
+
+    var rotatePolyhedron = function(){
+      polyhedron.rotate(q, phi).toSvg(svg_elt)
+      requestAnimationFrame(rotatePolyhedron)
+    }
+
+    polyhedron.toSvg(svg_elt)
+    // requestAnimationFrame(rotatePolyhedron)
+  }).call(this)

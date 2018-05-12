@@ -15,25 +15,25 @@ ActiveRecord::Schema.define(version: 20160907204048) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "articles", force: :cascade do |t|
-    t.string   "title"
-    t.string   "group"
-    t.string   "tag"
-    t.boolean  "published",    default: false
+  create_table "articles", id: :serial, force: :cascade do |t|
+    t.string "title"
+    t.string "group"
+    t.string "tag"
+    t.boolean "published", default: false
     t.datetime "published_at"
-    t.datetime "created_at",                   null: false
-    t.datetime "updated_at",                   null: false
-    t.index ["tag"], name: "index_articles_on_tag", using: :btree
-  end
-
-  create_table "ratings", force: :cascade do |t|
-    t.string   "tag"
-    t.integer  "value"
-    t.string   "request_ip"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["request_ip"], name: "index_ratings_on_request_ip", using: :btree
-    t.index ["tag"], name: "index_ratings_on_tag", using: :btree
+    t.index ["tag"], name: "index_articles_on_tag"
+  end
+
+  create_table "ratings", id: :serial, force: :cascade do |t|
+    t.string "tag"
+    t.integer "value"
+    t.string "request_ip"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["request_ip"], name: "index_ratings_on_request_ip"
+    t.index ["tag"], name: "index_ratings_on_tag"
   end
 
 end
