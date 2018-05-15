@@ -3,96 +3,99 @@
 - vp = Hex.vector(r:30).rotate!(q, phi)
 - v = vp.points[0].proj(Quaternion(0, 0, 0, -Float::INFINITY))
 
-h2 Isocahedrons
+javascript:
+  (function() {    
+    window.dragPolyhedron = function(svg_elt, polyhedron){
+      var x = 0
+      var y = 0
+      
+      var q = new Quaternion(0, 1, 0, 0)
+      var phi = 0
+      
+      var rotatePolyhedron = function(){
+        console.log(phi)
+      
+        polyhedron.rotate(q, phi).toSvg(svg_elt)
+      }
 
-svg id='demo-isocahedron1' class='demo' viewBox='-35 -35 70 70'
-  circle cx='0' cy='0' r='1' class='rad'
-  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
+      var drag = function(e){
+        move_x = e.screenX - x
+        move_y = e.screenY - y
+        
+        dist = Math.sqrt((move_x * move_x) + (move_y * move_y))
+        if(dist > 0){
+          q = new Quaternion(0, move_y, move_x, 0)
+          phi = -dist*TAU/720
+          
+          console.log("x:"+move_x+" y:"+move_y)
+          console.log("dist:"+dist)
+          requestAnimationFrame(rotatePolyhedron)
+          
+          x = e.screenX
+          y = e.screenY
+        }
+      }
+
+      var startDrag = function(e){
+        console.log("start")
+        x = e.screenX
+        y = e.screenY
+        document.onmousemove = drag
+        document.onmouseup = releaseDrag
+      }
+      
+      var releaseDrag = function(e){
+        console.log("stop")
+        document.onmousemove = null
+        document.onmouseup = null
+      }
+      
+      svg_elt.addEventListener('mousedown', function(e){
+        startDrag(e)
+      })
+    }
+  }).call(this)
+
+- %w[isocahedron cube].each do |polyhedron_name|
+  h2 = polyhedron_name.pluralize.titleize
+
+  - polyhedron = Hex.send polyhedron_name
+  - polyhedron = Hex.unify(polyhedron).scale!(18)
+  h4 complexity (p/f): #{ polyhedron.points.size }/#{ polyhedron.faces.size }
+  
+  svg id='demo-#{ polyhedron_name }--' class='demo' viewBox='-20 -20 40 40'
+  javascript:
+    (function() {    
+      var polyhedron = #{ polyhedron.rotate!(q, phi).to_js }
+      var svg_elt = document.querySelector('svg#demo-#{ polyhedron_name }--')
+      
+      polyhedron.toSvg(svg_elt)
+      dragPolyhedron(svg_elt, polyhedron)
+    }).call(this)
+  
+  - 4.times do |i|  
+    - %W[divide_#{ polyhedron_name } unify ].each do |transformation|
+      - polyhedron = Hex.send(transformation, polyhedron)
+      - polyhedron.scale!(18) if transformation == 'unify'
+      h4 #{ transformation } - complexity (p/f): #{ polyhedron.points.size }/#{ polyhedron.faces.size }
+      svg id='demo-#{ polyhedron_name }-#{ transformation }-#{ i }' class='demo' viewBox='-20 -20 40 40'
+      javascript:
+        (function() {    
+          var polyhedron = #{ polyhedron.to_js }
+          var svg_elt = document.querySelector('svg#demo-#{ polyhedron_name }-#{ transformation }-#{ i }')
+          
+          polyhedron.toSvg(svg_elt)
+          dragPolyhedron(svg_elt, polyhedron)
+        }).call(this)
 
 javascript:
   (function() {    
-    var polyhedron = #{ Hex.isocahedron_divide_x_time_then_unify(r: 20).rotate!(q, phi).to_js }
-    var svg_elt = document.querySelector('svg#demo-isocahedron1')
-
-    var q = #{ vp.to_js }.points[0].q
-    
-    var phi = -TAU/480
-
-    var rotatePolyhedron = function(){
-      polyhedron.rotate(q, phi).toSvg(svg_elt)
-      requestAnimationFrame(rotatePolyhedron)
-    }
-
-    polyhedron.toSvg(svg_elt)
-    // requestAnimationFrame(rotatePolyhedron)
+    Array.prototype.forEach.call(document.querySelectorAll('svg.demo path:nth-child(15n)'), function(path){
+      path.style['fill'] = 'firebrick'
+    })
+    Array.prototype.forEach.call(document.querySelectorAll('svg.demo path:nth-child(20n)'), function(path){
+      path.style['fill'] = 'dodgerblue'
+    })
   }).call(this)
-
-
-svg id='demo-isocahedron2' class='demo' viewBox='-35 -35 70 70'
-  circle cx='0' cy='0' r='1' class='rad'
-  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
-
-javascript:
-  (function() {    
-    var polyhedron = #{ Hex.isocahedron_divide_and_unify_x_time(r: 20).rotate!(q, phi).to_js }
-    var svg_elt = document.querySelector('svg#demo-isocahedron2')
-
-    var q = #{ vp.to_js }.points[0].q
-    
-    var phi = -TAU/480
-
-    var rotatePolyhedron = function(){
-      polyhedron.rotate(q, phi).toSvg(svg_elt)
-      requestAnimationFrame(rotatePolyhedron)
-    }
-
-    polyhedron.toSvg(svg_elt)
-    // requestAnimationFrame(rotatePolyhedron)
-  }).call(this)
-
-
-h2 Cubes
-
-svg id='demo-cube1' class='demo' viewBox='-35 -35 70 70'
-  circle cx='0' cy='0' r='1' class='rad'
-  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
-
-javascript:
-  (function() {    
-    var polyhedron = #{ Hex.cube_divide_x_time_then_unify(r: 20).rotate!(q, phi).to_js }
-    var svg_elt = document.querySelector('svg#demo-cube1')
-
-    var q = #{ vp.to_js }.points[0].q
-    
-    var phi = -TAU/480
-
-    var rotatePolyhedron = function(){
-      polyhedron.rotate(q, phi).toSvg(svg_elt)
-      requestAnimationFrame(rotatePolyhedron)
-    }
-
-    polyhedron.toSvg(svg_elt)
-    // requestAnimationFrame(rotatePolyhedron)
-  }).call(this)
-
-svg id='demo-cube2' class='demo' viewBox='-35 -35 70 70'
-  circle cx='0' cy='0' r='1' class='rad'
-  path d='M 0 0 L #{ v.x } -#{ v.y }' class='rad'
-
-javascript:
-  (function() {    
-    var polyhedron = #{ Hex.cube_divide_and_unify_x_time(r: 20).rotate!(q, phi).to_js }
-    var svg_elt = document.querySelector('svg#demo-cube2')
-
-    var q = #{ vp.to_js }.points[0].q
-    
-    var phi = -TAU/480
-
-    var rotatePolyhedron = function(){
-      polyhedron.rotate(q, phi).toSvg(svg_elt)
-      requestAnimationFrame(rotatePolyhedron)
-    }
-
-    polyhedron.toSvg(svg_elt)
-    // requestAnimationFrame(rotatePolyhedron)
-  }).call(this)
+  
+  

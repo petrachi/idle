@@ -1,6 +1,5 @@
 module Hex
-  DIVIDE = 5
-
+  DIVIDE = 2
 
   def vector r: 1
     ComplexEngine::Polyhedron.new(points: [
@@ -78,18 +77,27 @@ module Hex
       faces << [point_index, point_index + 1, point_index + 2]
     end
 
+    points, faces = rationalize points, faces
+
     ComplexEngine::Polyhedron.new points: points, faces: faces
   end
 
-  def isocahedron_divide_x_time_then_unify r: 1
+  def isocahedron_divide_x_time r: 1, times: DIVIDE
     polyhedron = isocahedron r: r
-    DIVIDE.times{ polyhedron = divide_isocahedron(polyhedron) }
+    polyhedron = unify(polyhedron).scale!(r)
+    times.times{ polyhedron = divide_isocahedron(polyhedron) }
+    polyhedron
+  end
+
+  def isocahedron_divide_x_time_then_unify r: 1, times: DIVIDE
+    polyhedron = isocahedron r: r
+    times.times{ polyhedron = divide_isocahedron(polyhedron) }
     unify(polyhedron).scale!(r)
   end
 
-  def isocahedron_divide_and_unify_x_time r: 1
+  def isocahedron_divide_and_unify_x_time r: 1, times: DIVIDE
     polyhedron = unify(isocahedron r: r)
-    DIVIDE.times{ polyhedron = unify(divide_isocahedron(polyhedron)) }
+    times.times{ polyhedron = unify(divide_isocahedron(polyhedron)) }
     p 'iso'
     p polyhedron.faces.size
     p polyhedron.points.size
@@ -129,6 +137,46 @@ module Hex
     )
   end
 
+  def rationalize points, faces
+    rationalize_points = {}
+    points.each_with_index do |point, i|
+      rationalize_points[i] = []
+      points.each_with_index do |compare_point, j|
+        if i != j && compare_point.q == point.q
+          rationalize_points[i] << j
+        end
+      end
+    end
+
+    deleted_index = []
+    rationalize_points.each do |point_index, to_delete|
+      next if to_delete.blank?
+      next if deleted_index.include? point_index
+
+      faces.each do |face|
+        face.each_with_index do |face_index, i|
+          if to_delete.include?(face_index)
+            deleted_index << face_index
+            face[i] = point_index
+          end
+        end
+      end
+    end
+
+    deleted_index.uniq.sort.reverse.each do |index|
+      points.delete_at(index)
+      faces.each do |face|
+        face.each_with_index do |face_index, i|
+          if face_index > index
+            face[i] -= 1
+          end
+        end
+      end
+    end
+
+    [points, faces]
+  end
+
   def divide_cube cube
     points = cube.points
     faces = []
@@ -146,18 +194,27 @@ module Hex
       faces << [point_index + 4, point_index + 2, face[3], point_index + 3]
     end
 
+    points, faces = rationalize points, faces
+
     ComplexEngine::Polyhedron.new points: points, faces: faces
   end
 
-  def cube_divide_x_time_then_unify r: 1
+  def cube_divide_x_time r: 1, times: DIVIDE
     polyhedron = cube r: r
-    (DIVIDE+1).times{ polyhedron = divide_cube(polyhedron) }
+    polyhedron = unify(polyhedron).scale!(r)
+    times.times{ polyhedron = divide_cube(polyhedron) }
+    polyhedron
+  end
+
+  def cube_divide_x_time_then_unify r: 1, times: DIVIDE
+    polyhedron = cube r: r
+    times.times{ polyhedron = divide_cube(polyhedron) }
     unify(polyhedron).scale!(r)
   end
 
-  def cube_divide_and_unify_x_time r: 1
+  def cube_divide_and_unify_x_time r: 1, times: DIVIDE
     polyhedron = unify(cube r: r)
-    (DIVIDE+1).times{ polyhedron = unify(divide_cube(polyhedron)) }
+    times.times{ polyhedron = unify(divide_cube(polyhedron)) }
     p 'cube'
     p polyhedron.faces.size
     p polyhedron.points.size
