@@ -12,10 +12,12 @@ javascript:
       var q = new Quaternion(0, 1, 0, 0)
       var phi = 0
       
+      var perspective = -128
+      
       var rotatePolyhedron = function(){
         console.log(phi)
       
-        polyhedron.rotate(q, phi).toSvg(svg_elt)
+        polyhedron.rotate(q, phi).toSvg(svg_elt, new Quaternion(0, 0, 0, perspective))
       }
 
       var drag = function(e){
@@ -34,6 +36,8 @@ javascript:
           x = e.screenX
           y = e.screenY
         }
+        
+        return false
       }
 
       var startDrag = function(e){
@@ -53,6 +57,12 @@ javascript:
       svg_elt.addEventListener('mousedown', function(e){
         startDrag(e)
       })
+      
+      svg_elt.addEventListener('mousewheel', function(e){
+        e.preventDefault()
+        perspective = perspective - e.deltaY
+        polyhedron.toSvg(svg_elt, new Quaternion(0, 0, 0, perspective))
+      })
     }
   }).call(this)
 
@@ -69,11 +79,11 @@ javascript:
       var polyhedron = #{ polyhedron.rotate!(q, phi).to_js }
       var svg_elt = document.querySelector('svg#demo-#{ polyhedron_name }--')
       
-      polyhedron.toSvg(svg_elt)
+      polyhedron.toSvg(svg_elt, new Quaternion(0, 0, 0, -128))
       dragPolyhedron(svg_elt, polyhedron)
     }).call(this)
   
-  - 4.times do |i|  
+  - 3.times do |i|  
     - %W[divide_#{ polyhedron_name } unify ].each do |transformation|
       - polyhedron = Hex.send(transformation, polyhedron)
       - polyhedron.scale!(18) if transformation == 'unify'
@@ -84,7 +94,7 @@ javascript:
           var polyhedron = #{ polyhedron.to_js }
           var svg_elt = document.querySelector('svg#demo-#{ polyhedron_name }-#{ transformation }-#{ i }')
           
-          polyhedron.toSvg(svg_elt)
+          polyhedron.toSvg(svg_elt, new Quaternion(0, 0, 0, -128))
           dragPolyhedron(svg_elt, polyhedron)
         }).call(this)
 
