@@ -16,6 +16,50 @@ module Hex
     faces: polyhedron.faces
   end
 
+  def tetrahedron r: 1
+    dist = Math::sin(Math::PI/3)*r/2.0
+
+    points = []
+    v = ->{ComplexEngine::Polyhedron.new(points: [ComplexEngine::Point.new(r, -dist, 0)], faces: [])}
+    points << v.call.points[0]
+    points << v.call.rotate!(Quaternion(0,0,1,0), TAU/3).points[0]
+    points << v.call.rotate!(Quaternion(0,0,1,0), 2*TAU/3).points[0]
+    points << ComplexEngine::Point.new(0, dist*2.0, 0)
+
+    polyhedron = ComplexEngine::Polyhedron.new points: points,
+    faces: [
+      [0, 1, 3],
+      [1, 2, 3],
+      [2, 0, 3],
+      [0, 1, 2],
+    ]
+
+    unify(polyhedron).scale!(r)
+  end
+
+  def octahedron r: 1
+    polyhedron = ComplexEngine::Polyhedron.new points: [
+      ComplexEngine::Point.new(r,0,0),
+      ComplexEngine::Point.new(0,0,r),
+      ComplexEngine::Point.new(-r,0,0),
+      ComplexEngine::Point.new(0,0,-r),
+      ComplexEngine::Point.new(0,r,0),
+      ComplexEngine::Point.new(0,-r,0)
+    ],
+    faces: [
+      [0, 1, 4],
+      [1, 2, 4],
+      [2, 3, 4],
+      [3, 0, 4],
+      [0, 1, 5],
+      [1, 2, 5],
+      [2, 3, 5],
+      [3, 0, 5],
+    ]
+
+    unify(polyhedron).scale!(r)
+  end
+
   def isocahedron r: 1
     points = []
     dist = Math::sin(Math::PI/3)*r/2.0
@@ -35,7 +79,7 @@ module Hex
     points << ComplexEngine::Point.new(0, r, 0)
     points << ComplexEngine::Point.new(0, -r, 0)
 
-    ComplexEngine::Polyhedron.new(
+    polyhedron = ComplexEngine::Polyhedron.new(
       points: points,
       faces: [
         [0, 8, 1],
@@ -60,6 +104,8 @@ module Hex
         [7, 8, 11],
       ]
     )
+
+    polyhedron = unify(polyhedron).scale!(r)
   end
 
   def divide_isocahedron isocahedron
@@ -81,6 +127,9 @@ module Hex
 
     ComplexEngine::Polyhedron.new points: points, faces: faces
   end
+  alias :divide_cube_triangle :divide_isocahedron
+  alias :divide_octahedron :divide_isocahedron
+  alias :divide_tetrahedron :divide_isocahedron
 
   def isocahedron_divide_x_time r: 1, times: DIVIDE
     polyhedron = isocahedron r: r
@@ -104,16 +153,16 @@ module Hex
     polyhedron.scale!(r)
   end
 
-  def cube origin: Quaternion(0,0,0,0), r: 1
-    ComplexEngine::Polyhedron.new points: [
-      ComplexEngine::Point.new(*(origin + Quaternion(0,r,r,r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,-r,r,r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,r,-r,r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,-r,-r,r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,r,r,-r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,-r,r,-r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,r,-r,-r)).imag),
-      ComplexEngine::Point.new(*(origin + Quaternion(0,-r,-r,-r)).imag),
+  def cube r: 1
+    polyhedron = ComplexEngine::Polyhedron.new points: [
+      ComplexEngine::Point.new(r,r,r),
+      ComplexEngine::Point.new(-r,r,r),
+      ComplexEngine::Point.new(r,-r,r),
+      ComplexEngine::Point.new(-r,-r,r),
+      ComplexEngine::Point.new(r,r,-r),
+      ComplexEngine::Point.new(-r,r,-r),
+      ComplexEngine::Point.new(r,-r,-r),
+      ComplexEngine::Point.new(-r,-r,-r),
     ],
     faces: [
       [0, 1, 3, 2],
@@ -123,10 +172,31 @@ module Hex
       [3, 2, 6, 7],
       [2, 0, 4, 6],
     ]
+
+    unify(polyhedron).scale!(r)
   end
 
-  def unified_cube r: 1
-    unify(cube).scale!(r)
+  def cube_triangle r: 1
+    polyhedron = cube r: r
+
+    points = polyhedron.points
+    faces = []
+    cube.faces.each do |face|
+      point_index = points.size
+
+      m1 = midpoint(polyhedron.points[face[0]], polyhedron.points[face[1]])
+      m2 = midpoint(polyhedron.points[face[2]], polyhedron.points[face[3]])
+      points << midpoint(m1, m2)
+
+      faces << [face[0], face[1], point_index]
+      faces << [face[1], face[2], point_index]
+      faces << [face[2], face[3], point_index]
+      faces << [face[3], face[0], point_index]
+    end
+
+    points, faces = rationalize points, faces
+
+    ComplexEngine::Polyhedron.new points: points, faces: faces
   end
 
   def midpoint p1, p2

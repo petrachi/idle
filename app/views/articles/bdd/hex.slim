@@ -60,18 +60,24 @@ javascript:
       
       svg_elt.addEventListener('mousewheel', function(e){
         e.preventDefault()
+        
+        // bad scroll event, changing the perspective is weird
         perspective = perspective - e.deltaY
         polyhedron.toSvg(svg_elt, new Quaternion(0, 0, 0, perspective))
+        
+        // better scroll event, by translating, it's like we move the camera into the scene
+        // but by doing this, we lose the origin rotation point for the mousemove event
+        // polyhedron.translate(new Quaternion(0, e.deltaX, 0, e.deltaY))
+        // polyhedron.toSvg(svg_elt, new Quaternion(0, 0, 0, perspective))
       })
     }
   }).call(this)
 
-- %w[isocahedron cube].each do |polyhedron_name|
+- %w[isocahedron cube octahedron tetrahedron cube_triangle].each do |polyhedron_name|
   h2 = polyhedron_name.pluralize.titleize
 
-  - polyhedron = Hex.send polyhedron_name
-  - polyhedron = Hex.unify(polyhedron).scale!(18)
-  h4 complexity (p/f): #{ polyhedron.points.size }/#{ polyhedron.faces.size }
+  - polyhedron = Hex.send polyhedron_name, r: 18
+  h4 complexity (p/f): #{ polyhedron.points.size }/#{ polyhedron.faces.size } #{ polyhedron.points.size / polyhedron.faces.size.to_f }
   
   svg id='demo-#{ polyhedron_name }--' class='demo' viewBox='-20 -20 40 40'
   javascript:
@@ -87,7 +93,7 @@ javascript:
     - %W[divide_#{ polyhedron_name } unify ].each do |transformation|
       - polyhedron = Hex.send(transformation, polyhedron)
       - polyhedron.scale!(18) if transformation == 'unify'
-      h4 #{ transformation } - complexity (p/f): #{ polyhedron.points.size }/#{ polyhedron.faces.size }
+      h4 #{ transformation } - complexity (p/f): #{ polyhedron.points.size }/#{ polyhedron.faces.size } #{ polyhedron.points.size / polyhedron.faces.size.to_f }
       svg id='demo-#{ polyhedron_name }-#{ transformation }-#{ i }' class='demo' viewBox='-20 -20 40 40'
       javascript:
         (function() {    
