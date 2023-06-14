@@ -1,5 +1,5 @@
 source 'https://rubygems.org'
-ruby '2.4.1'
+ruby '3.2.2'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.1.3'
@@ -39,6 +39,10 @@ gem 'bcrypt', '~> 3.1.7'
 # Code Highlight
 gem 'coderay'
 
+# for compatibility reasons with ruby 3
+gem 'psych', '< 4'
+
+
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
@@ -49,7 +53,7 @@ group :development do
   gem 'web-console'
   gem 'listen', '~> 3.0.5'
 
-  gem "better_errors"
+  # gem "better_errors"
   gem "binding_of_caller"
 
   # Create PNG files
