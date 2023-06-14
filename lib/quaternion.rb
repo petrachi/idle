@@ -1,5 +1,3 @@
-require 'mathn'
-
 def Quaternion *args
   if args[0].is_a? Quaternion
     args[0]

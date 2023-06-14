@@ -2,9 +2,9 @@ source 'https://rubygems.org'
 ruby '3.2.2'
 
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '~> 5.1.3'
+gem 'rails', '~> 6.1.7'
 # Use postgresql as the database for Active Record
-gem 'pg', '~> 0.18'
+gem 'pg', '~> 1.1'
 # Use Puma as the app server
 gem 'puma', '~> 3.0'
 # Use 12 factor for easy deploy w/ Heroku
@@ -39,8 +39,7 @@ gem 'bcrypt', '~> 3.1.7'
 # Code Highlight
 gem 'coderay'
 
-# for compatibility reasons with ruby 3
-gem 'psych', '< 4'
+
 
 
 group :development, :test do
